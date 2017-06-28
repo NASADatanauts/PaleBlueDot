@@ -15,6 +15,10 @@ body {
     height: 100%;
 }
 
+#thumbnailContainer {
+    text-align: center;
+}
+
 #thumbnailContainer img {
     height: 30px;
     padding: 1px;
