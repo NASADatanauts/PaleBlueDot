@@ -1,3 +1,15 @@
+function get_images_for_date(date) {
+  var images_futures = [];
+  return $.getJSON("https://epic.gsfc.nasa.gov/api/natural/date/" + format_date(date) + "?api_key=ecRFCeUylG8hbW4edbzI6GQVu34xTYGfWWvlKOoo").then(function(data) {
+    $.each(data, function (index, image) {
+      var next_image_name = image.image;
+      images_futures.push(next_image_name);
+    });
+    console.log(images_futures);
+    return Promise.all(images_futures);
+  });
+}
+
 function get_images(how_many) {
   var today = new Date();
   var current_date = new Date();
@@ -42,18 +54,37 @@ function change_image(thumbnail_object) {
   thumbnail_object.addClass('selectedThumbnail');
 }
 
-get_images(30).then(function(images) {
+// get_images(30).then(function(images) {
+//   var initial_set = false;
+//   var thumbnail_container = $("#thumbnailContainer");
+//   for (var i = 0; i < images.length; i++) {
+//     if (images[i] != null) {
+//       var url = 'https://epic.gsfc.nasa.gov/epic-archive/jpg/' + images[i] + '.jpg';
+//       var newThumbnail = $('<img>',{src: url, onmouseover: 'change_image($(this))'});
+//       if (! initial_set) {
+// 	change_image(newThumbnail);
+// 	initial_set = true;
+//       }
+//       thumbnail_container.prepend(newThumbnail);
+//     }
+//   }
+// });
+
+var yesterday = new Date();
+yesterday.setDate(yesterday.getDate() - 1);
+
+get_images_for_date(yesterday).then(function(images) {
   var initial_set = false;
   var thumbnail_container = $("#thumbnailContainer");
+  console.log("images here" + images + ".");
   for (var i = 0; i < images.length; i++) {
-    if (images[i] != null) {
-      var url = 'https://epic.gsfc.nasa.gov/epic-archive/jpg/' + images[i] + '.jpg';
-      var newThumbnail = $('<img>',{src: url, onmouseover: 'change_image($(this))'});
-      if (! initial_set) {
-	change_image(newThumbnail);
-	initial_set = true;
-      }
-      thumbnail_container.prepend(newThumbnail);
+    console.log("here" + images[i]);
+    var url = 'https://epic.gsfc.nasa.gov/epic-archive/jpg/' + images[i] + '.jpg';
+    var newThumbnail = $('<img>',{src: url, onmouseover: 'change_image($(this))'});
+    if (! initial_set) {
+      change_image(newThumbnail);
+      initial_set = true;
     }
+    thumbnail_container.prepend(newThumbnail);
   }
 });
