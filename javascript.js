@@ -5,7 +5,6 @@ function get_images_for_date(date) {
       var next_image_name = image.image;
       images_futures.push(next_image_name);
     });
-    console.log(images_futures);
     return Promise.all(images_futures);
   });
 }
@@ -54,37 +53,35 @@ function change_image(thumbnail_object) {
   thumbnail_object.addClass('selectedThumbnail');
 }
 
-// get_images(30).then(function(images) {
-//   var initial_set = false;
-//   var thumbnail_container = $("#thumbnailContainer");
-//   for (var i = 0; i < images.length; i++) {
-//     if (images[i] != null) {
-//       var url = 'https://epic.gsfc.nasa.gov/epic-archive/jpg/' + images[i] + '.jpg';
-//       var newThumbnail = $('<img>',{src: url, onmouseover: 'change_image($(this))'});
-//       if (! initial_set) {
-// 	change_image(newThumbnail);
-// 	initial_set = true;
-//       }
-//       thumbnail_container.prepend(newThumbnail);
-//     }
-//   }
-// });
+get_images(30).then(function(images) {
+  var initial_set = false;
+  var left_thumbnail_container = $("#leftThumbnailContainer");
+  for (var i = 0; i < images.length; i++) {
+    if (images[i] != null) {
+      var url = 'https://epic.gsfc.nasa.gov/epic-archive/jpg/' + images[i] + '.jpg';
+      var newThumbnail = $('<img>',{src: url, onmouseover: 'change_image($(this))'});
+      if (! initial_set) {
+	change_image(newThumbnail);
+	initial_set = true;
+      }
+      left_thumbnail_container.prepend(newThumbnail);
+    }
+  }
+});
 
 var yesterday = new Date();
 yesterday.setDate(yesterday.getDate() - 1);
 
 get_images_for_date(yesterday).then(function(images) {
   var initial_set = false;
-  var thumbnail_container = $("#thumbnailContainer");
-  console.log("images here" + images + ".");
+  var top_thumbnail_container = $("#topThumbnailContainer");
   for (var i = 0; i < images.length; i++) {
-    console.log("here" + images[i]);
     var url = 'https://epic.gsfc.nasa.gov/epic-archive/jpg/' + images[i] + '.jpg';
     var newThumbnail = $('<img>',{src: url, onmouseover: 'change_image($(this))'});
     if (! initial_set) {
       change_image(newThumbnail);
       initial_set = true;
     }
-    thumbnail_container.prepend(newThumbnail);
+    top_thumbnail_container.prepend(newThumbnail);
   }
 });

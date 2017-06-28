@@ -15,15 +15,26 @@ body {
     height: 100%;
 }
 
-#thumbnailContainer {
+#topThumbnailContainer {
     text-align: center;
 }
 
-#thumbnailContainer img {
+#topThumbnailContainer img {
     height: 30px;
     padding: 1px;
     margin: 0 10px 10px 0;
- }
+}
+
+#leftThumbnailContainer {
+    float: left;
+}
+
+#leftThumbnailContainer img {
+    height: 30px;
+    display: block;
+    padding: 1px;
+    margin: 0px 10px 10px 0;
+}
 
 .selectedThumbnail {
     height: 40px !important;
