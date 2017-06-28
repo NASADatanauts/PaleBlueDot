@@ -1,4 +1,4 @@
-# PaleBlueDot
+# Pale Blue Dot
 
 https://nasadatanauts.github.io/PaleBlueDot/
 

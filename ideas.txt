@@ -1,7 +1,10 @@
 ideas:
-- download today's pic from epic
-- show europe/america (switch)
-- mouse scroll down scrolls to previous day's images
+- download all pics for today from epic + some for previous days
+- show europe/america by default -> geo location
+- top shows all the rest of the images for current day
+- mouse over on those thumbnails shows that image in big -> can rotate earth
+- mouse scroll down scrolls to previous day's images but keeps the current earth rotation
+
 - full black bg, image in the middle, full size
 - most simplest UI ever
 - show date of current image, that is clickable to select other date but doesn't look so clickable
@@ -10,5 +13,6 @@ ideas:
 
 comments:
 - epic images for one day: search for the one which has lon closest to 13-25 to see europe
+- is it enough to load the same index image for that day when scrolling?
 - example image link: https://epic.gsfc.nasa.gov/epic-archive/jpg/epic_1b_20170618113111_02.jpg
 - if there is no image for current day then skip
