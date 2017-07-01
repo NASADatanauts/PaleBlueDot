@@ -9,7 +9,7 @@ function getThumbnail(imageName) {
   return $('<img>',{src: url, onmouseover: 'change_image($(this))'});
 }
 
-// Asks for Earth images for days. Starting from now, going back day by day, until one of them returns some.
+// Returns Earth images for the latest day that has some.
 // () -> Future([earth])
 function getEarthsLatest() {
   var cont = function(now) {
@@ -39,7 +39,7 @@ function getEarthsesFromNow(how_many) {
   return getEarthses(moments);
 }
 
-// [earth] -> earth_or_null (ami europa)
+// [earth] -> earth_or_null (that shows Europe)
 function get_best_earth(earths) {
   var best_earth = null;
   $.each(earths, function (_index, earth) {
@@ -53,6 +53,7 @@ function get_best_earth(earths) {
   return best_earth;
 }
 
+// object -> object with 'selectedTumbnail' class
 // This function has to be called with a jquery object
 function change_image(thumbnail_object) {
   $("#targetImage").attr("src", thumbnail_object.attr("src"));
