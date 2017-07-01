@@ -1,49 +1,56 @@
-function get_images_for_date(date) {
-  var images_futures = [];
-  return $.getJSON("https://epic.gsfc.nasa.gov/api/natural/date/" + format_date(date) + "?api_key=ecRFCeUylG8hbW4edbzI6GQVu34xTYGfWWvlKOoo").then(function(data) {
-    $.each(data, function (index, image) {
-      var next_image_name = image.image;
-      images_futures.push(next_image_name);
-    });
-    return Promise.all(images_futures);
-  });
+// moment -> Future([earth])
+function getEarths(moment) {
+  return $.getJSON("https://epic.gsfc.nasa.gov/api/natural/date/" + moment.format("YYYY-MM-DD") + "?api_key=ecRFCeUylG8hbW4edbzI6GQVu34xTYGfWWvlKOoo");
 }
 
-function get_images(how_many) {
-  var today = new Date();
-  var current_date = new Date();
-  var best_images_futures = [];
-  for(var i = 1; i < how_many; i++) {
-    current_date.setDate(today.getDate() - i);
-    var next_future = get_best_image("https://epic.gsfc.nasa.gov/api/natural/date/" + format_date(current_date) + "?api_key=ecRFCeUylG8hbW4edbzI6GQVu34xTYGfWWvlKOoo");
-    best_images_futures.push(next_future);
-  }
-  return Promise.all(best_images_futures);
+// string -> <img> html tag
+function getThumbnail(imageName) {
+  var url = 'https://epic.gsfc.nasa.gov/epic-archive/jpg/' + imageName + '.jpg';
+  return $('<img>',{src: url, onmouseover: 'change_image($(this))'});
 }
 
-function format_date(date) {
-  var dd = date.getDate();
-  var mm = date.getMonth()+1; //January is 0!
-  var yyyy = date.getFullYear();
-  var ret = yyyy+'-'+mm+'-'+dd;
-  return ret;
-}
-
-function get_best_image(url) {
-  return $.getJSON(url).then(function(data) {
-    var closest_lon = 1000;
-    var closest_image = null; 
-    $.each(data, function (index, image) {
-      var next_image_name = image.image;
-      var next_image_lon = image.centroid_coordinates.lon;
-      if (next_image_lon > 13 && next_image_lon < 25 && (Math.abs(next_image_lon - 19) < closest_lon)) {
-	closest_lon = next_image_lon;
-	closest_image = next_image_name;
+// Asks for Earth images for days. Starting from now, going back day by day, until one of them returns some.
+// () -> Future([earth])
+function getEarthsLatest() {
+  var cont = function(now) {
+    return getEarths(now).then(function (data) {
+      if (data.length != 0) {
+	return Promise.resolve(data);
+      } else {
+	return cont(now.subtract(1, 'days'));
       }
     });
-    console.log("Closest found with name: '" + closest_image + "' with value " + closest_lon);
-    return closest_image;
+  }
+
+  return cont(moment());
+}
+
+// [moment] -> Future([[earth]])
+function getEarthses(moments) {
+  return Promise.all($.map(moments, getEarths));
+}
+
+// int -> Future([[earth]])
+function getEarthsesFromNow(how_many) {
+  var moments = []
+  for (var i = 0; i < how_many ; i++) {
+    moments.push(moment().subtract(i, 'days'));
+  }
+  return getEarthses(moments);
+}
+
+// [earth] -> earth_or_null (ami europa)
+function get_best_earth(earths) {
+  var best_earth = null;
+  $.each(earths, function (_index, earth) {
+    var lon = earth.centroid_coordinates.lon;
+    if (lon > 13 && lon < 25 && (best_earth == null || Math.abs(lon - 19) < best_earth.centroid_coordinates.lon)) {
+      best_earth = earth;
+    }
   });
+  if (best_earth == null) console.log("no best earth");
+  else console.log("Closest found with name: '" + best_earth.image + "' with value " + best_earth.centroid_coordinates.lon);
+  return best_earth;
 }
 
 // This function has to be called with a jquery object
@@ -53,35 +60,19 @@ function change_image(thumbnail_object) {
   thumbnail_object.addClass('selectedThumbnail');
 }
 
-get_images(30).then(function(images) {
-  var initial_set = false;
-  var left_thumbnail_container = $("#leftThumbnailContainer");
-  for (var i = 0; i < images.length; i++) {
-    if (images[i] != null) {
-      var url = 'https://epic.gsfc.nasa.gov/epic-archive/jpg/' + images[i] + '.jpg';
-      var newThumbnail = $('<img>',{src: url, onmouseover: 'change_image($(this))'});
-      if (! initial_set) {
-	change_image(newThumbnail);
-	initial_set = true;
-      }
-      left_thumbnail_container.prepend(newThumbnail);
-    }
-  }
+// Thumbnails for left side: Europe now and for previous days
+getEarthsesFromNow(30).then(function(earthses) {
+  var best_earths = $.map(earthses, get_best_earth);
+  best_earths.filter(function (x) { return x != null; });
+  var images = $.map(best_earths, function (x) { return x.image; });
+  var thumbnails = $.map(images, getThumbnail);
+  $("#leftThumbnailContainer").prepend(thumbnails);
+  if (thumbnails.length > 0) change_image(thumbnails[0]);
 });
 
-var yesterday = new Date();
-yesterday.setDate(yesterday.getDate() - 1);
-
-get_images_for_date(yesterday).then(function(images) {
-  var initial_set = false;
-  var top_thumbnail_container = $("#topThumbnailContainer");
-  for (var i = 0; i < images.length; i++) {
-    var url = 'https://epic.gsfc.nasa.gov/epic-archive/jpg/' + images[i] + '.jpg';
-    var newThumbnail = $('<img>',{src: url, onmouseover: 'change_image($(this))'});
-    if (! initial_set) {
-      change_image(newThumbnail);
-      initial_set = true;
-    }
-    top_thumbnail_container.prepend(newThumbnail);
-  }
+// Thumbnails for top: lates Earth images from every direction
+getEarthsLatest().then(function(earths) {
+  var images = $.map(earths, function (x) { return x.image; });
+  var thumbnails = $.map(images, getThumbnail);
+  $("#topThumbnailContainer").prepend(thumbnails);
 });
