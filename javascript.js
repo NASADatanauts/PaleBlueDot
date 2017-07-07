@@ -118,12 +118,12 @@ function highlightAndChangeImage(thumbnail_object) {
 
 function putOutImagesOnTheLeft(longitude) {
   // Thumbnails for left side: Europe now and for previous days
+  $("#leftThumbnailContainer").empty();
   getEarthsesFromNow(20).then(function(earthses_and_dates) {
     var best_earths_with_dates = $.map(earthses_and_dates, getBestEarth(longitude));
     best_earths_with_dates = best_earths_with_dates.filter(function (x) { return x['e'] != null; });
     var images_with_dates = $.map(best_earths_with_dates, function (x) { return { e: x['e'].image, d: x['d'] }; });
     var thumbnails = $.map(images_with_dates, getLeftThumbnailImg);
-    $("#leftThumbnailContainer").empty();
     $("#leftThumbnailContainer").prepend(thumbnails);
     if (thumbnails.length > 0) highlightAndChangeImage(thumbnails[0]);
   });
@@ -131,11 +131,11 @@ function putOutImagesOnTheLeft(longitude) {
 
 function putOutImagesOnTheTop() {
   // Thumbnails for top: latest Earth images from every direction
+  $("#topThumbnailContainer").empty();
   getEarthsLatest().then(function(earths_and_date) {
     var earths = earths_and_date['e'];
     var date = earths_and_date['d'];
     var thumbnails = $.map(earths, getTopThumbnailImg(date));
-    $("#topThumbnailContainer").empty();
     $("#topThumbnailContainer").prepend(thumbnails);
   });
 }
