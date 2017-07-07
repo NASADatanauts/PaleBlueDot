@@ -13,12 +13,13 @@ function getThumbnail(imageName) {
 
 // string -> img html tag
 function getTopThumbnailImg(date) {
-  return function (imageName) {
-    var url = getThumbnail(imageName);
+  return function (earth) {
+    var url = getThumbnail(earth.image);
     return $('<img>',{src: url, onmouseover: 'highlightAndChangeImage($(this))', onclick: 'loadHistory($(this))', onmouseout: 'removeHighlight($(this))',
 		      data: {
 			type: 'top',
-			date: date
+			date: date,
+			longitude: earth.centroid_coordinates.lon
 		      }
 		     }
 	    );
@@ -93,6 +94,7 @@ function loadHistory(thumbnail_object) {
   $(".selectedThumbnail").removeClass("selectedThumbnail");
   thumbnail_object.addClass('selectedThumbnail');
   console.log("Load history to left side");
+  putOutImagesOnTheLeft(thumbnail_object.data().longitude);
 }
 
 // object -> void, but removes 'highlightedThumbnail' class from object
@@ -111,21 +113,31 @@ function highlightAndChangeImage(thumbnail_object) {
   thumbnail_object.addClass('highlightedThumbnail');
 }
 
-// Thumbnails for left side: Europe now and for previous days
-getEarthsesFromNow(20).then(function(earthses_and_dates) {
-  var best_earths_with_dates = $.map(earthses_and_dates, getBestEarth(-80));
-  best_earths_with_dates = best_earths_with_dates.filter(function (x) { return x['e'] != null; });
-  var images_with_dates = $.map(best_earths_with_dates, function (x) { return { e: x['e'].image, d: x['d'] }; });
-  var thumbnails = $.map(images_with_dates, getLeftThumbnailImg);
-  $("#leftThumbnailContainer").prepend(thumbnails);
-  if (thumbnails.length > 0) highlightAndChangeImage(thumbnails[0]);
-});
+function putOutImagesOnTheLeft(longitude) {
+  // Thumbnails for left side: Europe now and for previous days
+  getEarthsesFromNow(20).then(function(earthses_and_dates) {
+    var best_earths_with_dates = $.map(earthses_and_dates, getBestEarth(longitude));
+    best_earths_with_dates = best_earths_with_dates.filter(function (x) { return x['e'] != null; });
+    var images_with_dates = $.map(best_earths_with_dates, function (x) { return { e: x['e'].image, d: x['d'] }; });
+    var thumbnails = $.map(images_with_dates, getLeftThumbnailImg);
+    $("#leftThumbnailContainer").empty();
+    $("#leftThumbnailContainer").prepend(thumbnails);
+    if (thumbnails.length > 0) highlightAndChangeImage(thumbnails[0]);
+  });
+}
 
-// Thumbnails for top: latest Earth images from every direction
-getEarthsLatest().then(function(earths_and_date) {
-  var earths = earths_and_date['e'];
-  var date = earths_and_date['d'];
-  var images = $.map(earths, function (x) { return x.image; });
-  var thumbnails = $.map(images, getTopThumbnailImg(date));
-  $("#topThumbnailContainer").prepend(thumbnails);
+function putOutImagesOnTheTop() {
+  // Thumbnails for top: latest Earth images from every direction
+  getEarthsLatest().then(function(earths_and_date) {
+    var earths = earths_and_date['e'];
+    var date = earths_and_date['d'];
+    var thumbnails = $.map(earths, getTopThumbnailImg(date));
+    $("#topThumbnailContainer").empty();
+    $("#topThumbnailContainer").prepend(thumbnails);
+  });
+}
+
+$(document).ready(function () {
+  putOutImagesOnTheLeft(19);
+  putOutImagesOnTheTop();
 });
