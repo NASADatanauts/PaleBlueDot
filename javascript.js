@@ -1,17 +1,12 @@
 // moment -> Future([earth])
 function getEarths(moment) {
-  return $.getJSON("https://epic.gsfc.nasa.gov/api/natural/date/" + formatDate(moment) + "?api_key=ecRFCeUylG8hbW4edbzI6GQVu34xTYGfWWvlKOoo");
+  return $.getJSON("https://epic.gsfc.nasa.gov/api/natural/date/" + moment.format("YYYY-MM-DD") + "?api_key=ecRFCeUylG8hbW4edbzI6GQVu34xTYGfWWvlKOoo");
 }
 
 // string -> <img> html tag
 function getThumbnail(imageName) {
   var url = 'https://epic.gsfc.nasa.gov/epic-archive/jpg/' + imageName + '.jpg';
   return $('<img>',{src: url, onmouseover: 'changeImage($(this))'});
-}
-
-// moment -> formatted moment
-function formatDate(momentDate) {
-  return momentDate.format("YYYY-MM-DD");
 }
 
 // string -> prints string in dateLabel
@@ -22,7 +17,7 @@ function displayDate(date) {
 function displayDateFromThumbnail(source) {
   var b_ = source.indexOf("1b_");
   var datePart = source.substring(b_ + 3, b_ + 11);
-  displayDate(formatDate(moment(datePart)));
+  displayDate(moment(datePart).format("YYYY-MMMM-DD"));
 }
 
 // Returns Earth images for the latest day that has some.
