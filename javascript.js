@@ -39,17 +39,6 @@ function getLeftThumbnailImg(imageName_with_date) {
 		   });
 }
 
-// string -> prints string in dateLabel
-function displayDate(date) {
-  $("#dateLabel").text(date);
-}
-
-function displayDateFromThumbnail(source) {
-  var b_ = source.indexOf("1b_");
-  var datePart = source.substring(b_ + 3, b_ + 11);
-  displayDate(moment(datePart).format("YYYY MMMM DD"));
-}
-
 // Returns Earth images for the latest day that has some.
 // () -> Future({e: [earth], d: date })
 function getEarthsLatest() {
@@ -117,7 +106,7 @@ function removeHighlight(thumbnail_object) {
 function highlightAndChangeImage(thumbnail_object) {
   // console.log(thumbnail_object.data());
   $("#targetImage").attr("src", thumbnail_object.attr("src"));
-  displayDateFromThumbnail(thumbnail_object.attr("src"));
+  $("#dateLabel").text(thumbnail_object.data().date);
   $(".highlightedThumbnail").removeClass("highlightedThumbnail");
   thumbnail_object.addClass('highlightedThumbnail');
 }
