@@ -1,8 +1,14 @@
 body {
     background: #000;
-    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-family: Helvetica, Verdana, Arial, sans-serif;
     font-size: 11px;
     color: #fff;
+}
+
+#dateLabel {
+    font-size: 18px;
+    float: left;
+    margin: 10px;
 }
 
 #imageContainer img {

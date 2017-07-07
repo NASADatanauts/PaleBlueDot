@@ -1,12 +1,28 @@
 // moment -> Future([earth])
 function getEarths(moment) {
-  return $.getJSON("https://epic.gsfc.nasa.gov/api/natural/date/" + moment.format("YYYY-MM-DD") + "?api_key=ecRFCeUylG8hbW4edbzI6GQVu34xTYGfWWvlKOoo");
+  return $.getJSON("https://epic.gsfc.nasa.gov/api/natural/date/" + formatDate(moment) + "?api_key=ecRFCeUylG8hbW4edbzI6GQVu34xTYGfWWvlKOoo");
 }
 
 // string -> <img> html tag
 function getThumbnail(imageName) {
   var url = 'https://epic.gsfc.nasa.gov/epic-archive/jpg/' + imageName + '.jpg';
-  return $('<img>',{src: url, onmouseover: 'change_image($(this))'});
+  return $('<img>',{src: url, onmouseover: 'changeImage($(this))'});
+}
+
+// moment -> formatted moment
+function formatDate(momentDate) {
+  return momentDate.format("YYYY-MM-DD");
+}
+
+// string -> prints string in dateLabel
+function displayDate(date) {
+  $("#dateLabel").text(date);
+}
+
+function displayDateFromThumbnail(source) {
+  var b_ = source.indexOf("1b_");
+  var datePart = source.substring(b_ + 3, b_ + 11);
+  displayDate(formatDate(moment(datePart)));
 }
 
 // Returns Earth images for the latest day that has some.
@@ -40,7 +56,7 @@ function getEarthsesFromNow(how_many) {
 }
 
 // [earth] -> earth_or_null (that shows Europe)
-function get_best_earth(earths) {
+function getBestEarth(earths) {
   var best_earth = null;
   $.each(earths, function (_index, earth) {
     var lon = earth.centroid_coordinates.lon;
@@ -53,22 +69,23 @@ function get_best_earth(earths) {
   return best_earth;
 }
 
-// object -> object with 'selectedTumbnail' class
+// object -> void, but adds 'selectedTumbnail' class to object
 // This function has to be called with a jquery object
-function change_image(thumbnail_object) {
+function changeImage(thumbnail_object) {
   $("#targetImage").attr("src", thumbnail_object.attr("src"));
+  displayDateFromThumbnail(thumbnail_object.attr("src"));
   $(".selectedThumbnail").removeClass("selectedThumbnail");
   thumbnail_object.addClass('selectedThumbnail');
 }
 
 // Thumbnails for left side: Europe now and for previous days
-getEarthsesFromNow(30).then(function(earthses) {
-  var best_earths = $.map(earthses, get_best_earth);
+getEarthsesFromNow(10).then(function(earthses) {
+  var best_earths = $.map(earthses, getBestEarth);
   best_earths.filter(function (x) { return x != null; });
   var images = $.map(best_earths, function (x) { return x.image; });
   var thumbnails = $.map(images, getThumbnail);
   $("#leftThumbnailContainer").prepend(thumbnails);
-  if (thumbnails.length > 0) change_image(thumbnails[0]);
+  if (thumbnails.length > 0) changeImage(thumbnails[0]);
 });
 
 // Thumbnails for top: lates Earth images from every direction
