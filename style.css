@@ -42,10 +42,10 @@ body {
     margin: 0px 10px 10px 0;
 }
 
+.highlightedThumbnail {
+    filter: saturate(500%); !important
+}
+
 .selectedThumbnail {
-    filter: saturate(500%);
-    -webkit-filter: saturate(500%);
-    -moz-filter: saturate(500%);
-    -o-filter: saturate(500%);
-    -ms-filter: saturate(500%);
+    filter: saturate(500%); !important
 }
