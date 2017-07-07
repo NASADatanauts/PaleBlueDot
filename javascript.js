@@ -17,7 +17,7 @@ function displayDate(date) {
 function displayDateFromThumbnail(source) {
   var b_ = source.indexOf("1b_");
   var datePart = source.substring(b_ + 3, b_ + 11);
-  displayDate(moment(datePart).format("YYYY-MMMM-DD"));
+  displayDate(moment(datePart).format("YYYY MMMM DD"));
 }
 
 // Returns Earth images for the latest day that has some.

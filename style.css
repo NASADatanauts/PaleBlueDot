@@ -6,13 +6,13 @@ body {
 }
 
 #dateLabel {
-    font-size: 18px;
-    float: left;
+    font-size: 22px;
+    text-align: center;
     margin: 10px;
 }
 
 #imageContainer img {
-    top: 100px;
+    top: 235px;
     left: 0;
     right: 0;
     bottom: 0;
@@ -26,7 +26,7 @@ body {
 }
 
 #topThumbnailContainer img {
-    height: 30px;
+    height: 80px;
     padding: 1px;
     margin: 0 10px 10px 0;
 }
@@ -36,12 +36,16 @@ body {
 }
 
 #leftThumbnailContainer img {
-    height: 30px;
+    height: 80px;
     display: block;
     padding: 1px;
     margin: 0px 10px 10px 0;
 }
 
 .selectedThumbnail {
-    height: 40px !important;
+    filter: saturate(500%);
+    -webkit-filter: saturate(500%);
+    -moz-filter: saturate(500%);
+    -o-filter: saturate(500%);
+    -ms-filter: saturate(500%);
 }
