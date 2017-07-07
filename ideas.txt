@@ -11,6 +11,8 @@ ideas:
 - info link, super tiny
 - hidden buttons?
 
+- edit the url path to contain the image pos and date -> this way it's possible to share nice founds by copying the url
+
 comments:
 - epic images for one day: search for the one which has lon closest to 13-25 to see europe
 - is it enough to load the same index image for that day when scrolling?
