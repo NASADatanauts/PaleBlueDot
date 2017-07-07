@@ -98,7 +98,7 @@ function highlightAndChangeImage(thumbnail_object) {
 }
 
 // Thumbnails for left side: Europe now and for previous days
-getEarthsesFromNow(10).then(function(earthses) {
+getEarthsesFromNow(20).then(function(earthses) {
   var best_earths = $.map(earthses, getBestEarth);
   best_earths.filter(function (x) { return x != null; });
   var images = $.map(best_earths, function (x) { return x.image; });
