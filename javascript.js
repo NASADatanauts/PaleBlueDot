@@ -1,8 +1,16 @@
+var nasa_cache = {};
+var today = moment(0, 'HH');
+
 // moment -> Future({ e: [earth], d: date })
 function getEarths(moment) {
+  if (nasa_cache[moment.unix()]) {
+    return Promise.resolve(nasa_cache[moment.unix()]);
+  }
+
   return $.getJSON("https://epic.gsfc.nasa.gov/api/natural/date/" + moment.format("YYYY-MM-DD") + "?api_key=ecRFCeUylG8hbW4edbzI6GQVu34xTYGfWWvlKOoo").then(
     function (ret) {
-      return { e: ret, d: moment.format("YYYY MMMM DD") };
+      nasa_cache[moment.unix()] = { e: ret, d: moment.format("YYYY MMMM DD") };
+      return nasa_cache[moment.unix()];
     });
 }
 
@@ -35,7 +43,6 @@ function getLeftThumbnailImg(imageName_with_date) {
 		    data: {
 		      type: 'left',
 		      date: date
-		      // longitude: longitude
 		    }
 		   });
 }
@@ -53,7 +60,7 @@ function getEarthsLatest() {
     });
   }
 
-  return cont(moment());
+  return cont(today);
 }
 
 // [moment] -> Future({ e: [earth], d: date })
@@ -65,7 +72,7 @@ function getEarthses(moments) {
 function getEarthsesFromNow(how_many) {
   var moments = []
   for (var i = 0; i < how_many ; i++) {
-    moments.push(moment().subtract(i, 'days'));
+    moments.push(moment(today).subtract(i, 'days'));
   }
   return getEarthses(moments);
 }
@@ -83,8 +90,6 @@ function getBestEarth(longitude) {
 	best_earth = earth;
       }
     });
-    if (best_earth == null) console.log("no best earth");
-    else console.log("Closest found with name: '" + best_earth.image + "' with value " + best_earth.centroid_coordinates.lon);
     return { e: best_earth, d: date };
   };
 }
@@ -93,7 +98,6 @@ function getBestEarth(longitude) {
 function loadHistory(thumbnail_object) {
   $(".selectedThumbnail").removeClass("selectedThumbnail");
   thumbnail_object.addClass('selectedThumbnail');
-  console.log("Load history to left side");
   putOutImagesOnTheLeft(thumbnail_object.data().longitude);
 }
 
@@ -106,7 +110,6 @@ function removeHighlight(thumbnail_object) {
 // and changes main image
 // This function has to be called with a jquery object
 function highlightAndChangeImage(thumbnail_object) {
-  // console.log(thumbnail_object.data());
   $("#targetImage").attr("src", thumbnail_object.attr("src"));
   $("#dateLabel").text(thumbnail_object.data().date);
   $(".highlightedThumbnail").removeClass("highlightedThumbnail");
