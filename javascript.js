@@ -1,13 +1,6 @@
 var nasa_cache = {};
 var today = moment(0, 'HH');
-
-// variables for moving Earth with mouse
-var mouseX;
-var mouseY;
-var imageTop;
-var imageBottom;
-var imageLeft;
-var imageRight;
+var todaysThumbnails;
 
 // moment -> Future({ e: [earth], d: date })
 function getEarths(moment) {
@@ -143,7 +136,7 @@ function putOutImagesOnTheLeft(longitude) {
     var thumbnails = $.map(images_with_dates, getLeftThumbnailImg);
     $("#leftThumbnailContainer").prepend(thumbnails);
     
-    // if any, select the first thumbnail and load it as main image then initialize UI variables
+    // if any, select the first thumbnail and load it as main image
     if (thumbnails.length > 0) {
       highlightAndChangeImage(thumbnails[0]);
     };
@@ -156,38 +149,27 @@ function putOutImagesOnTheTop() {
   getEarthsLatest().then(function(earths_and_date) {
     var earths = earths_and_date['e'];
     var date = earths_and_date['d'];
-    var thumbnails = $.map(earths, getTopThumbnailImg(date));
-    $("#topThumbnailContainer").prepend(thumbnails);
+    todaysThumbnails = $.map(earths, getTopThumbnailImg(date));
+    $("#topThumbnailContainer").prepend(todaysThumbnails);
   });
-}
-
-function updateUIVariables() {
-  imageTop = $("#targetImage").offset().top;
-  imageBottom = imageTop + $("#targetImage").height();
-  imageLeft = $("#targetImage").offset().left;
-  imageRight = imageLeft + $("#targetImage").width();
-
- // console.log("height " + $("#targetImage").width());
- // console.log("imageTop " + imageTop);
- // console.log("imageBottom " + imageBottom);
- // console.log("imageLeft " + imageLeft);
- // console.log("imageRight " + imageRight);
 }
 
 function getMousePosition(event){
   mouseX = event.pageX;
-  mouseY = event.pageY;
 
-  updateUIVariables();
+  if (todaysThumbnails) {
+    if (mouseX > 100) {
+      var calibration = $(window).width() / todaysThumbnails.length;
+      var imageX = Math.floor(mouseX / calibration);
 
- // console.log("X: " + mouseX);
- // console.log("Y: " + mouseY);
+      highlightAndChangeImage(todaysThumbnails[imageX]);
+    }
+  }
 }
 
 $(document).ready(function () {
   putOutImagesOnTheTop();
   putOutImagesOnTheLeft(19);
 
-  // track mouse coursor
   $(window).mousemove(getMousePosition);
 });
