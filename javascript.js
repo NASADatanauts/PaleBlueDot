@@ -1,6 +1,14 @@
 var nasa_cache = {};
 var today = moment(0, 'HH');
 
+// variables for moving Earth with mouse
+var mouseX;
+var mouseY;
+var imageTop;
+var imageBottom;
+var imageLeft;
+var imageRight;
+
 // moment -> Future({ e: [earth], d: date })
 function getEarths(moment) {
   if (nasa_cache[moment.unix()]) {
@@ -107,17 +115,26 @@ function removeHighlight(thumbnail_object) {
 }
 
 // object -> void, but adds 'highlightedThumbnail' class to object
-// and changes main image
+// and updates the date label
 // This function has to be called with a jquery object
-function highlightAndChangeImage(thumbnail_object) {
-  $("#targetImage").attr("src", thumbnail_object.attr("src"));
+function highlightThumbnail(thumbnail_object) {
   $("#dateLabel").text(thumbnail_object.data().date);
   $(".highlightedThumbnail").removeClass("highlightedThumbnail");
   thumbnail_object.addClass('highlightedThumbnail');
 }
 
+// object -> void but updates the big image on the screen
+function changeImage(thumbnail_object) {
+  $("#targetImage").attr("src", thumbnail_object.attr("src"));
+}
+
+function highlightAndChangeImage(thumbnail_object) {
+  highlightThumbnail(thumbnail_object);
+  changeImage(thumbnail_object);
+}
+
+// Thumbnails for left side: Europe now and for previous days
 function putOutImagesOnTheLeft(longitude) {
-  // Thumbnails for left side: Europe now and for previous days
   $("#leftThumbnailContainer").empty();
   getEarthsesFromNow(20).then(function(earthses_and_dates) {
     var best_earths_with_dates = $.map(earthses_and_dates, getBestEarth(longitude));
@@ -125,12 +142,16 @@ function putOutImagesOnTheLeft(longitude) {
     var images_with_dates = $.map(best_earths_with_dates, function (x) { return { e: x['e'].image, d: x['d'] }; });
     var thumbnails = $.map(images_with_dates, getLeftThumbnailImg);
     $("#leftThumbnailContainer").prepend(thumbnails);
-    if (thumbnails.length > 0) highlightAndChangeImage(thumbnails[0]);
+    
+    // if any, select the first thumbnail and load it as main image then initialize UI variables
+    if (thumbnails.length > 0) {
+      highlightAndChangeImage(thumbnails[0]);
+    };
   });
 }
 
+// Thumbnails for top: latest Earth images from every direction
 function putOutImagesOnTheTop() {
-  // Thumbnails for top: latest Earth images from every direction
   $("#topThumbnailContainer").empty();
   getEarthsLatest().then(function(earths_and_date) {
     var earths = earths_and_date['e'];
@@ -140,7 +161,33 @@ function putOutImagesOnTheTop() {
   });
 }
 
+function updateUIVariables() {
+  imageTop = $("#targetImage").offset().top;
+  imageBottom = imageTop + $("#targetImage").height();
+  imageLeft = $("#targetImage").offset().left;
+  imageRight = imageLeft + $("#targetImage").width();
+
+ // console.log("height " + $("#targetImage").width());
+ // console.log("imageTop " + imageTop);
+ // console.log("imageBottom " + imageBottom);
+ // console.log("imageLeft " + imageLeft);
+ // console.log("imageRight " + imageRight);
+}
+
+function getMousePosition(event){
+  mouseX = event.pageX;
+  mouseY = event.pageY;
+
+  updateUIVariables();
+
+ // console.log("X: " + mouseX);
+ // console.log("Y: " + mouseY);
+}
+
 $(document).ready(function () {
-  putOutImagesOnTheLeft(19);
   putOutImagesOnTheTop();
+  putOutImagesOnTheLeft(19);
+
+  // track mouse coursor
+  $(window).mousemove(getMousePosition);
 });
