@@ -156,9 +156,10 @@ function putOutImagesOnTheTop() {
 
 function getMousePosition(event){
   mouseX = event.pageX;
-
+  mouseY = event.pageY;
+  
   if (todaysThumbnails) {
-    if (mouseX > 100) {
+    if (mouseX > 100 && mouseY > 150) {
       var calibration = $(window).width() / todaysThumbnails.length;
       var imageX = Math.floor(mouseX / calibration);
 
