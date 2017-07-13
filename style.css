@@ -3,6 +3,7 @@ body {
     font-family: Helvetica, Verdana, Arial, sans-serif;
     font-size: 11px;
     color: #fff;
+    overflow: hidden;
 }
 
 #dateLabel {
@@ -12,23 +13,13 @@ body {
 }
 
 #imageContainer img {
-    top: 235px;
+    top: 70px;
     left: 0;
     right: 0;
     bottom: 0;
     position: fixed;
     margin: auto;
     height: 100%;
-}
-
-#topThumbnailContainer {
-    text-align: center;
-}
-
-#topThumbnailContainer img {
-    height: 80px;
-    padding: 1px;
-    margin: 0 10px 10px 0;
 }
 
 #leftThumbnailContainer {

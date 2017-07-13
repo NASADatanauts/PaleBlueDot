@@ -1,7 +1,8 @@
 var nasa_cache = {};
 var today = moment(0, 'HH');
-var todaysThumbnails; // list of latest Earth thumbnails from every direction
-var currentHistory;   // list of Earth thumbnails showing the past from the selected Earth rotation
+var todaysThumbnails; // "top thumbnails": list of latest Earth thumbnails from every direction
+var todaysThumbnailShown; // index of the thumbnail that is currently selected (earth rotation)
+var currentHistory;   // "left thumbnails": list of Earth thumbnails showing the past from the selected Earth rotation
 var currentHistoryShown; // index of the thumbnail that is currently selected (shown in big)
 
 // moment -> Future({ e: [earth], d: date })
@@ -101,8 +102,6 @@ function getBestEarth(longitude) {
 
 // object -> void, but adds 'selectedThumbnail' class to object
 function loadHistory(thumbnail_object) {
-  $(".selectedThumbnail").removeClass("selectedThumbnail");
-  thumbnail_object.addClass('selectedThumbnail');
   putOutImagesOnTheLeft(thumbnail_object.data().longitude);
 }
 
@@ -123,11 +122,7 @@ function highlightThumbnail(thumbnail_object) {
 // object -> void but updates the big image on the screen
 function changeImage(thumbnail_object) {
   $("#targetImage").attr("src", thumbnail_object.attr("src"));
-  if (thumbnail_object.data().type == "top") {
-    currentHistoryShown = 0;
-  } else {
-    currentHistoryShown = thumbnail_object.data().index;
-  }
+  currentHistoryShown = thumbnail_object.data().index;
 }
 
 function highlightAndChangeImage(thumbnail_object) {
@@ -138,7 +133,7 @@ function highlightAndChangeImage(thumbnail_object) {
 // Thumbnails for left side: Europe now and for previous days
 function putOutImagesOnTheLeft(longitude) {
   $("#leftThumbnailContainer").empty();
-  getEarthsesFromNow(6).then(function(earthses_and_dates) {
+  getEarthsesFromNow(15).then(function(earthses_and_dates) {
     var best_earths_with_dates = $.map(earthses_and_dates, getBestEarth(longitude));
     best_earths_with_dates = best_earths_with_dates.filter(function (x) { return x['e'] != null; });
     var images_with_dates = $.map(best_earths_with_dates, function (x, index) { return { e: x['e'].image, d: x['d'], i: index }; });
@@ -152,27 +147,28 @@ function putOutImagesOnTheLeft(longitude) {
   });
 }
 
-// Thumbnails for top: latest Earth images from every direction
-function putOutImagesOnTheTop() {
-  $("#topThumbnailContainer").empty();
+// Thumbnails for latest Earth images from every direction
+// Note: thumbnails are not displayed on screen any more. Mouse move rotates earth.
+function getTodaysThumbnails() {
   getEarthsLatest().then(function(earths_and_date) {
     var earths = earths_and_date['e'];
     var date = earths_and_date['d'];
     todaysThumbnails = $.map(earths, getTopThumbnailImg(date));
-    $("#topThumbnailContainer").prepend(todaysThumbnails);
   });
 }
 
 function rotateEarthWithMouseMove(event) {
   mouseX = event.pageX;
-  mouseY = event.pageY;
-  
+
   if (todaysThumbnails) {
-    if (mouseX > 100 && mouseY > 150) {
+    if (mouseX > 100) {
       var calibration = $(window).width() / todaysThumbnails.length;
       var imageX = Math.floor(mouseX / calibration);
 
-      highlightAndChangeImage(todaysThumbnails[imageX]);
+      if (imageX != todaysThumbnailShown) {
+	loadHistory(todaysThumbnails[imageX]);
+	todaysThumbnailShown = imageX;
+      }
     }
   }
 }
@@ -191,7 +187,7 @@ function loadHistoryWithScroll(event) {
 }
 
 $(document).ready(function () {
-  putOutImagesOnTheTop();
+  getTodaysThumbnails();
   putOutImagesOnTheLeft(19);
 
   $(window).mousemove(rotateEarthWithMouseMove);
