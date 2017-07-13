@@ -1,6 +1,8 @@
 var nasa_cache = {};
 var today = moment(0, 'HH');
-var todaysThumbnails;
+var todaysThumbnails; // list of latest Earth thumbnails from every direction
+var currentHistory;   // list of Earth thumbnails showing the past from the selected Earth rotation
+var currentHistoryShown; // index of the thumbnail that is currently selected (shown in big)
 
 // moment -> Future({ e: [earth], d: date })
 function getEarths(moment) {
@@ -39,11 +41,13 @@ function getTopThumbnailImg(date) {
 function getLeftThumbnailImg(imageName_with_date) {
   var imageName = imageName_with_date['e'];
   var date = imageName_with_date['d'];
+  var index = imageName_with_date['i'];
   var url = getThumbnail(imageName);
   return $('<img>',{src: url, onmouseover: 'highlightAndChangeImage($(this))', onmouseout: 'removeHighlight($(this))',
 		    data: {
 		      type: 'left',
-		      date: date
+		      date: date,
+		      index: index
 		    }
 		   });
 }
@@ -119,6 +123,11 @@ function highlightThumbnail(thumbnail_object) {
 // object -> void but updates the big image on the screen
 function changeImage(thumbnail_object) {
   $("#targetImage").attr("src", thumbnail_object.attr("src"));
+  if (thumbnail_object.data().type == "top") {
+    currentHistoryShown = 0;
+  } else {
+    currentHistoryShown = thumbnail_object.data().index;
+  }
 }
 
 function highlightAndChangeImage(thumbnail_object) {
@@ -129,16 +138,16 @@ function highlightAndChangeImage(thumbnail_object) {
 // Thumbnails for left side: Europe now and for previous days
 function putOutImagesOnTheLeft(longitude) {
   $("#leftThumbnailContainer").empty();
-  getEarthsesFromNow(20).then(function(earthses_and_dates) {
+  getEarthsesFromNow(6).then(function(earthses_and_dates) {
     var best_earths_with_dates = $.map(earthses_and_dates, getBestEarth(longitude));
     best_earths_with_dates = best_earths_with_dates.filter(function (x) { return x['e'] != null; });
-    var images_with_dates = $.map(best_earths_with_dates, function (x) { return { e: x['e'].image, d: x['d'] }; });
-    var thumbnails = $.map(images_with_dates, getLeftThumbnailImg);
-    $("#leftThumbnailContainer").prepend(thumbnails);
+    var images_with_dates = $.map(best_earths_with_dates, function (x, index) { return { e: x['e'].image, d: x['d'], i: index }; });
+    currentHistory = $.map(images_with_dates, getLeftThumbnailImg);
+    $("#leftThumbnailContainer").prepend(currentHistory);
     
     // if any, select the first thumbnail and load it as main image
-    if (thumbnails.length > 0) {
-      highlightAndChangeImage(thumbnails[0]);
+    if (currentHistory.length > 0) {
+      highlightAndChangeImage(currentHistory[0]);
     };
   });
 }
@@ -154,7 +163,7 @@ function putOutImagesOnTheTop() {
   });
 }
 
-function getMousePosition(event){
+function rotateEarthWithMouseMove(event) {
   mouseX = event.pageX;
   mouseY = event.pageY;
   
@@ -168,9 +177,24 @@ function getMousePosition(event){
   }
 }
 
+function loadHistoryWithScroll(event) {
+  if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0) {
+    if (currentHistoryShown > 0) {
+      highlightAndChangeImage(currentHistory[currentHistoryShown-1]);
+    }
+  }
+  else {
+    if (currentHistoryShown < currentHistory.length-1) {
+      highlightAndChangeImage(currentHistory[currentHistoryShown+1]);
+    }
+  }
+}
+
 $(document).ready(function () {
   putOutImagesOnTheTop();
   putOutImagesOnTheLeft(19);
 
-  $(window).mousemove(getMousePosition);
+  $(window).mousemove(rotateEarthWithMouseMove);
+
+  $(window).bind('mousewheel DOMMouseScroll', loadHistoryWithScroll);
 });
