@@ -100,6 +100,14 @@ function getBestEarth(longitude) {
   };
 }
 
+function showLoading() {
+  $("#loading").removeClass("hidden");
+}
+
+function hideLoading() {
+  $("#loading").addClass("hidden");
+}
+
 // object -> void, but adds 'selectedThumbnail' class to object
 function loadHistory(thumbnail_object) {
   putOutImagesOnTheLeft(thumbnail_object.data().longitude);
@@ -122,7 +130,10 @@ function highlightThumbnail(thumbnail_object) {
 // object -> void but updates the big image on the screen
 function changeImage(thumbnail_object) {
   $("#targetImage").attr("src", thumbnail_object.attr("src"));
-  currentHistoryShown = thumbnail_object.data().index;
+  $("#targetImage").bind('load', function() {
+    currentHistoryShown = thumbnail_object.data().index;
+    hideLoading();
+  });
 }
 
 function highlightAndChangeImage(thumbnail_object) {
@@ -139,7 +150,7 @@ function putOutImagesOnTheLeft(longitude) {
     var images_with_dates = $.map(best_earths_with_dates, function (x, index) { return { e: x['e'].image, d: x['d'], i: index }; });
     currentHistory = $.map(images_with_dates, getLeftThumbnailImg);
     $("#leftThumbnailContainer").prepend(currentHistory);
-    
+
     // if any, select the first thumbnail and load it as main image
     if (currentHistory.length > 0) {
       highlightAndChangeImage(currentHistory[0]);
@@ -166,6 +177,7 @@ function rotateEarthWithMouseMove(event) {
       var imageX = Math.floor(mouseX / calibration);
 
       if (imageX != todaysThumbnailShown) {
+	showLoading();
 	loadHistory(todaysThumbnails[imageX]);
 	todaysThumbnailShown = imageX;
       }
@@ -175,12 +187,16 @@ function rotateEarthWithMouseMove(event) {
 
 function loadHistoryWithScroll(event) {
   if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0) {
+    // scoll up
     if (currentHistoryShown > 0) {
+      showLoading();
       highlightAndChangeImage(currentHistory[currentHistoryShown-1]);
     }
   }
   else {
+    // scroll down
     if (currentHistoryShown < currentHistory.length-1) {
+      showLoading();
       highlightAndChangeImage(currentHistory[currentHistoryShown+1]);
     }
   }

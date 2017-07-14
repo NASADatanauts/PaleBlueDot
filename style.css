@@ -1,15 +1,19 @@
 body {
     background: #000;
     font-family: Helvetica, Verdana, Arial, sans-serif;
-    font-size: 11px;
+    font-size: 22px;
     color: #fff;
     overflow: hidden;
 }
 
 #dateLabel {
-    font-size: 22px;
     text-align: center;
     margin: 10px;
+}
+
+#loading {
+    top: 10px;
+    position: absolute;
 }
 
 #imageContainer img {
@@ -39,4 +43,8 @@ body {
 
 .selectedThumbnail {
     filter: saturate(500%); !important
+}
+
+.hidden {
+    display: none;
 }
