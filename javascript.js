@@ -130,7 +130,7 @@ function highlightThumbnail(thumbnail_object) {
 // object -> void but updates the big image on the screen
 function changeImage(thumbnail_object) {
   $("#targetImage").attr("src", thumbnail_object.attr("src"));
-  $("#targetImage").bind('load', function() {
+  $("#targetImage").one('load', function() {
     currentHistoryShown = thumbnail_object.data().index;
     hideLoading();
   });
