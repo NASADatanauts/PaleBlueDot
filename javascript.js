@@ -1,9 +1,51 @@
-var currentDateIndex = nasaarray.length - 1; // today
+var currentDateIndex;
 var currentLongitude = 19; // Europe
+var alreadyCachedDateIndex = nasaarray.length;
 
-// string -> string (url of image)
-function getImageUrl(imageName) {
-  return 'https://epic.gsfc.nasa.gov/epic-archive/jpg/' + imageName + '.jpg';
+function preloadImages(dateIndex) {
+  var array = getAllImageUrls(nasaarray[dateIndex].d, nasaarray[dateIndex].i);
+  if (!preloadImages.list) {
+    preloadImages.list = [];
+  }
+  var list = preloadImages.list;
+  for (var i = 0; i < array.length; i++) {
+    var img = new Image();
+    img.onload = function() {
+      var index = list.indexOf(this);
+      if (index !== -1) {
+        // remove image from the array once it's loaded for memory consumption reasons
+        list.splice(index, 1);
+      }
+    }
+    list.push(img);
+    img.src = array[i];
+  }
+  if (dateIndex < alreadyCachedDateIndex) {
+    alreadyCachedDateIndex = dateIndex;
+  }
+}
+
+function preloadImagesForPreviousDays(howMany) {
+  for (var i = currentDateIndex - 1; i > currentDateIndex - howMany - 1; i--) {
+    preloadImages(i);
+  }
+}
+
+// date, array of strings -> array of image urls
+function getAllImageUrls(date, imageNames) {
+  var ret = [];
+  $.each(imageNames, function (index, image) {
+    ret.push(getImageUrl(date, image));
+  });
+  return ret;
+}
+
+// date, string -> string (url of image)
+function getImageUrl(date, imageName) {
+  var mdate = moment(date, "YYYY-MM-DD");
+  return 'https://epic.gsfc.nasa.gov/archive/natural/'
+    + mdate.format('YYYY') + '/' + mdate.format('MM') + '/' + mdate.format('DD')
+    + '/jpg/' + imageName + '.jpg?api_key=ecRFCeUylG8hbW4edbzI6GQVu34xTYGfWWvlKOoo';
 }
 
 // longitude and array of nasa Objects from ONE day -> index of element that shows earth closest to given longitude
@@ -21,36 +63,26 @@ function getBestEarth(longitude, imagesOfADay) {
   return best_earth;
 }
   
-function showLoading() {
-  $("#loading").removeClass("hidden");
-}
-
-function hideLoading() {
-  $("#loading").addClass("hidden");
-}
-
 function changeDateOnUI(newDate) {
   $("#dateLabel").text(moment(newDate).format("YYYY MMMM DD"));
 }
 
 // shows the closest earth rotation to previous on given date
 function gotoDate(dateIndex) {
-  changeDateOnUI(nasaarray[dateIndex].d);
+  var currentDate = nasaarray[dateIndex].d;
+  changeDateOnUI(currentDate);
+  
   var earthRotation = getBestEarth(currentLongitude, nasaarray[dateIndex]);
-  $("#targetImage").attr("src", getImageUrl(nasaarray[dateIndex].i[earthRotation]));
-  $("#targetImage").one('load', function() {
-    hideLoading();
-  });
+  $("#targetImage").attr("src", getImageUrl(currentDate, nasaarray[dateIndex].i[earthRotation]));
 }
 
 // rotates earth to index within the day that is currently selected
 function rotateEarth(lonIndex) {
-  changeDateOnUI(nasaarray[currentDateIndex].d); // this shouldn't be needed, just here for debug
+  var currentDate = nasaarray[currentDateIndex].d;
+  changeDateOnUI(currentDate); // this shouldn't be needed, just here for debug
+
   currentLongitude = nasaarray[currentDateIndex].l[lonIndex];
-  $("#targetImage").attr("src", getImageUrl(nasaarray[currentDateIndex].i[lonIndex]));
-  $("#targetImage").one('load', function() {
-    hideLoading();
-  });
+  $("#targetImage").attr("src", getImageUrl(currentDate, nasaarray[currentDateIndex].i[lonIndex]));
 }
 
 function rotateEarthWithMouseMove(event) {
@@ -59,7 +91,6 @@ function rotateEarthWithMouseMove(event) {
   var calibration = $(window).width() / nasaarray[currentDateIndex].n;
   var imageX = Math.floor(mouseX / calibration);
 
-  showLoading();
   rotateEarth(imageX);
 }
 
@@ -68,22 +99,36 @@ function gotoDateWithScroll(event) {
     // scoll up
     if (currentDateIndex < nasaarray.length - 1) {
       currentDateIndex = currentDateIndex + 1;
-      showLoading();
       gotoDate(currentDateIndex);
     }
   } else {
     // scroll down
     if (currentDateIndex > 0) {
       currentDateIndex = currentDateIndex - 1;
-      showLoading();
       gotoDate(currentDateIndex);
+ //     if (currentDateIndex - alreadyCachedDateIndex == 2) {
+//	preloadImagesForPreviousDays(10);
+ //     }
     }
   }
 }
 
 $(document).ready(function () {
-  // TODO: today might not have pictures yet. Find the first date that has any.
+  // Find the most recent day that has images
+  var day = nasaarray.length - 1;
+  while (nasaarray[day].length == 0) {
+    day = day - 1;
+  }
+  currentDateIndex = day;
+  
+  // load that day's image (rotation is currentLongitude)
   gotoDate(currentDateIndex);
+
+  // pre-load all images for that day
+  preloadImages(currentDateIndex);
+
+  // start pre-loading all images for previous 3 days (from currentDateIndex)
+  preloadImagesForPreviousDays(3);
   
   $(window).mousemove(rotateEarthWithMouseMove);
 
