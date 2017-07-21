@@ -1,7 +1,7 @@
 body {
     background: #000;
-    font-family: Helvetica, Verdana, Arial, sans-serif;
-    font-size: 22px;
+    font-family: Courier, Arial, Helvetica;
+    font-size: 24px;
     color: #fff;
     overflow: hidden;
 }
@@ -24,25 +24,6 @@ body {
     position: fixed;
     margin: auto;
     height: 100%;
-}
-
-#leftThumbnailContainer {
-    float: left;
-}
-
-#leftThumbnailContainer img {
-    height: 80px;
-    display: block;
-    padding: 1px;
-    margin: 0px 10px 10px 0;
-}
-
-.highlightedThumbnail {
-    filter: saturate(500%); !important
-}
-
-.selectedThumbnail {
-    filter: saturate(500%); !important
 }
 
 .hidden {
