@@ -1,6 +1,10 @@
 #!/bin/bash
 
-for i in `seq 40 1000` ; do
+set -e
+
+for i in `seq 0 40` ; do
   DATE=$(date -d "-$i days" +%Y-%m-%d)
-  wget -O $DATE.json https://epic.gsfc.nasa.gov/api/natural/date/$DATE?api_key=ecRFCeUylG8hbW4edbzI6GQVu34xTYGfWWvlKOoo
+  wget -q -O $DATE.json https://epic.gsfc.nasa.gov/api/natural/date/$DATE?api_key=ecRFCeUylG8hbW4edbzI6GQVu34xTYGfWWvlKOoo
 done
+./convdata.py >allnasa.json.new
+mv allnasa.json.new allnasa.json
