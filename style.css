@@ -39,6 +39,12 @@ h2 {
     position: fixed;
     margin: auto;
     height: 100%;
+    -khtml-user-select: none;
+    -o-user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+    cursor: default;
 }
 
 .hidden {
