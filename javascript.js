@@ -131,6 +131,11 @@ function activateSelectedRow() {
   setColumnFromLongitude();
   $("#targetImage").attr("src", getSelectedImageURL());
 
+  $("#dotContainer").empty();
+  for (var i = 0; i < nasaarray[selectedRow].n; i++) {
+    $("#dotContainer").append( "<label>o</label>" );
+  }
+
   preloadImagesForSelectedPoint();
 }
 
