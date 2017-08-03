@@ -7,14 +7,15 @@ ideas:
 
 - full black bg, image in the middle, full size
 - most simplest UI ever
-- show date of current image, that is clickable to select other date but doesn't look so clickable
-- info link, super tiny
-- hidden buttons?
+- show date of current image (date is not clickable but you can change the url to go to specific dates)
 
 - edit the url path to contain the image pos and date -> this way it's possible to share nice founds by copying the url
 
+top links:
+- small icons: help, 2016 July 5, email, EPIC
+
 comments:
 - epic images for one day: search for the one which has lon closest to 13-25 to see europe
-- is it enough to load the same index image for that day when scrolling?
+- is it enough to load the same index image for that day when scrolling? NO
 - example image link: https://epic.gsfc.nasa.gov/epic-archive/jpg/epic_1b_20170618113111_02.jpg
 - if there is no image for current day then skip

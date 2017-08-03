@@ -6,10 +6,13 @@
 // index in nasaarray[____]
 var selectedRow = nasaarray.length - 1;
 // index in nasaarray[selectedrow].{i,l}[____]
-// initialized in constructor
 var selectedColumn;
 // goal of the user, starting value is Europe
 var goalLongitude = 19;
+
+var dragging = false;
+var mouseX = null;
+var dragColumn;
 
 // class Preload
 var preloadedImages = {}; // don't let Chrome cancel the images!
@@ -121,6 +124,14 @@ function setColumnFromLongitude() {
   selectedColumn = getColumnFromLongitude(selectedRow);
 }
 
+function highlightSelectedDot(col) {
+  // remove previously highlighted
+  $(".blue").removeClass("blue");
+
+  var selectedDot = $("#dotContainer").find("label")[col];
+  $("#dotContainer").find(selectedDot).addClass('blue');
+}
+
 function activateSelectedRow() {
   var selectedDate = nasaarray[selectedRow].d;
   $("#dateLabel").text(moment(selectedDate).format("YYYY MMMM DD"));
@@ -128,19 +139,45 @@ function activateSelectedRow() {
   setColumnFromLongitude();
   $("#targetImage").attr("src", getSelectedImageURL());
 
+  $("#dotContainer").empty();
+  for (var i = 0; i < nasaarray[selectedRow].n; i++) {
+    $("#dotContainer").append( "<label>o</label>" );
+  }
+  highlightSelectedDot(selectedColumn);
+
   preloadImagesForSelectedPoint();
 }
 
-function rotateEarthWithMouseMove(event) {
-  mouseX = event.pageX;
+function rotateEarthWithMouseDrag(event) {
+  if (dragging) {
+    mouseAt = event.pageX;
+    var distance = Math.abs(mouseX - mouseAt);
+    var columnWidth = $(window).width() / nasaarray[selectedRow].n;
+    var noOfColsToMove = Math.floor(distance / columnWidth);
+    var movingRight = mouseAt > mouseX;
 
-  var columnWidth = $(window).width() / nasaarray[selectedRow].n;
-  selectedColumn = Math.floor(mouseX / columnWidth);
-  goalLongitude = nasaarray[selectedRow].l[selectedColumn];
+    if (movingRight) {
+      if ((selectedColumn + noOfColsToMove) > nasaarray[selectedRow].n) return;
+    } else {
+      if ((selectedColumn - noOfColsToMove) < 1) return;
+    }
 
-  $("#targetImage").attr("src", getSelectedImageURL());
+    dragColumn = selectedColumn;
 
-  preloadImagesForSelectedPoint();
+    if (movingRight) {
+      dragColumn += noOfColsToMove;
+    } else {
+      dragColumn -= noOfColsToMove;
+    }
+
+    goalLongitude = nasaarray[selectedRow].l[dragColumn-1];
+
+    $("#targetImage").attr("src", getImageURL(selectedRow, dragColumn-1));
+
+    highlightSelectedDot(dragColumn-1);
+
+    preloadImagesForSelectedPoint();
+  }
 }
 
 function selectRowWithScroll(event) {
@@ -164,8 +201,23 @@ function selectRowWithScroll(event) {
 $(document).ready(function () {
   // load selectedRow's image (lates day with images and rotation goalLongitude)
   activateSelectedRow();
-  
-  $(window).mousemove(rotateEarthWithMouseMove);
+
+  $(window).mousedown(function() {
+    dragging = true;
+    mouseX = event.pageX;
+  });
+
+  $(document).mouseup(function() {
+    selectedColumn = dragColumn;
+    dragging = false;
+    mouseX = null;
+  });
+
+  $(window).mousemove(rotateEarthWithMouseDrag);
+
+  // prevent default image dragging by browser
+  $("#targetImage").on('dragstart', function(event) { event.preventDefault(); });
 
   $(window).bind('mousewheel DOMMouseScroll', selectRowWithScroll);
+
 });

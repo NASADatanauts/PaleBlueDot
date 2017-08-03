@@ -15,6 +15,11 @@ body {
     margin: 10px;
 }
 
+#dotContainer {
+    text-align: center;
+    font-size: 0.8em;
+}
+
 h2 {
     background-color: #004b80;
 }
@@ -32,15 +37,25 @@ h2 {
 }
 
 #imageContainer img {
-    top: 85px;
+    top: 140px;
     left: 0;
     right: 0;
     bottom: 0;
     position: fixed;
     margin: auto;
     height: 100%;
+    -khtml-user-select: none;
+    -o-user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+    cursor: default;
 }
 
 .hidden {
     display: none;
+}
+
+.blue {
+    color: blue;
 }
