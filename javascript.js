@@ -124,6 +124,14 @@ function setColumnFromLongitude() {
   selectedColumn = getColumnFromLongitude(selectedRow);
 }
 
+function highlightSelectedDot(col) {
+  // remove previously highlighted
+  $(".blue").removeClass("blue");
+
+  var selectedDot = $("#dotContainer").find("label")[col];
+  $("#dotContainer").find(selectedDot).addClass('blue');
+}
+
 function activateSelectedRow() {
   var selectedDate = nasaarray[selectedRow].d;
   $("#dateLabel").text(moment(selectedDate).format("YYYY MMMM DD"));
@@ -135,6 +143,7 @@ function activateSelectedRow() {
   for (var i = 0; i < nasaarray[selectedRow].n; i++) {
     $("#dotContainer").append( "<label>o</label>" );
   }
+  highlightSelectedDot(selectedColumn);
 
   preloadImagesForSelectedPoint();
 }
@@ -164,6 +173,8 @@ function rotateEarthWithMouseDrag(event) {
     goalLongitude = nasaarray[selectedRow].l[dragColumn-1];
 
     $("#targetImage").attr("src", getImageURL(selectedRow, dragColumn-1));
+
+    highlightSelectedDot(dragColumn-1);
 
     preloadImagesForSelectedPoint();
   }
@@ -195,12 +206,15 @@ $(document).ready(function () {
     dragging = true;
     mouseX = event.pageX;
   });
+
   $(document).mouseup(function() {
     selectedColumn = dragColumn;
     dragging = false;
     mouseX = null;
   });
+
   $(window).mousemove(rotateEarthWithMouseDrag);
+
   // prevent default image dragging by browser
   $("#targetImage").on('dragstart', function(event) { event.preventDefault(); });
 
