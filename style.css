@@ -24,9 +24,23 @@ h2 {
     background-color: #004b80;
 }
 
-#help {
+.icons {
     top: 13px;
-    left: 25px;
+    left: 30px;
+    position: absolute;
+    cursor: default;
+}
+
+.icons img {
+    height: 21px;
+    cursor: pointer;
+}
+
+.help-text {
+    font-size: .5em;
+    letter-spacing: .1em;
+    top: 13px;
+    left: 85px;
     position: absolute;
 }
 
@@ -44,6 +58,14 @@ h2 {
     position: fixed;
     margin: auto;
     height: 100%;
+}
+
+#credits {
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+    font-size: .5em;
+    letter-spacing: .1em;
 }
 
 .unselectable {
@@ -64,4 +86,9 @@ h2 {
 .orange {
     color: #FF9800;
     text-transform: uppercase;
+}
+
+a
+{
+    color: white;
 }

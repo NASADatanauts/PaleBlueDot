@@ -114,9 +114,6 @@ function getColumnFromLongitude(row) {
       best_value = Math.abs(longitudes[index] - goalLongitude);
     }
   });
-  if (Math.abs(longitudes[best_earth] - goalLongitude) > 9) {
-    console.warn("Even best image found is way off. Requested closest to %i and found %i.", goalLongitude, longitudes[best_earth]);
-  }
   return best_earth;
 }
 
@@ -202,6 +199,7 @@ $(document).ready(function () {
   // load selectedRow's image (lates day with images and rotation goalLongitude)
   activateSelectedRow();
 
+  // UX functions
   $(window).mousedown(function() {
     dragging = true;
     mouseX = event.pageX;
@@ -215,9 +213,18 @@ $(document).ready(function () {
 
   $(window).mousemove(rotateEarthWithMouseDrag);
 
+  $(window).bind('mousewheel DOMMouseScroll', selectRowWithScroll);
+  
+  // UI functions
   // prevent default image dragging by browser
   $("#targetImage").on('dragstart', function(event) { event.preventDefault(); });
+  
+  $('#question-mark').hover(function() {
+    $('#help-question').toggle("slide");
+  });
 
-  $(window).bind('mousewheel DOMMouseScroll', selectRowWithScroll);
+  $('#satellite-icon').hover(function() {
+    $('#help-satellite').toggle("slide");
+  });
 
 });
