@@ -199,6 +199,7 @@ $(document).ready(function () {
   // load selectedRow's image (lates day with images and rotation goalLongitude)
   activateSelectedRow();
 
+  // UX functions
   $(window).mousedown(function() {
     dragging = true;
     mouseX = event.pageX;
@@ -212,9 +213,14 @@ $(document).ready(function () {
 
   $(window).mousemove(rotateEarthWithMouseDrag);
 
+  $(window).bind('mousewheel DOMMouseScroll', selectRowWithScroll);
+  
+  // UI functions
   // prevent default image dragging by browser
   $("#targetImage").on('dragstart', function(event) { event.preventDefault(); });
-
-  $(window).bind('mousewheel DOMMouseScroll', selectRowWithScroll);
+  
+  $('#question').hover(function() {
+    $('#help').toggle("slide");
+  });
 
 });

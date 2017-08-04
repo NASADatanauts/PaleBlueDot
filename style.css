@@ -24,9 +24,18 @@ h2 {
     background-color: #004b80;
 }
 
-#help {
+#question {
     top: 13px;
     left: 25px;
+    position: absolute;
+    cursor: default;
+}
+
+#help {
+    font-size: .5em;
+    letter-spacing: .1em;
+    top: 13px;
+    left: 40px;
     position: absolute;
 }
 
