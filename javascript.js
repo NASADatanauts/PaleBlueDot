@@ -126,10 +126,10 @@ function setColumnFromLongitude() {
 
 function highlightSelectedDot(col) {
   // remove previously highlighted
-  $(".blue").removeClass("blue");
+  $(".orange").removeClass("orange");
 
   var selectedDot = $("#dotContainer").find("label")[col];
-  $("#dotContainer").find(selectedDot).addClass('blue');
+  $("#dotContainer").find(selectedDot).addClass('orange');
 }
 
 function activateSelectedRow() {
