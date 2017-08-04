@@ -1,18 +1,37 @@
 // Invariants:
 //   - selectedColumn is the index of the closest earth rotation according to goalLongitude in selectedRow
 //   - on the UI the date shown is always nasaarray[selectedRow].d
-//   - on the UI the shown image is always the one pointed by selectedRow,selectedColumn
+//   - on the UI the shown image is always the one pointed by selectedRow,selectedColumn in nasaarray
+
+// nasaarray is a global variable coming from a javascript file that
+// is loaded via script src before this file, this contains the data
+// about the available images.
+
+// Every item in nasaarray represents one day and is a dictionary of:
+//   n: the number of earth images (with different rotation) this day
+//   d: date
+//   i: list of image urls (size n)
+//   l: list of longitudesx (size n)
+
+// Settings
+var userCacheDelay = 400;
+var cacheNearRows = 5;
+var loadingDisplayInterval = 200;
+var mouseDragColumnWidth = 100;
+var defaultGoalLongitude = 19;
+
 
 // index in nasaarray[____]
 var selectedRow = nasaarray.length - 1;
 // index in nasaarray[selectedrow].{i,l}[____]
 var selectedColumn;
 // goal of the user, starting value is Europe
-var goalLongitude = 19;
+var goalLongitude = defaultGoalLongitude;
 
-var dragging = false;
-var mouseX = null;
-var dragColumn;
+// selectedCenterDragMouseX is not null if and only if dragging is in progress.
+// When dragging is in progress, it means the X coordinate of the mouse on the
+// screen for which the currently selectedColumn is exactly in the middle.
+var selectedCenterDragMouseX = null;
 
 // class Preload
 var preloadedImages = {}; // don't let Chrome cancel the images!
@@ -22,6 +41,11 @@ function preloadImage(row, col) {
   if (!preloadedImages[url]) {
     var img = new Image();
     img.onload = function() {
+      // We set preloadedImages back to undefined even on successful
+      // load, because this way if the image gets out of disk cache
+      // (which we have no idea of), the next time we preload it
+      // again.  If it's still in the disk cache, then this
+      // unnecessary preload is fast anyway.
       preloadedImages[url] = undefined;
       inFlightImages--;
     }
@@ -44,6 +68,7 @@ function preloadCancelImage(row, col) {
   }
 }
 
+// This is like a thread a little bit.
 setInterval(function () {
   if (inFlightImages > 0) {
     $("#loading").removeClass("hidden");
@@ -51,7 +76,7 @@ setInterval(function () {
   } else {
     $("#loading").addClass("hidden");
   }
-}, 200);
+}, loadingDisplayInterval);
 // end of class
 
 function getImageURL(row, col) {
@@ -62,31 +87,24 @@ function getImageURL(row, col) {
     + '/jpg/' + imageName + '.jpg';
 }
 
-function getSelectedImageURL() {
-  return getImageURL(selectedRow, selectedColumn);
-}
+function preloadImagesForSelectedRow() {
+  // we preload the whole current row horizontally
+  for (var col = 0; col < nasaarray[selectedRow].n; col++) preloadImage(selectedRow, col);
 
-function preloadImagesForRow(row) {
-  for (var col = 0; col < nasaarray[row].n; col++) preloadImage(row, col);
-}
-
-function preloadCancelForRow(row) {
-  for (var col = 0; col < nasaarray[row].n; col++) preloadCancelImage(row, col);
-}
-
-function preloadCancelForSelectedRow() {
-  preloadCancelForRow(selectedRow);
-}
-
-// around a row
-function preloadImagesForColumn(row) {
-  for (var i=-5; i<=5; i++) {
-    var currentRow = row + i;
-    if (currentRow == row || currentRow >= nasaarray.length || currentRow < 0)
+  // vertically, we preload +-5 images for the current column
+  for (var currentRow = selectedRow - cacheNearRows;
+       currentRow <= selectedRow + cacheNearRows;
+       currentRow++) {
+    if (currentRow == selectedRow || currentRow >= nasaarray.length || currentRow < 0)
       continue;
 
     preloadImage(currentRow, getColumnFromLongitude(currentRow));
   }
+}
+
+function preloadCancelForSelectedRow() {
+  // we only cancel horizontally
+  for (var col = 0; col < nasaarray[selectedRow].n; col++) preloadCancelImage(selectedRow, col);
 }
 
 var timerPreloadImagesForSelectedPoint = null;
@@ -96,14 +114,12 @@ function preloadImagesForSelectedPoint() {
     timerPreloadImagesForSelectedPoint = null;
   }
 
-  timerPreloadImagesForSelectedPoint = setTimeout(function () {
-    preloadImagesForRow(selectedRow);
-    preloadImagesForColumn(selectedRow);
-  }, 400);
+  timerPreloadImagesForSelectedPoint = setTimeout(preloadImagesForSelectedRow, userCacheDelay);
 }
 
 // given a row index, gives us the best column index in that row according to goalLongitude
 function getColumnFromLongitude(row) {
+  // TODO: really do it!
   // TODO: map the longitudes with Math.abs(... - ...) and then simply choose the minIndex of the array
   var longitudes = nasaarray[row].l;
   var best_earth = 0;
@@ -117,64 +133,42 @@ function getColumnFromLongitude(row) {
   return best_earth;
 }
 
-function setColumnFromLongitude() {
-  selectedColumn = getColumnFromLongitude(selectedRow);
-}
-
 function highlightSelectedDot(col) {
   // remove previously highlighted
   $(".orange").removeClass("orange");
 
-  var selectedDot = $("#dotContainer").find("label")[col];
-  $("#dotContainer").find(selectedDot).addClass('orange');
+  // add the new one
+  $("#dotContainer label:nth-of-type(" + (nasaarray[selectedRow].n - col) + ")").addClass('orange');
 }
 
 function activateSelectedRow() {
-  var selectedDate = nasaarray[selectedRow].d;
-  $("#dateLabel").text(moment(selectedDate).format("YYYY MMMM DD"));
+  selectedColumn = getColumnFromLongitude(selectedRow);
 
-  setColumnFromLongitude();
-  $("#targetImage").attr("src", getSelectedImageURL());
-
+  $("#dateLabel").text(moment(nasaarray[selectedRow].d).format("YYYY MMMM DD"));
+  $("#targetImage").attr("src", getImageURL(selectedRow, selectedColumn));
   $("#dotContainer").empty();
   for (var i = 0; i < nasaarray[selectedRow].n; i++) {
-    $("#dotContainer").append( "<label>o</label>" );
+    $("#dotContainer").append("<label>o</label>");
   }
   highlightSelectedDot(selectedColumn);
 
   preloadImagesForSelectedPoint();
 }
 
-function rotateEarthWithMouseDrag(event) {
-  if (dragging) {
-    mouseAt = event.pageX;
-    var distance = Math.abs(mouseX - mouseAt);
-    var columnWidth = $(window).width() / nasaarray[selectedRow].n;
-    var noOfColsToMove = Math.floor(distance / columnWidth);
-    var movingRight = mouseAt > mouseX;
+function rotateEarthWithMouseDrag(mouseAt) {
+  var distance = mouseAt - selectedCenterDragMouseX;
+  var columnWidth = mouseDragColumnWidth;
+  var noOfColsToMove = Math.round(distance / columnWidth);
+  var newColumn = selectedColumn + noOfColsToMove;
+  if (newColumn == selectedColumn) return;
+  if (newColumn >= nasaarray[selectedRow].n || newColumn < 0) return;
 
-    if (movingRight) {
-      if ((selectedColumn + noOfColsToMove) >= nasaarray[selectedRow].n) return;
-    } else {
-      if ((selectedColumn - noOfColsToMove) < 0) return;
-    }
+  selectedCenterDragMouseX += (newColumn - selectedColumn) * mouseDragColumnWidth;
+  selectedColumn = newColumn;
 
-    dragColumn = selectedColumn;
-
-    if (movingRight) {
-      dragColumn += noOfColsToMove;
-    } else {
-      dragColumn -= noOfColsToMove;
-    }
-
-    goalLongitude = nasaarray[selectedRow].l[dragColumn];
-
-    $("#targetImage").attr("src", getImageURL(selectedRow, dragColumn));
-
-    highlightSelectedDot(dragColumn);
-
-    preloadImagesForSelectedPoint();
-  }
+  goalLongitude = nasaarray[selectedRow].l[selectedColumn];
+  $("#targetImage").attr("src", getImageURL(selectedRow, selectedColumn));
+  highlightSelectedDot(selectedColumn);
 }
 
 function selectRowWithScroll(event) {
@@ -196,29 +190,31 @@ function selectRowWithScroll(event) {
 }
 
 $(document).ready(function () {
-  // load selectedRow's image (lates day with images and rotation goalLongitude)
+  // load selectedRow's image (latest day with images and rotation goalLongitude)
   activateSelectedRow();
 
-  // UX functions
+  // dragging horizontally with mouse
   $(window).mousedown(function() {
-    dragging = true;
-    mouseX = event.pageX;
+    selectedCenterDragMouseX = event.pageX;
   });
 
-  $(document).mouseup(function() {
-    selectedColumn = dragColumn;
-    dragging = false;
-    mouseX = null;
+  $(window).mousemove(function() {
+    if (selectedCenterDragMouseX == null) return;
+    rotateEarthWithMouseDrag(event.pageX);
   });
 
-  $(window).mousemove(rotateEarthWithMouseDrag);
+  $(window).mouseup(function() {
+    selectedCenterDragMouseX = null;
+    preloadImagesForSelectedPoint();
+  });
 
+  // scrolling vertically with mouse
   $(window).bind('mousewheel DOMMouseScroll', selectRowWithScroll);
-  
+
   // UI functions
   // prevent default image dragging by browser
   $("#targetImage").on('dragstart', function(event) { event.preventDefault(); });
-  
+
   $('#question-mark').hover(function() {
     $('#help-question').toggle("slide");
   });

@@ -25,7 +25,7 @@ h2 {
 }
 
 .icons {
-    top: 13px;
+    top: 12px;
     left: 30px;
     position: absolute;
     cursor: default;
@@ -58,6 +58,7 @@ h2 {
     position: fixed;
     margin: auto;
     height: 100%;
+    cursor: pointer;
 }
 
 #credits {
