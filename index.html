@@ -14,8 +14,18 @@
   
   <body>
 
-    <div id="question">?</div>
-    <div id="help" class="hidden">Scroll with mouse to go back in time. Click and drag to rotate Earth.</div>
+    <div class="icons">
+      <label id="question-mark">?</label>
+      <a href="https://epic.gsfc.nasa.gov/epic" target="_blank" rel="noopener noreferrer">
+	<img id="satellite-icon" src="satellite-icon.png"></img>
+      </a>
+    </div>
+    <div id="help-question" class="hidden help-text">
+      Scroll with mouse to go back in time. Click and drag to rotate Earth.
+    </div>
+    <div id="help-satellite" class="hidden help-text">
+      Images taken from NASA's Earth Polychromatic Imaging Camera. Click to read more.
+    </div>
     
     <span><h2 id="dateLabel"></h2></span>
     
@@ -27,6 +37,8 @@
     <div id="imageContainer">
       <img id="targetImage" class="unselectable"/>
     </div>
+
+    <div id="credits"><a href="http://napszel.com" target="_blank" rel="noopener noreferrer">Napszel</a>, 2017</div>
     
   </body>
 </html>

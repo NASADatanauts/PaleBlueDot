@@ -219,8 +219,12 @@ $(document).ready(function () {
   // prevent default image dragging by browser
   $("#targetImage").on('dragstart', function(event) { event.preventDefault(); });
   
-  $('#question').hover(function() {
-    $('#help').toggle("slide");
+  $('#question-mark').hover(function() {
+    $('#help-question').toggle("slide");
+  });
+
+  $('#satellite-icon').hover(function() {
+    $('#help-satellite').toggle("slide");
   });
 
 });
