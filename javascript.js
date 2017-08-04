@@ -157,9 +157,9 @@ function rotateEarthWithMouseDrag(event) {
     var movingRight = mouseAt > mouseX;
 
     if (movingRight) {
-      if ((selectedColumn + noOfColsToMove) > nasaarray[selectedRow].n) return;
+      if ((selectedColumn + noOfColsToMove) >= nasaarray[selectedRow].n) return;
     } else {
-      if ((selectedColumn - noOfColsToMove) < 1) return;
+      if ((selectedColumn - noOfColsToMove) < 0) return;
     }
 
     dragColumn = selectedColumn;
@@ -170,11 +170,11 @@ function rotateEarthWithMouseDrag(event) {
       dragColumn -= noOfColsToMove;
     }
 
-    goalLongitude = nasaarray[selectedRow].l[dragColumn-1];
+    goalLongitude = nasaarray[selectedRow].l[dragColumn];
 
-    $("#targetImage").attr("src", getImageURL(selectedRow, dragColumn-1));
+    $("#targetImage").attr("src", getImageURL(selectedRow, dragColumn));
 
-    highlightSelectedDot(dragColumn-1);
+    highlightSelectedDot(dragColumn);
 
     preloadImagesForSelectedPoint();
   }
