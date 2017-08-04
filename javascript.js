@@ -114,9 +114,6 @@ function getColumnFromLongitude(row) {
       best_value = Math.abs(longitudes[index] - goalLongitude);
     }
   });
-  if (Math.abs(longitudes[best_earth] - goalLongitude) > 9) {
-    console.warn("Even best image found is way off. Requested closest to %i and found %i.", goalLongitude, longitudes[best_earth]);
-  }
   return best_earth;
 }
 
