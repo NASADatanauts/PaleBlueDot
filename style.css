@@ -13,6 +13,7 @@ body {
 #dateLabel {
     text-align: center;
     margin: 10px;
+    cursor: pointer;
 }
 
 #dotContainer {
@@ -28,12 +29,14 @@ h2 {
     top: 12px;
     left: 30px;
     position: absolute;
-    cursor: default;
+}
+
+.icons label {
+    cursor: pointer;
 }
 
 .icons img {
     height: 21px;
-    cursor: pointer;
 }
 
 .help-text {
@@ -92,4 +95,5 @@ h2 {
 a
 {
     color: white;
+    text-decoration: none;
 }
