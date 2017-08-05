@@ -141,6 +141,24 @@ function highlightSelectedDot(col) {
   $("#dotContainer label:nth-of-type(" + (nasaarray[selectedRow].n - col) + ")").addClass('orange');
 }
 
+function getRowFromDate(date) {
+  for (var i = nasaarray.length - 1; i >= 0; --i) {
+    if (nasaarray[i].d == date || nasaarray[i].d < date) {
+      return i;
+    }
+  }
+  return 0;
+}
+
+function activateByURL(hash) {
+  var date = hash.substring(1, 11);
+  var longit = hash.substring(12);
+
+  selectedRow = getRowFromDate(date);
+  goalLongitude = longit;
+  activateSelectedRow();
+}
+
 function activateSelectedRow() {
   selectedColumn = getColumnFromLongitude(selectedRow);
 
@@ -153,6 +171,7 @@ function activateSelectedRow() {
   highlightSelectedDot(selectedColumn);
 
   preloadImagesForSelectedPoint();
+  pushURLonScroll();
 }
 
 function rotateEarthWithMouseDrag(mouseAt) {
@@ -169,6 +188,22 @@ function rotateEarthWithMouseDrag(mouseAt) {
   goalLongitude = nasaarray[selectedRow].l[selectedColumn];
   $("#targetImage").attr("src", getImageURL(selectedRow, selectedColumn));
   highlightSelectedDot(selectedColumn);
+}
+
+function pushURL() {
+  var basename = window.location.pathname;
+  window.history.pushState("", "", basename + "#" + nasaarray[selectedRow].d + ":" + goalLongitude);
+}
+
+// push URL to history after a timeout
+var timerPushURLtoHistory = null;
+function pushURLonScroll() {
+  if (timerPushURLtoHistory) {
+    clearTimeout(timerPushURLtoHistory);
+    timerPushURLtoHistory = null;
+  }
+
+  timerPushURLtoHistory = setTimeout(pushURL, userCacheDelay);
 }
 
 function selectRowWithScroll(event) {
@@ -190,8 +225,17 @@ function selectRowWithScroll(event) {
 }
 
 $(document).ready(function () {
-  // load selectedRow's image (latest day with images and rotation goalLongitude)
-  activateSelectedRow();
+  // Check if there is a specific path and load Earth accordingly
+  if (window.location.hash) {
+    activateByURL(window.location.hash);
+  } else {
+    activateSelectedRow();
+  }
+
+  // Catch path editing
+  window.onpopstate = function () {
+    activateByURL(window.location.hash);
+  };
 
   // dragging horizontally with mouse
   $(window).mousedown(function() {
@@ -206,6 +250,7 @@ $(document).ready(function () {
   $(window).mouseup(function() {
     selectedCenterDragMouseX = null;
     preloadImagesForSelectedPoint();
+    pushURL();
   });
 
   // scrolling vertically with mouse
