@@ -14,10 +14,11 @@
 //   l: list of longitudesx (size n)
 
 // Settings
-var userCacheDelay = 400;
+var userIdleDelay = 400; // once the user is idle, we start caching and we push the URL history
 var cacheNearRows = 5;
 var loadingDisplayInterval = 200;
 var mouseDragColumnWidth = 100;
+// starting value is Europe
 var defaultGoalLongitude = 19;
 
 
@@ -25,8 +26,8 @@ var defaultGoalLongitude = 19;
 var selectedRow = nasaarray.length - 1;
 // index in nasaarray[selectedrow].{i,l}[____]
 var selectedColumn;
-// goal of the user, starting value is Europe
-var goalLongitude = defaultGoalLongitude;
+// goal of the user
+var goalLongitude;
 
 // selectedCenterDragMouseX is not null if and only if dragging is in progress.
 // When dragging is in progress, it means the X coordinate of the mouse on the
@@ -114,7 +115,7 @@ function preloadImagesForSelectedPoint() {
     timerPreloadImagesForSelectedPoint = null;
   }
 
-  timerPreloadImagesForSelectedPoint = setTimeout(preloadImagesForSelectedRow, userCacheDelay);
+  timerPreloadImagesForSelectedPoint = setTimeout(preloadImagesForSelectedRow, userIdleDelay);
 }
 
 // given a row index, gives us the best column index in that row according to goalLongitude
@@ -143,7 +144,7 @@ function highlightSelectedDot(col) {
 
 function getRowFromDate(date) {
   for (var i = nasaarray.length - 1; i >= 0; --i) {
-    if (nasaarray[i].d == date || nasaarray[i].d < date) {
+    if (nasaarray[i].d <= date) {
       return i;
     }
   }
@@ -151,15 +152,30 @@ function getRowFromDate(date) {
 }
 
 function activateByURL(hash) {
+  // TODO: use a regex which checks the format AND splits out the parts
+  // something like this: ^#([0-9]{4}-[0-9]{2}-[0-9]{2}):([0-9.]+)$
+  // if no match -> error
+  // var date = matchobj.part(0)
+  // var longits = matchobj.part(1)
+  // var longit = float(longits); // and if this float is not correct -> error
+  // in case of error: set a correct hash
   var date = hash.substring(1, 11);
-  var longit = hash.substring(12);
+  var longits = hash.substring(12);
+  var longit = Number(longits);
 
+  if (!longits || longits === "" || Number.isNaN(longit)) {
+    return activateByURL("#" + nasaarray[nasaarray.length-1].d + ":" + defaultGoalLongitude);
+  }
+  
   selectedRow = getRowFromDate(date);
   goalLongitude = longit;
-  activateSelectedRow();
+  activateSelectedRow(true);
 }
 
-function activateSelectedRow() {
+// This function is used in two cases:
+//   - if the user is coming from a bookmark or edited the url -> the boolean parameter is true
+//   - if the user has been scrolling and therefore we have a new selectedrow -> the boolean parameter is false
+function activateSelectedRow(replaceURLImmediately) {
   selectedColumn = getColumnFromLongitude(selectedRow);
 
   $("#dateLabel").text(moment(nasaarray[selectedRow].d).format("YYYY MMMM DD"));
@@ -169,9 +185,13 @@ function activateSelectedRow() {
     $("#dotContainer").append("<label>o</label>");
   }
   highlightSelectedDot(selectedColumn);
-
+  
   preloadImagesForSelectedPoint();
-  pushURLonScroll();
+  if (replaceURLImmediately) {
+    replaceURL();
+  } else {
+    pushURLonScroll();
+  }
 }
 
 function rotateEarthWithMouseDrag(mouseAt) {
@@ -192,18 +212,23 @@ function rotateEarthWithMouseDrag(mouseAt) {
 
 function pushURL() {
   var basename = window.location.pathname;
-  window.history.pushState("", "", basename + "#" + nasaarray[selectedRow].d + ":" + goalLongitude);
+  window.history.pushState(null, "", basename + "#" + nasaarray[selectedRow].d + ":" + goalLongitude);
+}
+
+function replaceURL() {
+  var basename = window.location.pathname;
+  window.history.replaceState(null, "", basename + "#" + nasaarray[selectedRow].d + ":" + goalLongitude);
 }
 
 // push URL to history after a timeout
-var timerPushURLtoHistory = null;
+var timerPushURLonScroll = null;
 function pushURLonScroll() {
-  if (timerPushURLtoHistory) {
-    clearTimeout(timerPushURLtoHistory);
-    timerPushURLtoHistory = null;
+  if (timerPushURLonScroll) {
+    clearTimeout(timerPushURLonScroll);
+    timerPushURLonScroll = null;
   }
 
-  timerPushURLtoHistory = setTimeout(pushURL, userCacheDelay);
+  timerPushURLonScroll = setTimeout(pushURL, userIdleDelay);
 }
 
 function selectRowWithScroll(event) {
@@ -226,11 +251,11 @@ function selectRowWithScroll(event) {
 
 $(document).ready(function () {
   // Check if there is a specific path and load Earth accordingly
-  if (window.location.hash) {
-    activateByURL(window.location.hash);
-  } else {
-    activateSelectedRow();
+  var startHash = window.location.hash;
+  if (!startHash) {
+    startHash = "#" + nasaarray[nasaarray.length-1].d + ":" + defaultGoalLongitude;
   }
+  activateByURL(startHash);
 
   // Catch path editing
   window.onpopstate = function () {
@@ -262,6 +287,10 @@ $(document).ready(function () {
 
   $('#question-mark').hover(function() {
     $('#help-question').toggle("slide");
+  });
+
+  $('#dateLabel').click(function() {
+    activateByURL("#" + nasaarray[nasaarray.length-1].d + ":" + defaultGoalLongitude);
   });
 
   $('#satellite-icon').hover(function() {

@@ -12,7 +12,7 @@ ideas:
 - edit the url path to contain the image pos and date -> this way it's possible to share nice founds by copying the url
 
 top links:
-- small icons: help, 2016 July 5, email, EPIC
+- small icons: help, 2016 July 5, email, EPIC, copy link
 
 comments:
 - epic images for one day: search for the one which has lon closest to 13-25 to see europe
@@ -23,3 +23,5 @@ comments:
 TODO:
 - Fix font: Web Fonts, fonts.google.com
 - Make the circles clickable
+- add icon to copy current link
+- redirect napszel.com/nasa to datanauts github
