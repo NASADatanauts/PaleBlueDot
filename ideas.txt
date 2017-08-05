@@ -24,4 +24,6 @@ TODO:
 - Fix font: Web Fonts, fonts.google.com
 - Make the circles clickable
 - add icon to copy current link
-- redirect napszel.com/nasa to datanauts github
+- change : to /
+- make it work only with date
+- #/19 should show Europe
