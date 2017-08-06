@@ -60,8 +60,9 @@ h2 {
     bottom: 0;
     position: fixed;
     margin: auto;
-    height: 100%;
+    max-height: 100%;
     cursor: pointer;
+    max-width: 100%;
 }
 
 #credits {
