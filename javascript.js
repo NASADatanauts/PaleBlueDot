@@ -153,7 +153,7 @@ function getRowFromDate(date) {
 
 function activateByURL(hash) {
   // TODO: use a regex which checks the format AND splits out the parts
-  // something like this: ^#([0-9]{4}-[0-9]{2}-[0-9]{2}):([0-9.]+)$
+  // something like this: ^#([0-9]{4}-[0-9]{2}-[0-9]{2})[:/]([0-9.]+)$
   // if no match -> error
   // var date = matchobj.part(0)
   // var longits = matchobj.part(1)
@@ -164,7 +164,7 @@ function activateByURL(hash) {
   var longit = Number(longits);
 
   if (!longits || longits === "" || Number.isNaN(longit)) {
-    return activateByURL("#" + nasaarray[nasaarray.length-1].d + ":" + defaultGoalLongitude);
+    return activateByURL("#" + nasaarray[nasaarray.length-1].d + "/" + defaultGoalLongitude);
   }
   
   selectedRow = getRowFromDate(date);
@@ -212,12 +212,12 @@ function rotateEarthWithMouseDrag(mouseAt) {
 
 function pushURL() {
   var basename = window.location.pathname;
-  window.history.pushState(null, "", basename + "#" + nasaarray[selectedRow].d + ":" + goalLongitude);
+  window.history.pushState(null, "", basename + "#" + nasaarray[selectedRow].d + "/" + goalLongitude);
 }
 
 function replaceURL() {
   var basename = window.location.pathname;
-  window.history.replaceState(null, "", basename + "#" + nasaarray[selectedRow].d + ":" + goalLongitude);
+  window.history.replaceState(null, "", basename + "#" + nasaarray[selectedRow].d + "/" + goalLongitude);
 }
 
 // push URL to history after a timeout
@@ -253,7 +253,7 @@ $(document).ready(function () {
   // Check if there is a specific path and load Earth accordingly
   var startHash = window.location.hash;
   if (!startHash) {
-    startHash = "#" + nasaarray[nasaarray.length-1].d + ":" + defaultGoalLongitude;
+    startHash = "#" + nasaarray[nasaarray.length-1].d + "/" + defaultGoalLongitude;
   }
   activateByURL(startHash);
 
@@ -290,7 +290,7 @@ $(document).ready(function () {
   });
 
   $('#dateLabel').click(function() {
-    activateByURL("#" + nasaarray[nasaarray.length-1].d + ":" + defaultGoalLongitude);
+    activateByURL("#" + nasaarray[nasaarray.length-1].d + "/" + defaultGoalLongitude);
   });
 
   $('#satellite-icon').hover(function() {
