@@ -6,6 +6,8 @@ _Look again at that dot. That's here. That's home. That's us. On it everyone you
 
 -- Carl Sagan, Pale Blue Dot, 1994
 
+![image](palebluedot.png "Pale Blue Dot website")
+
 On this website, you can view the latest images of Earth taken by NASA's EPIC ([Earth Polychromatic Imaging Camera](https://epic.gsfc.nasa.gov/epic)). You can easily scroll back in time to view all images ever taken by the satellite dating back to October 2015. Just use your mouse scroll (or double finger scroll on touchpad) to load images of previous days and see the clouds swirling. Also click and drag left and right to rotate Earth.
 
 If you find an interesting image you would like to share with others, just copy paste the url from your browser's address bar. The url always updates based on the image you are viewing: it contains the date and a longitude (the latter specifies from which direction Earth was photographed).
