@@ -15,3 +15,5 @@ If you find an interesting image you would like to share with others, just copy 
 For example on the image from 2016 October 4th (http://napszel.com/palebluedot/#2016-10-04/-76.235588) you can see the Matthew hurricane forming north to South America. If you scroll UP with your mouse you can see the same hurricane reaching Florida in a few days.
 
 Because of the unique perspective of the camera you can even view the Moon crossing in front of Earth at times. For example on 2016 July 5th: http://napszel.com/palebluedot/#2016-07-05/109
+
+Note: Mobile support will come soon. The controls only work from PC for now.
