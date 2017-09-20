@@ -182,7 +182,7 @@ function activateSelectedRow(replaceURLImmediately) {
   $("#targetImage").attr("src", getImageURL(selectedRow, selectedColumn));
   $("#dotContainer").empty();
   for (var i = 0; i < nasaarray[selectedRow].n; i++) {
-    $("#dotContainer").append("<label class='dot'>o</label>");
+    $("#dotContainer").append("<label class='dot clickable'>o</label>");
   }
 
   $('.dot').click(function() {
@@ -308,6 +308,18 @@ $(document).ready(function () {
 
   $('#satellite-icon').hover(function() {
     $('#help-satellite').toggle("slide");
+  });
+
+  $('#dateUp').click(function() {
+    if (selectedRow < nasaarray.length - 1) {
+      activateByURL("#" + nasaarray[selectedRow + 1].d + "/" + defaultGoalLongitude);
+    }
+  });
+
+  $('#dateDown').click(function() {
+    if (selectedRow > 0) {
+      activateByURL("#" + nasaarray[selectedRow - 1].d + "/" + defaultGoalLongitude);
+    }
   });
 
 });

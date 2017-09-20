@@ -13,17 +13,12 @@ body {
 #dateLabel {
     text-align: center;
     margin: 10px;
-    cursor: pointer;
 }
 
 #dotContainer {
     letter-spacing: 0.6em;
     text-align: center;
     font-size: 1.2em;
-}
-
-.dot {
-    cursor: pointer;
 }
 
 .orange {
@@ -39,10 +34,6 @@ h2 {
     top: 12px;
     left: 30px;
     position: absolute;
-}
-
-.icons label {
-    cursor: pointer;
 }
 
 .icons img {
@@ -63,17 +54,35 @@ h2 {
     position: absolute;
 }
 
-#imageContainer img {
-    top: 140px;
+.arrow {
+    position: absolute;
+    text-align: center;
+    font-size: 1.2em;
+    width: 100%;
+}
+
+#dateDown {
+    bottom: 0px;
+}
+
+#imageContainer  {
+    top: 100px;
     left: 0;
     right: 0;
     bottom: 0;
+
     position: fixed;
+    display: inline-block;
+}
+
+#imageContainer img {
     margin: auto;
     max-height: 100%;
-    cursor: pointer;
     max-width: 100%;
+
+    display: block;
 }
+
 
 #credits {
     position: absolute;
@@ -91,11 +100,14 @@ h2 {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    cursor: default;
 }
 
 .hidden {
     display: none;
+}
+
+.clickable {
+    cursor: pointer;
 }
 
 a

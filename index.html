@@ -16,10 +16,10 @@
 
     <div class="icons">
       <a href="#2016-07-05/109">
-	<label id="question-mark">?</label>
+	<label id="question-mark" class="clickable">?</label>
       </a>
       <a href="https://epic.gsfc.nasa.gov/epic" target="_blank" rel="noopener noreferrer">
-	<img id="satellite-icon" src="satellite-icon.png"></img>
+	<img id="satellite-icon" class="clickable" src="satellite-icon.png"></img>
       </a>
     </div>
     <div id="help-question" class="hidden help-text">
@@ -30,7 +30,7 @@
     </div>
     
     <span>
-      <h2 id="dateLabel"></h2>
+      <h2 id="dateLabel" class="clickable"></h2>
     </span>
     
     <div id="loading" class="hidden">Loading...</div>
@@ -38,7 +38,9 @@
     <div id="dotContainer" class="unselectable"></div>
 
     <div id="imageContainer">
-      <img id="targetImage" class="unselectable"/>
+      <label class="clickable unselectable arrow" id="dateUp">&#9651;</label>
+      <label class="clickable unselectable arrow" id="dateDown">&#9661;</label>
+      <img id="targetImage" class="unselectable clickable"/>
     </div>
 
     <div id="credits"><a href="http://napszel.com" target="_blank" rel="noopener noreferrer">Napszel</a>, 2017</div>
