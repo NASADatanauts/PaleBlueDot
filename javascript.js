@@ -174,7 +174,7 @@ function activateByURL(hash) {
 
 // This function is used in two cases:
 //   - if the user is coming from a bookmark or edited the url -> the boolean parameter is true
-//   - if the user has been scrolling and therefore we have a new selectedrow -> the boolean parameter is false
+//   - if the user has been scrolling and therefore we have a new selectedRow -> the boolean parameter is false
 function activateSelectedRow(replaceURLImmediately) {
   selectedColumn = getColumnFromLongitude(selectedRow);
 
@@ -182,8 +182,13 @@ function activateSelectedRow(replaceURLImmediately) {
   $("#targetImage").attr("src", getImageURL(selectedRow, selectedColumn));
   $("#dotContainer").empty();
   for (var i = 0; i < nasaarray[selectedRow].n; i++) {
-    $("#dotContainer").append("<label>o</label>");
+    $("#dotContainer").append("<label class='dot'>o</label>");
   }
+
+  $('.dot').click(function() {
+    rotateEarthWithDotClick($('.dot').index(this));
+  });
+  
   highlightSelectedDot(selectedColumn);
   
   preloadImagesForSelectedPoint();
@@ -204,6 +209,14 @@ function rotateEarthWithMouseDrag(mouseAt) {
 
   selectedCenterDragMouseX += (newColumn - selectedColumn) * mouseDragColumnWidth;
   selectedColumn = newColumn;
+
+  goalLongitude = nasaarray[selectedRow].l[selectedColumn];
+  $("#targetImage").attr("src", getImageURL(selectedRow, selectedColumn));
+  highlightSelectedDot(selectedColumn);
+}
+
+function rotateEarthWithDotClick(indexOfDot) {
+  selectedColumn = nasaarray[selectedRow].n - indexOfDot - 1;
 
   goalLongitude = nasaarray[selectedRow].l[selectedColumn];
   $("#targetImage").attr("src", getImageURL(selectedRow, selectedColumn));
