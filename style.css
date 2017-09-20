@@ -17,8 +17,18 @@ body {
 }
 
 #dotContainer {
+    letter-spacing: 0.6em;
     text-align: center;
-    font-size: 0.8em;
+    font-size: 1.2em;
+}
+
+.dot {
+    cursor: pointer;
+}
+
+.orange {
+    color: #FF9800;
+    text-transform: uppercase;
 }
 
 h2 {
@@ -86,11 +96,6 @@ h2 {
 
 .hidden {
     display: none;
-}
-
-.orange {
-    color: #FF9800;
-    text-transform: uppercase;
 }
 
 a
