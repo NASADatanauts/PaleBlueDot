@@ -29,16 +29,16 @@
       Images taken from NASA's Earth Polychromatic Imaging Camera. Click to read more.
     </div>
     
-    <span>
-      <h2 id="dateLabel" class="clickable"></h2>
-    </span>
+    <h2>
+      <label id="dateLabel" class="clickable"></label>
+      <label class="clickable unselectable arrow" id="dateUp">&#9651;</label>
+      <label class="clickable unselectable arrow" id="dateDown">&#9661;</label>
+    </h2>
     
     <div id="loading" class="hidden">Loading...</div>
 
     <div id="imageContainer">
       <div id="dotContainer" class="unselectable"></div>
-      <label class="clickable unselectable arrow" id="dateUp">&#9651;</label>
-      <label class="clickable unselectable arrow" id="dateDown">&#9661;</label>
       <img id="targetImage" class="unselectable clickable"/>
     </div>
 
