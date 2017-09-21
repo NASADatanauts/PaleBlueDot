@@ -10,16 +10,12 @@ body {
     line-height: 1.1em;
 }
 
-#dateLabel {
-    text-align: center;
-    margin: 10px;
-}
-
 #dotContainer {
     position: absolute;
+    top: 10px;
     width: 100%;
     text-align: center;
-    font-size: 1.7em;
+    font-size: 2.3em;
 }
 
 .dot:hover {
@@ -32,6 +28,9 @@ body {
 
 h2 {
     background-color: #004b80;
+    text-align: center;
+    margin: 10px;
+    font-size: 1.8em;
 }
 
 .icons {
@@ -59,10 +58,8 @@ h2 {
 }
 
 .arrow {
-    position: absolute;
-    text-align: center;
-    font-size: 1.3em;
-    width: 100%;
+    top: 13px;
+    font-size: .9em;
 }
 
 .arrow:hover {
@@ -70,11 +67,7 @@ h2 {
 }
 
 #dateUp {
-    top: 35px;
-}
-
-#dateDown {
-    bottom: 0px;
+    margin-left: 20px;
 }
 
 #imageContainer  {
