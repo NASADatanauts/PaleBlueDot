@@ -16,4 +16,5 @@ For example on the image from 2016 October 4th (http://napszel.com/palebluedot/#
 
 Because of the unique perspective of the camera you can even view the Moon crossing in front of Earth at times. For example on 2016 July 5th: http://napszel.com/palebluedot/#2016-07-05/109
 
-Note: Mobile support will come soon. The controls only work from PC for now.
+If you don't have a mouse available (for example on mobile), use the circle and triangle buttons under and next to the date header.
+
