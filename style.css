@@ -16,14 +16,18 @@ body {
 }
 
 #dotContainer {
-    letter-spacing: 0.6em;
+    position: absolute;
+    width: 100%;
     text-align: center;
-    font-size: 1.2em;
+    font-size: 1.7em;
+}
+
+.dot:hover {
+    color: #FF9800;
 }
 
 .orange {
     color: #FF9800;
-    text-transform: uppercase;
 }
 
 h2 {
@@ -57,8 +61,16 @@ h2 {
 .arrow {
     position: absolute;
     text-align: center;
-    font-size: 1.2em;
+    font-size: 1em;
     width: 100%;
+}
+
+.arrow:hover {
+    color: #FF9800;
+}
+
+#dateUp {
+    top: 35px;
 }
 
 #dateDown {
@@ -66,7 +78,7 @@ h2 {
 }
 
 #imageContainer  {
-    top: 100px;
+    top: 50px;
     left: 0;
     right: 0;
     bottom: 0;
