@@ -182,7 +182,7 @@ function activateSelectedRow(replaceURLImmediately) {
   $("#targetImage").attr("src", getImageURL(selectedRow, selectedColumn));
   $("#dotContainer").empty();
   for (var i = 0; i < nasaarray[selectedRow].n; i++) {
-    $("#dotContainer").append("<label class='dot clickable'>o</label>");
+    $("#dotContainer").append("<label class='dot clickable'>&#x25CB</label>");
   }
 
   $('.dot').click(function() {
