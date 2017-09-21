@@ -30,7 +30,7 @@ h2 {
     background-color: #004b80;
     text-align: center;
     margin: 10px;
-    font-size: 1.8em;
+    font-size: 1.5em;
 }
 
 .icons {
@@ -59,7 +59,7 @@ h2 {
 
 .arrow {
     top: 13px;
-    font-size: .9em;
+    font-size: 1em;
 }
 
 .arrow:hover {
