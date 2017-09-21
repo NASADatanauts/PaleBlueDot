@@ -15,7 +15,7 @@ body {
     top: 10px;
     width: 100%;
     text-align: center;
-    font-size: 2.3em;
+    font-size: 1.6em;
 }
 
 .dot:hover {
@@ -30,7 +30,7 @@ h2 {
     background-color: #004b80;
     text-align: center;
     margin: 10px;
-    font-size: 1.5em;
+    font-size: 1.1em;
 }
 
 .icons {
@@ -59,7 +59,7 @@ h2 {
 
 .arrow {
     top: 13px;
-    font-size: 1em;
+    font-size: .8em;
 }
 
 .arrow:hover {
