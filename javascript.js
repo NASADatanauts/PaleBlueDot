@@ -16,7 +16,7 @@
 // Settings
 var userIdleDelay = 400; // once the user is idle, we start caching and we push the URL history
 var cacheNearRows = 5;
-var loadingDisplayInterval = 200;
+var loadingDisplayInterval = 20;
 var mouseDragColumnWidth = 100;
 // starting value is Europe
 var defaultGoalLongitude = 19;
@@ -35,43 +35,37 @@ var goalLongitude;
 var selectedCenterDragMouseX = null;
 
 // class Preload
-var preloadedImages = {}; // don't let Chrome cancel the images!
+var preloadedImages = []; // don't let Chrome cancel the images!
 var inFlightImages = 0;
 function preloadImage(row, col) {
   var url = getImageURL(row, col);
-  if (!preloadedImages[url]) {
-    var img = new Image();
-    img.onload = function() {
-      // We set preloadedImages back to undefined even on successful
-      // load, because this way if the image gets out of disk cache
-      // (which we have no idea of), the next time we preload it
-      // again.  If it's still in the disk cache, then this
-      // unnecessary preload is fast anyway.
-      preloadedImages[url] = undefined;
-      inFlightImages--;
-    }
-    img.onabort = function() {
-      inFlightImages--;
-    }
-    img.onerror = img.onabort;
-    inFlightImages++;
-    img.src = url;
-    preloadedImages[url] = img;
+  var img = new Image();
+  img.onload = function() {
+    console.log("onload img", this);
+    inFlightImages--;
   }
+  img.onabort = function() {
+    console.log("onabort img", this.src);
+    if (this.src === "http://placekitten.com/200/300") return;
+    inFlightImages--;
+  }
+  img.onerror = img.onabort;
+  img.src = url;
+  inFlightImages++;
+  preloadedImages.push(img);
 }
 
-function preloadCancelImage(row, col) {
-  var url = getImageURL(row, col);
-  var pre = preloadedImages[url];
-  if (pre) {
-    pre.src = "http://placekitten.com/200/300";
-    preloadedImages[url] = undefined;
+function cancelPreload() {
+  for (var i = 0; i < preloadedImages.length; i++) {
+    preloadedImages[i].src = "http://placekitten.com/200/300";
+    preloadedImages[i] = undefined;
   }
+  preloadedImages = [];
 }
 
 // This is like a thread a little bit.
 setInterval(function () {
-  if (inFlightImages > 0) {
+  if (inFlightImages > -1000) {
     $("#loading").removeClass("hidden");
     $("#loading").text("Loading... (" + inFlightImages + ")");
   } else {
@@ -92,7 +86,8 @@ function preloadImagesForSelectedRow() {
   // we preload the whole current row horizontally
   for (var col = 0; col < nasaarray[selectedRow].n; col++) preloadImage(selectedRow, col);
 
-  // vertically, we preload +-5 images for the current column
+  //vertically, we preload +-5 images for the current column
+
   for (var currentRow = selectedRow - cacheNearRows;
        currentRow <= selectedRow + cacheNearRows;
        currentRow++) {
@@ -101,11 +96,6 @@ function preloadImagesForSelectedRow() {
 
     preloadImage(currentRow, getColumnFromLongitude(currentRow));
   }
-}
-
-function preloadCancelForSelectedRow() {
-  // we only cancel horizontally
-  for (var col = 0; col < nasaarray[selectedRow].n; col++) preloadCancelImage(selectedRow, col);
 }
 
 var timerPreloadImagesForSelectedPoint = null;
@@ -248,7 +238,7 @@ function pushURLonScroll() {
 
 function gotoRow(newRow) {
   if (newRow < nasaarray.length && newRow >= 0) {
-    preloadCancelForSelectedRow();
+    cancelPreload();
     selectedRow = newRow;
     activateSelectedRow();
   }
