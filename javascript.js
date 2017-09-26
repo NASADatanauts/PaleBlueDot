@@ -213,6 +213,8 @@ function rotateEarthWithMouseDrag(mouseAt) {
   goalLongitude = nasaarray[selectedRow].l[selectedColumn];
   $("#targetImage").attr("src", getImageURL(selectedRow, selectedColumn));
   highlightSelectedDot(selectedColumn);
+
+  // URL is updated only on mouseup, so we don't pollute the history
 }
 
 function rotateEarthWithDotClick(indexOfDot) {
@@ -244,21 +246,21 @@ function pushURLonScroll() {
   timerPushURLonScroll = setTimeout(pushURL, userIdleDelay);
 }
 
+function gotoRow(newRow) {
+  if (newRow < nasaarray.length && newRow >= 0) {
+    preloadCancelForSelectedRow();
+    selectedRow = newRow;
+    activateSelectedRow();
+  }
+}
+
 function selectRowWithScroll(event) {
   if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0) {
-    // scoll up
-    if (selectedRow < nasaarray.length - 1) {
-      preloadCancelForSelectedRow();
-      selectedRow = selectedRow + 1;
-      activateSelectedRow();
-    }
+    // scroll up
+    gotoRow(selectedRow + 1);
   } else {
     // scroll down
-    if (selectedRow > 0) {
-      preloadCancelForSelectedRow();
-      selectedRow = selectedRow - 1;
-      activateSelectedRow();
-    }
+    gotoRow(selectedRow - 1);
   }
 }
 
@@ -303,7 +305,7 @@ $(document).ready(function () {
   });
 
   $('#dateLabel').click(function() {
-    activateByURL("#" + nasaarray[nasaarray.length-1].d + "/" + defaultGoalLongitude);
+    activateByURL("#");
   });
 
   $('#satellite-icon').hover(function() {
@@ -311,15 +313,11 @@ $(document).ready(function () {
   });
 
   $('#dateUp').click(function() {
-    if (selectedRow < nasaarray.length - 1) {
-      activateByURL("#" + nasaarray[selectedRow + 1].d + "/" + defaultGoalLongitude);
-    }
+    gotoRow(selectedRow + 1);
   });
 
   $('#dateDown').click(function() {
-    if (selectedRow > 0) {
-      activateByURL("#" + nasaarray[selectedRow - 1].d + "/" + defaultGoalLongitude);
-    }
+    gotoRow(selectedRow - 1);
   });
 
 });

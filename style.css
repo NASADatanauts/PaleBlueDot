@@ -52,8 +52,8 @@ h2 {
 }
 
 #loading {
-    top: 13px;
-    right: 15px;
+    bottom: 3px;
+    left: 15px;
     position: absolute;
 }
 
@@ -120,3 +120,37 @@ a
     color: white;
     text-decoration: none;
 }
+
+@media screen and (max-width: 670px) {
+    body {
+	font-size: 1em;
+	letter-spacing: .1em;
+    }
+
+    .arrow {
+	top: 6px;
+	font-size: 1.1em;
+	position: absolute;
+	right: 10px;
+    }
+
+    #dateUp {
+	margin-left: auto;
+	margin-right: 30px;
+    }
+
+    .icons {
+	top: 6px;
+	left: 10px;
+    }
+
+    .help-text {
+	left: 10px;
+	top: 32px;
+    }
+
+    h2 {
+	margin: auto;
+    }
+}
+
