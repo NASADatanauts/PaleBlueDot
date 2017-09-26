@@ -223,6 +223,7 @@ function rotateEarthWithDotClick(indexOfDot) {
   goalLongitude = nasaarray[selectedRow].l[selectedColumn];
   $("#targetImage").attr("src", getImageURL(selectedRow, selectedColumn));
   highlightSelectedDot(selectedColumn);
+  pushURL();
 }
 
 function pushURL() {
