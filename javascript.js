@@ -229,6 +229,7 @@ function rotateEarthWithDotClick(indexOfDot) {
 function pushURL() {
   var basename = window.location.pathname;
   window.history.pushState(null, "", basename + "#" + nasaarray[selectedRow].d + "/" + goalLongitude);
+  console.log("Push URL");
 }
 
 function replaceURL() {
@@ -279,16 +280,16 @@ $(document).ready(function () {
   };
 
   // dragging horizontally with mouse
-  $(window).mousedown(function() {
+  $("#imageContainer").mousedown(function() {
     selectedCenterDragMouseX = event.pageX;
   });
 
-  $(window).mousemove(function() {
+  $("#imageContainer").mousemove(function() {
     if (selectedCenterDragMouseX == null) return;
     rotateEarthWithMouseDrag(event.pageX);
   });
 
-  $(window).mouseup(function() {
+  $("#imageContainer").mouseup(function() {
     selectedCenterDragMouseX = null;
     preloadImagesForSelectedPoint();
     pushURL();
