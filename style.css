@@ -33,6 +33,11 @@ h2 {
     font-size: 1.3em;
 }
 
+#dateLabel {
+    display: inline-block;
+    width: 408px;
+}
+
 .icons {
     top: 12px;
     left: 30px;
