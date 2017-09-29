@@ -139,6 +139,11 @@ a
 	right: 10px;
     }
 
+    #dateLabel {
+	display: auto;
+	width: auto;
+    }
+
     #dateUp {
 	margin-left: auto;
 	margin-right: 30px;
