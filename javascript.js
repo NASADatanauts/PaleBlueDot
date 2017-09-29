@@ -229,7 +229,6 @@ function rotateEarthWithDotClick(indexOfDot) {
 function pushURL() {
   var basename = window.location.pathname;
   window.history.pushState(null, "", basename + "#" + nasaarray[selectedRow].d + "/" + goalLongitude);
-  console.log("Push URL");
 }
 
 function replaceURL() {
