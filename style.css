@@ -99,7 +99,8 @@ h2 {
     right: 10px;
     bottom: 0px;
     font-size: .5em;
-    letter-spacing: .1em;
+    text-align: center;
+    line-height: 1.1em;
 }
 
 .unselectable {
@@ -124,6 +125,10 @@ a
 {
     color: white;
     text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
 }
 
 @media screen and (max-width: 670px) {
@@ -161,6 +166,14 @@ a
 
     h2 {
 	margin: auto;
+    }
+
+    #credits a {
+	font-style: italic;
+    }
+
+    #credits {
+	font-size: .6em;
     }
 }
 
