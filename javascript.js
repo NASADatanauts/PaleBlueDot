@@ -303,6 +303,22 @@ function isThereTouchOnDevice() {
   }
 }
 
+// prevent default image highlight and context menu on mobile
+function absorbEvent_(event) {
+  return false;
+}
+
+function preventLongPressMenu(node) {
+  node.ontouchstart = absorbEvent_;
+  node.ontouchmove = absorbEvent_;
+  node.ontouchend = absorbEvent_;
+  node.ontouchcancel = absorbEvent_;
+}
+
+function preventImageDraggingOnTouchScreen() {
+  preventLongPressMenu(document.getElementById('targetImage'));
+}
+
 $(document).ready(function () {
   // Check if there is a specific path and load Earth accordingly
   var startHash = window.location.hash;
@@ -352,7 +368,8 @@ $(document).ready(function () {
   }
 
   // prevent default image dragging by browser
-  $("#targetImage").on('dragstart', function(event) { event.preventDefault(); });
+  $("#targetImage").on('dragstart', function(event) { event.preventDefault(); }); // for desktop
+  preventImageDraggingOnTouchScreen(); // for mobile
 
   $('#question-mark').hover(function() {
     $('#help-question').toggle("slide");
