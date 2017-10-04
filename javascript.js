@@ -17,10 +17,10 @@
 var userIdleDelay = 400; // once the user is idle, we start caching and we push the URL history
 var cacheNearRows = 5;
 var loadingDisplayInterval = 200;
-var mouseDragColumnWidth = 100;
+var mouseDragColumnWidth = 100; // user has to drag this many pixels with the mouse to start rotating Earth
+var fingerSwipeColumnWidth = 40; // user has to swipe (on mobile) this many pixels with finger to start rotating Earth
 // starting value is Europe
 var defaultGoalLongitude = 19;
-
 
 // index in nasaarray[____]
 var selectedRow = nasaarray.length - 1;
@@ -29,8 +29,13 @@ var selectedColumn;
 // goal of the user
 var goalLongitude;
 
+// While finger swipe is in progress (on mobile), it stores the currently shown column's
+// id (earth rotation). The variable 'selecteColumn' is updated with this value when the
+// swipe ends.
+var newSelectedColumn;
+
 // selectedCenterDragMouseX is not null if and only if dragging is in progress.
-// When dragging is in progress, it means the X coordinate of the mouse on the
+// When dragging is in progress, it stores the X coordinate of the mouse on the
 // screen for which the currently selectedColumn is exactly in the middle.
 var selectedCenterDragMouseX = null;
 
@@ -210,19 +215,15 @@ function rotateEarthWithMouseDrag(mouseAt) {
   selectedCenterDragMouseX += (newColumn - selectedColumn) * mouseDragColumnWidth;
   selectedColumn = newColumn;
 
-  goalLongitude = nasaarray[selectedRow].l[selectedColumn];
-  $("#targetImage").attr("src", getImageURL(selectedRow, selectedColumn));
-  highlightSelectedDot(selectedColumn);
-
+  gotoColumn(selectedColumn);
   // URL is updated only on mouseup, so we don't pollute the history
 }
 
 function rotateEarthWithDotClick(indexOfDot) {
   selectedColumn = nasaarray[selectedRow].n - indexOfDot - 1;
 
-  goalLongitude = nasaarray[selectedRow].l[selectedColumn];
-  $("#targetImage").attr("src", getImageURL(selectedRow, selectedColumn));
-  highlightSelectedDot(selectedColumn);
+  gotoColumn(selectedColumn);
+
   pushURL();
 }
 
@@ -255,6 +256,12 @@ function gotoRow(newRow) {
   }
 }
 
+function gotoColumn(newColumn) {
+  goalLongitude = nasaarray[selectedRow].l[newColumn];
+  $("#targetImage").attr("src", getImageURL(selectedRow, newColumn));
+  highlightSelectedDot(newColumn);
+}
+
 function selectRowWithScroll(event) {
   if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0) {
     // scroll up
@@ -262,6 +269,37 @@ function selectRowWithScroll(event) {
   } else {
     // scroll down
     gotoRow(selectedRow - 1);
+  }
+}
+
+function rotateEarthWithSwipe(event, phase, direction, distance) {
+  if (phase == "end") {
+    selectedColumn = newSelectedColumn;
+    pushURL();
+    return;
+  }
+
+  if (direction == "left") {
+    newSelectedColumn = selectedColumn - Math.round(distance / fingerSwipeColumnWidth);
+    if (newSelectedColumn < 0) newSelectedColumn = 0;
+    gotoColumn(newSelectedColumn);
+    return;
+  }
+
+  if (direction == "right") {
+    newSelectedColumn = selectedColumn + Math.round(distance / fingerSwipeColumnWidth);
+    if (newSelectedColumn >= nasaarray[selectedRow].n) newSelectedColumn = nasaarray[selectedRow].n - 1;
+    gotoColumn(newSelectedColumn);
+    return;
+  }
+}
+
+function isThereTouchOnDevice() {
+  try {
+    document.createEvent("TouchEvent");
+    return true;
+  } catch(e) {
+    return false;
   }
 }
 
@@ -297,7 +335,22 @@ $(document).ready(function () {
   // scrolling vertically with mouse
   $(window).bind('mousewheel DOMMouseScroll', selectRowWithScroll);
 
-  // UI functions
+  // Swipe on mobile
+  if (isThereTouchOnDevice() == true) {
+    var swipeOptions = {
+      triggerOnTouchEnd: true,
+      swipeStatus: rotateEarthWithSwipe,
+      allowPageScroll: "vertical",
+      threshold: -1 // this makes sure that swipe phase "end" is always called
+      // (there is no "canceled" swipe because of threshold)
+    }
+
+    $(function() {
+      imgs = $("#imageContainer");
+      imgs.swipe(swipeOptions);
+    });
+  }
+
   // prevent default image dragging by browser
   $("#targetImage").on('dragstart', function(event) { event.preventDefault(); });
 
