@@ -56,6 +56,11 @@ h2 {
     height: 21px;
 }
 
+.icons a:hover
+{
+    text-decoration: none;
+}
+
 .help-text {
     font-size: .5em;
     letter-spacing: .1em;
@@ -130,6 +135,7 @@ a
     color: white;
     text-decoration: none;
 }
+
 
 @media screen and (max-width: 670px) {
     body {
