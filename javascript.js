@@ -136,10 +136,10 @@ function getColumnFromLongitude(row) {
 
 function highlightSelectedDot(col) {
   // remove previously highlighted
-  $(".orange").removeClass("orange");
+  $(".highlighted").removeClass("highlighted");
 
   // add the new one
-  $("#dotContainer label:nth-of-type(" + (nasaarray[selectedRow].n - col) + ")").addClass('orange');
+  $("#dotContainer label:nth-of-type(" + (nasaarray[selectedRow].n - col) + ")").addClass('highlighted');
 }
 
 function getRowFromDate(date) {
