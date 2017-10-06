@@ -15,7 +15,7 @@
 // nasaarray is ordered ascending by d.
 
 // Settings
-var userIdleDelay = 400; // once the user is idle, we start caching and we push the URL history
+var pushURLDelay = 400; // once the user is idle, we push the URL history
 var cacheNearRows = 5;
 var loadingDisplayInterval = 200; // TODO: remove precaching
 var mouseDragColumnWidth = 100; // user has to drag this many pixels with the mouse to start rotating Earth
@@ -35,11 +35,6 @@ var goalLongitude;
 // id (earth rotation). The variable 'selectedColumn' is updated with this value when the
 // swipe ends.
 var newSelectedColumn;
-
-// selectedCenterDragMouseX is not null if and only if dragging is in progress.
-// When dragging is in progress, it stores the X coordinate of the mouse on the
-// screen for which the currently selectedColumn is exactly in the middle.
-var selectedCenterDragMouseX = null;
 
 // class Preload
 var preloadedImages = {}; // don't let Chrome cancel the images!
@@ -122,7 +117,7 @@ function preloadImagesForSelectedPoint() {
     timerPreloadImagesForSelectedPoint = null;
   }
 
-  timerPreloadImagesForSelectedPoint = setTimeout(preloadImagesForSelectedRow, userIdleDelay);
+  timerPreloadImagesForSelectedPoint = setTimeout(preloadImagesForSelectedRow, pushURLDelay);
 }
 
 // given a row index, gives us the best column index in that row according to goalLongitude
@@ -209,54 +204,63 @@ function activateSelectedRow(redirectType) {
   } else if (redirectType === RedirectType.IMMEDIATE_PUSH) {
     pushURL();
   } else if (redirectType === RedirectType.DELAYED_PUSH) {
-    pushURLonScroll();
+    pushURLDelayed();
   } else {
     console.error("invalid redirecttype");
   }
 }
 
-function rotateEarthWithMouseDrag(mouseAt) {
-  var distance = mouseAt - selectedCenterDragMouseX;
-  var columnWidth = mouseDragColumnWidth;
-  var noOfColsToMove = Math.round(distance / columnWidth);
-  var newColumn = selectedColumn + noOfColsToMove;
-  if (newColumn == selectedColumn) return;
-  if (newColumn >= nasaarray[selectedRow].n || newColumn < 0) return;
+// push URL to history after a timeout
+var timerPushURLDelayed = null;
+function pushURLDelayed() {
+  if (timerPushURLDelayed) {
+    clearTimeout(timerPushURLDelayed);
+    timerPushURLDelayed = null;
+  }
 
-  selectedCenterDragMouseX += (newColumn - selectedColumn) * mouseDragColumnWidth;
-  selectedColumn = newColumn;
-
-  gotoColumn(selectedColumn);
-  // URL is updated only on mouseup, so we don't pollute the history
+  timerPushURLDelayed = setTimeout(pushURL, pushURLDelay);
 }
 
-function rotateEarthWithDotClick(indexOfDot) {
-  selectedColumn = nasaarray[selectedRow].n - indexOfDot - 1;
-
-  gotoColumn(selectedColumn);
-
-  pushURL();
+function generateURL() {
+  return window.location.pathname + "#" + nasaarray[selectedRow].d + "/" + goalLongitude;
 }
 
 function pushURL() {
-  var basename = window.location.pathname;
-  window.history.pushState(null, "", basename + "#" + nasaarray[selectedRow].d + "/" + goalLongitude);
+  window.history.pushState(null, "", generateURL());
 }
 
 function replaceURL() {
-  var basename = window.location.pathname;
-  window.history.replaceState(null, "", basename + "#" + nasaarray[selectedRow].d + "/" + goalLongitude);
+  window.history.replaceState(null, "", generateURL());
 }
 
-// push URL to history after a timeout
-var timerPushURLonScroll = null;
-function pushURLonScroll() {
-  if (timerPushURLonScroll) {
-    clearTimeout(timerPushURLonScroll);
-    timerPushURLonScroll = null;
-  }
+// desktop dragdrop api -> rotateEarthApi converter
+var desktopHorizontalMouseAt = null;
+function desktopHorizontalDragStart(mouseAt) {
+  desktopHorizontalMouseAt = mouseAt;
+}
 
-  timerPushURLonScroll = setTimeout(pushURL, userIdleDelay);
+function desktopHorizontalDragMove(mouseAt) {
+  if (desktopHorizontalMouseAt == null) return;
+  rotateEarthAPIMove((mouseAt - desktopHorizontalMouseAt) / mouseDragColumnWidth);
+}
+
+function desktopHorizontalDragEnd(mouseAt) {
+  desktopHorizontalMouseAt = null;
+  rotateEarthAPIEnd((mouseAt - desktopHorizontalMouseAt) / mouseDragColumnWidth);
+}
+// end of desktop dragdrop api -> rotateEarthApi converter
+
+function rotateEarthWithDotClick(indexOfDot) {
+  console.log("rotate with click");
+  selectedColumn = nasaarray[selectedRow].n - indexOfDot - 1;
+  gotoColumn(selectedColumn);
+  pushURL();
+}
+
+function gotoColumn(newColumn) {
+  goalLongitude = nasaarray[selectedRow].l[newColumn];
+  $("#targetImage").attr("src", getImageURL(selectedRow, newColumn));
+  highlightSelectedDot(newColumn);
 }
 
 function gotoRow(newRow) {
@@ -265,12 +269,6 @@ function gotoRow(newRow) {
     selectedRow = newRow;
     activateSelectedRow(RedirectType.DELAYED_PUSH);
   }
-}
-
-function gotoColumn(newColumn) {
-  goalLongitude = nasaarray[selectedRow].l[newColumn];
-  $("#targetImage").attr("src", getImageURL(selectedRow, newColumn));
-  highlightSelectedDot(newColumn);
 }
 
 function selectRowWithScroll(event) {
@@ -284,25 +282,24 @@ function selectRowWithScroll(event) {
 }
 
 function rotateEarthWithSwipe(event, phase, direction, distance) {
-  if (phase == "end") {
-    selectedColumn = newSelectedColumn;
-    pushURL();
-    return;
+  if (phase === "move") {
+    if (direction === "left" && distance) distance *= -1;
+    return rotateEarthAPIMove(distance / fingerSwipeColumnWidth);
+  } else if (phase === "end") {
+    return rotateEarthAPIEnd();
   }
+}
 
-  if (direction == "left") {
-    newSelectedColumn = selectedColumn - Math.round(distance / fingerSwipeColumnWidth);
-    if (newSelectedColumn < 0) newSelectedColumn = 0;
-    gotoColumn(newSelectedColumn);
-    return;
-  }
+function rotateEarthAPIMove(distance) {
+  newSelectedColumn = selectedColumn + Math.round(distance);
+  if (newSelectedColumn < 0) newSelectedColumn = 0;
+  if (newSelectedColumn >= nasaarray[selectedRow].n) newSelectedColumn = nasaarray[selectedRow].n - 1;
+  gotoColumn(newSelectedColumn);
+}
 
-  if (direction == "right") {
-    newSelectedColumn = selectedColumn + Math.round(distance / fingerSwipeColumnWidth);
-    if (newSelectedColumn >= nasaarray[selectedRow].n) newSelectedColumn = nasaarray[selectedRow].n - 1;
-    gotoColumn(newSelectedColumn);
-    return;
-  }
+function rotateEarthAPIEnd() {
+  selectedColumn = newSelectedColumn;
+  pushURL();
 }
 
 function isThereTouchOnDevice() {
@@ -313,21 +310,10 @@ function isThereTouchOnDevice() {
     return false;
   }
 }
-
-// prevent default image highlight and context menu on mobile
-function absorbEvent_(event) {
+  
+function absorbEvent(event) {
+  event.preventDefault();
   return false;
-}
-
-function preventLongPressMenu(node) {
-  node.ontouchstart = absorbEvent_;
-  node.ontouchmove = absorbEvent_;
-  node.ontouchend = absorbEvent_;
-  node.ontouchcancel = absorbEvent_;
-}
-
-function preventImageDraggingOnTouchScreen() {
-  preventLongPressMenu(document.getElementById('targetImage'));
 }
 
 $(document).ready(function () {
@@ -344,26 +330,23 @@ $(document).ready(function () {
   };
 
   // dragging horizontally with mouse
-  $("#imageContainer").mousedown(function() {
-    selectedCenterDragMouseX = event.pageX;
+  $("#imageContainer").mousedown(function(event) {
+    desktopHorizontalDragStart(event.pageX);
   });
 
-  $("#imageContainer").mousemove(function() {
-    if (selectedCenterDragMouseX == null) return;
-    rotateEarthWithMouseDrag(event.pageX);
+  $("#imageContainer").mousemove(function(event) {
+    desktopHorizontalDragMove(event.pageX);
   });
 
-  $("#imageContainer").mouseup(function() {
-    selectedCenterDragMouseX = null;
-    preloadImagesForSelectedPoint();
-    pushURL();
+  $("#imageContainer").mouseup(function(event) {
+    desktopHorizontalDragEnd(event.pageX);
   });
 
   // scrolling vertically with mouse
   $(window).bind('mousewheel DOMMouseScroll', selectRowWithScroll);
 
   // Swipe on mobile
-  if (isThereTouchOnDevice() == true) {
+  if (isThereTouchOnDevice()) {
     var swipeOptions = {
       triggerOnTouchEnd: true,
       swipeStatus: rotateEarthWithSwipe,
@@ -379,8 +362,13 @@ $(document).ready(function () {
   }
 
   // prevent default image dragging by browser
-  $("#targetImage").on('dragstart', function(event) { event.preventDefault(); }); // for desktop
-  preventImageDraggingOnTouchScreen(); // for mobile
+  $("#targetImage").on('dragstart', absorbEvent); // for desktop
+  // for mobile
+  var node = document.getElementById('targetImage');
+  node.ontouchstart = absorbEvent;
+  node.ontouchmove = absorbEvent;
+  node.ontouchend = absorbEvent;
+  node.ontouchcancel = absorbEvent;
 
   $('#question-mark').hover(function() {
     $('#help-question').toggle("slide");
@@ -405,5 +393,4 @@ $(document).ready(function () {
       activateByURL("#" + nasaarray[selectedRow - 1].d + "/" + goalLongitude, false);
     }
   });
-
 });
