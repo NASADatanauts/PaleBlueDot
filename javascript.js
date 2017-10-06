@@ -12,25 +12,27 @@
 //   d: date
 //   i: list of image urls (size n)
 //   l: list of longitudesx (size n)
+// nasaarray is ordered ascending by d.
 
 // Settings
 var userIdleDelay = 400; // once the user is idle, we start caching and we push the URL history
 var cacheNearRows = 5;
-var loadingDisplayInterval = 200;
+var loadingDisplayInterval = 200; // TODO: remove precaching
 var mouseDragColumnWidth = 100; // user has to drag this many pixels with the mouse to start rotating Earth
-var fingerSwipeColumnWidth = 40; // user has to swipe (on mobile) this many pixels with finger to start rotating Earth
-// starting value is Europe
-var defaultGoalLongitude = 19;
+var fingerSwipeColumnWidth = 40; // on mobile, this is the swipe width of one column rotation
+var defaultGoalLongitude = 19; // starting value is Europe
 
+// Global variables
 // index in nasaarray[____]
 var selectedRow = nasaarray.length - 1;
 // index in nasaarray[selectedrow].{i,l}[____]
 var selectedColumn;
-// goal of the user
+// goal longitude of the user
 var goalLongitude;
 
+// TODO: is this different on desktop?
 // While finger swipe is in progress (on mobile), it stores the currently shown column's
-// id (earth rotation). The variable 'selecteColumn' is updated with this value when the
+// id (earth rotation). The variable 'selectedColumn' is updated with this value when the
 // swipe ends.
 var newSelectedColumn;
 
@@ -125,18 +127,12 @@ function preloadImagesForSelectedPoint() {
 
 // given a row index, gives us the best column index in that row according to goalLongitude
 function getColumnFromLongitude(row) {
-  // TODO: really do it!
-  // TODO: map the longitudes with Math.abs(... - ...) and then simply choose the minIndex of the array
   var longitudes = nasaarray[row].l;
-  var best_earth = 0;
-  var best_value = Math.abs(longitudes[best_earth] - goalLongitude)
-  $.each(longitudes, function (index, earth) {
-    if (Math.abs(longitudes[index] - goalLongitude) < best_value) {
-      best_earth = index;
-      best_value = Math.abs(longitudes[index] - goalLongitude);
-    }
-  });
-  return best_earth;
+  var longitudeDistances = $.map(longitudes,
+				 function(value) {
+				   return Math.min(Math.abs(value - goalLongitude), 360 - Math.abs(value - goalLongitude));
+				 });
+  return longitudeDistances.indexOf(Math.min(...longitudeDistances));
 }
 
 function highlightSelectedDot(col) {
@@ -156,7 +152,13 @@ function getRowFromDate(date) {
   return 0;
 }
 
-function activateByURL(hash) {
+RedirectType = {
+  IMMEDIATE_REPLACE: 0, // replace the current history entry, e.g. because it was faulty
+  IMMEDIATE_PUSH: 1,    // push the history, immediately (user is navigating with clicks)
+  DELAYED_PUSH: 2       // push the history if no further delayed pushes (user is navigating with scrolling)
+};
+
+function activateByURL(hash, replace) {
   // TODO: use a regex which checks the format AND splits out the parts
   // something like this: ^#([0-9]{4}-[0-9]{2}-[0-9]{2})[:/]([0-9.]+)$
   // if no match -> error
@@ -168,19 +170,24 @@ function activateByURL(hash) {
   var longits = hash.substring(12);
   var longit = Number(longits);
 
+  // TODO: something more complicated here:
+  //   - if date is good, but longits is bad, then go to date + defaultGoalLongitude
+  //   - if both is bad, then use the current solution
   if (!longits || longits === "" || Number.isNaN(longit)) {
-    return activateByURL("#" + nasaarray[nasaarray.length-1].d + "/" + defaultGoalLongitude);
+    date = nasaarray[nasaarray.length-1].d;
+    longit = defaultGoalLongitude;
   }
   
   selectedRow = getRowFromDate(date);
   goalLongitude = longit;
-  activateSelectedRow(true);
+  if (replace) {
+    activateSelectedRow(RedirectType.IMMEDIATE_REPLACE);
+  } else {
+    activateSelectedRow(RedirectType.IMMEDIATE_PUSH);
+  }
 }
 
-// This function is used in two cases:
-//   - if the user is coming from a bookmark or edited the url -> the boolean parameter is true
-//   - if the user has been scrolling and therefore we have a new selectedRow -> the boolean parameter is false
-function activateSelectedRow(replaceURLImmediately) {
+function activateSelectedRow(redirectType) {
   selectedColumn = getColumnFromLongitude(selectedRow);
 
   $("#dateLabel").text(moment(nasaarray[selectedRow].d).format("YYYY MMMM DD"));
@@ -197,10 +204,14 @@ function activateSelectedRow(replaceURLImmediately) {
   highlightSelectedDot(selectedColumn);
   
   preloadImagesForSelectedPoint();
-  if (replaceURLImmediately) {
+  if (redirectType === RedirectType.IMMEDIATE_REPLACE) {
     replaceURL();
-  } else {
+  } else if (redirectType === RedirectType.IMMEDIATE_PUSH) {
+    pushURL();
+  } else if (redirectType === RedirectType.DELAYED_PUSH) {
     pushURLonScroll();
+  } else {
+    console.error("invalid redirecttype");
   }
 }
 
@@ -252,7 +263,7 @@ function gotoRow(newRow) {
   if (newRow < nasaarray.length && newRow >= 0) {
     preloadCancelForSelectedRow();
     selectedRow = newRow;
-    activateSelectedRow();
+    activateSelectedRow(RedirectType.DELAYED_PUSH);
   }
 }
 
@@ -325,11 +336,11 @@ $(document).ready(function () {
   if (!startHash) {
     startHash = "#" + nasaarray[nasaarray.length-1].d + "/" + defaultGoalLongitude;
   }
-  activateByURL(startHash);
+  activateByURL(startHash, true);
 
   // Catch path editing
   window.onpopstate = function () {
-    activateByURL(window.location.hash);
+    activateByURL(window.location.hash, true);
   };
 
   // dragging horizontally with mouse
@@ -376,7 +387,7 @@ $(document).ready(function () {
   });
 
   $('#dateLabel').click(function() {
-    activateByURL("#");
+    activateByURL("#" + nasaarray[nasaarray.length-1].d + "/" + goalLongitude, false);
   });
 
   $('#satellite-icon').hover(function() {
@@ -384,11 +395,15 @@ $(document).ready(function () {
   });
 
   $('#dateUp').click(function() {
-    gotoRow(selectedRow + 1);
+    if (selectedRow < nasaarray.length - 1) {
+      activateByURL("#" + nasaarray[selectedRow + 1].d + "/" + goalLongitude, false);
+    }
   });
 
   $('#dateDown').click(function() {
-    gotoRow(selectedRow - 1);
+    if (selectedRow > 0) {
+      activateByURL("#" + nasaarray[selectedRow - 1].d + "/" + goalLongitude, false);
+    }
   });
 
 });
