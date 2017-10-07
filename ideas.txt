@@ -6,7 +6,7 @@ ideas:
 - mouse scroll down scrolls to previous day's images but keeps the current earth rotation
 
 - full black bg, image in the middle, full size
-- most simplest UI ever
+- most simple UI ever
 - show date of current image (date is not clickable but you can change the url to go to specific dates)
 
 - edit the url path to contain the image pos and date -> this way it's possible to share nice founds by copying the url
@@ -27,3 +27,4 @@ TODO:
 - change : to /
 - make it work only with date
 - #/19 should show Europe
+- Remove pre-caching and then remove the loading message
