@@ -251,7 +251,6 @@ function desktopHorizontalDragEnd(mouseAt) {
 // end of desktop dragdrop api -> rotateEarthApi converter
 
 function rotateEarthWithDotClick(indexOfDot) {
-  console.log("rotate with click");
   selectedColumn = nasaarray[selectedRow].n - indexOfDot - 1;
   gotoColumn(selectedColumn);
   pushURL();
@@ -285,7 +284,7 @@ function rotateEarthWithSwipe(event, phase, direction, distance) {
   if (phase === "move") {
     if (direction === "left" && distance) distance *= -1;
     return rotateEarthAPIMove(distance / fingerSwipeColumnWidth);
-  } else if (phase === "end") {
+  } else if (phase === "end" || phase == "cancel") {
     return rotateEarthAPIEnd();
   }
 }
@@ -351,8 +350,9 @@ $(document).ready(function () {
       triggerOnTouchEnd: true,
       swipeStatus: rotateEarthWithSwipe,
       allowPageScroll: "vertical",
-      threshold: -1 // this makes sure that swipe phase "end" is always called
-      // (there is no "canceled" swipe because of threshold)
+      threshold: 1 // -1 or 0 would be ideal but we need at least 1, otherwise clicking on dot doesn't work
+      // (-1 or 0 would be ideal because then swipe's 'cancel' phase would never be called)
+      // (which is a problem because then swipe's 'end' phase is not called which we use to update stuff)
     }
 
     $(function() {
@@ -362,7 +362,8 @@ $(document).ready(function () {
   }
 
   // prevent default image dragging by browser
-  $("#targetImage").on('dragstart', absorbEvent); // for desktop
+  // for desktop
+  $("#targetImage").on('dragstart', absorbEvent);
   // for mobile
   var node = document.getElementById('targetImage');
   node.ontouchstart = absorbEvent;
