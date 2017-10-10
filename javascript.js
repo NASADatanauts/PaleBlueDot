@@ -241,7 +241,7 @@ function desktopHorizontalDragStart(mouseAt) {
 
 function desktopHorizontalDragMove(mouseAt) {
   if (desktopHorizontalMouseAt == null) return;
-  rotateEarthAPIMove((mouseAt - desktopHorizontalMouseAt) / mouseDragColumnWidth);
+  rotateEarthAPIMove(Math.round((mouseAt - desktopHorizontalMouseAt) / mouseDragColumnWidth));
 }
 
 function desktopHorizontalDragEnd(mouseAt) {
@@ -283,14 +283,14 @@ function selectRowWithScroll(event) {
 function rotateEarthWithSwipe(event, phase, direction, distance) {
   if (phase === "move") {
     if (direction === "left" && distance) distance *= -1;
-    return rotateEarthAPIMove(distance / fingerSwipeColumnWidth);
+    return rotateEarthAPIMove(Math.round(distance / fingerSwipeColumnWidth));
   } else if (phase === "end" || phase == "cancel") {
     return rotateEarthAPIEnd();
   }
 }
 
 function rotateEarthAPIMove(distance) {
-  newSelectedColumn = selectedColumn + Math.round(distance);
+  newSelectedColumn = selectedColumn + distance;
   if (newSelectedColumn < 0) newSelectedColumn = 0;
   if (newSelectedColumn >= nasaarray[selectedRow].n) newSelectedColumn = nasaarray[selectedRow].n - 1;
   gotoColumn(newSelectedColumn);
