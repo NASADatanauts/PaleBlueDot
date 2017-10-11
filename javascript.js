@@ -84,9 +84,9 @@ setInterval(function () {
 function getImageURL(row, col) {
   var mdate = moment(nasaarray[row].d, "YYYY-MM-DD");
   var imageName = nasaarray[row].i[col];
-  return 'https://epic.gsfc.nasa.gov/archive/natural/'
+  return 'https://nasa-kj58yy565gqqhv2gx.netdna-ssl.com/images/'
     + mdate.format('YYYY') + '/' + mdate.format('MM') + '/' + mdate.format('DD')
-    + '/jpg/' + imageName + '.jpg';
+    + '/' + imageName + '.jpg';
 }
 
 function preloadImagesForSelectedRow() {
