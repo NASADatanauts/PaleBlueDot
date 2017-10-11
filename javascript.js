@@ -19,22 +19,21 @@ var pushURLDelay = 400; // once the user is idle, we push the URL history
 var cacheNearRows = 5;
 var loadingDisplayInterval = 200; // TODO: remove precaching
 var mouseDragColumnWidth = 100; // user has to drag this many pixels with the mouse to start rotating Earth
-var fingerSwipeColumnWidth = 40; // on mobile, this is the swipe width of one column rotation
+var fingerSwipeDistance = 40; // on mobile, user has to swipe this many pixels to start rotating Earth
 var defaultGoalLongitude = 19; // starting value is Europe
 
 // Global variables
 // index in nasaarray[____]
 var selectedRow = nasaarray.length - 1;
-// index in nasaarray[selectedrow].{i,l}[____]
+// index in nasaarray[selectedRow].{i,l}[____]
 var selectedColumn;
 // goal longitude of the user
 var goalLongitude;
 
-// TODO: is this different on desktop?
-// While finger swipe is in progress (on mobile), it stores the currently shown column's
-// id (earth rotation). The variable 'selectedColumn' is updated with this value when the
-// swipe ends.
+// While finger swipe is in progress (on mobile), these variables store the currently shown column's and row's
+// id. The variables 'selectedColumn' and 'selectedRow' are updated with these value when the swipe ends.
 var newSelectedColumn;
+var newSelectedRow;
 
 // class Preload
 var preloadedImages = {}; // don't let Chrome cancel the images!
@@ -176,13 +175,13 @@ function activateByURL(hash, replace) {
   selectedRow = getRowFromDate(date);
   goalLongitude = longit;
   if (replace) {
-    activateSelectedRow(RedirectType.IMMEDIATE_REPLACE);
+    activateSelectedRow(RedirectType.IMMEDIATE_REPLACE, selectedRow);
   } else {
-    activateSelectedRow(RedirectType.IMMEDIATE_PUSH);
+    activateSelectedRow(RedirectType.IMMEDIATE_PUSH, selectedRow);
   }
 }
 
-function activateSelectedRow(redirectType) {
+function activateSelectedRow(redirectType, selectedRow) {
   selectedColumn = getColumnFromLongitude(selectedRow);
 
   $("#dateLabel").text(moment(nasaarray[selectedRow].d).format("YYYY MMMM DD"));
@@ -265,25 +264,37 @@ function gotoColumn(newColumn) {
 function gotoRow(newRow) {
   if (newRow < nasaarray.length && newRow >= 0) {
     preloadCancelForSelectedRow();
-    selectedRow = newRow;
-    activateSelectedRow(RedirectType.DELAYED_PUSH);
+    activateSelectedRow(RedirectType.DELAYED_PUSH, newRow);
   }
 }
 
 function selectRowWithScroll(event) {
   if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0) {
     // scroll up
-    gotoRow(selectedRow + 1);
+    selectedRow = selectedRow + 1;
+    gotoRow(selectedRow);
   } else {
     // scroll down
-    gotoRow(selectedRow - 1);
+    selectedRow = selectedRow - 1;
+    gotoRow(selectedRow);
   }
+}
+
+function selectRowWithSwipe(distance) {
+  newSelectedRow = selectedRow + distance;
+  if (newSelectedRow < 0 ) newSelectedRow = 0;
+  if (newSelectedRow >= nasaarray.length) newSelectedRow = nasaarray.length - 1;
+  gotoRow(newSelectedRow);
 }
 
 function rotateEarthWithSwipe(event, phase, direction, distance) {
   if (phase === "move") {
-    if (direction === "left" && distance) distance *= -1;
-    return rotateEarthAPIMove(Math.round(distance / fingerSwipeColumnWidth));
+    if (direction === "left" || direction === "up" && distance) distance *= -1;
+    if (direction === "left" || direction === "right") {
+      return rotateEarthAPIMove(Math.round(distance / fingerSwipeDistance));
+    } else { // direction is "up" or "down"
+      return selectRowWithSwipe(Math.round(distance / fingerSwipeDistance));
+    }
   } else if (phase === "end" || phase == "cancel") {
     return rotateEarthAPIEnd();
   }
@@ -297,7 +308,8 @@ function rotateEarthAPIMove(distance) {
 }
 
 function rotateEarthAPIEnd() {
-  selectedColumn = newSelectedColumn;
+  if (newSelectedColumn) selectedColumn = newSelectedColumn;
+  if (newSelectedRow) selectedRow = newSelectedRow;
   pushURL();
 }
 
