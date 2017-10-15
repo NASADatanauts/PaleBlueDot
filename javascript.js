@@ -15,9 +15,6 @@
 // nasaarray is ordered ascending by d.
 
 // Settings
-var pushURLDelay = 400; // once the user is idle, we push the URL history
-var cacheNearRows = 5;
-var loadingDisplayInterval = 200; // TODO: remove precaching
 var mouseDragColumnWidth = 100; // user has to drag this many pixels with the mouse to start rotating Earth
 var fingerSwipeDistance = 40; // on mobile, user has to swipe this many pixels to start rotating Earth
 var defaultGoalLongitude = 19; // starting value is Europe
@@ -30,93 +27,12 @@ var selectedColumn;
 // goal longitude of the user
 var goalLongitude;
 
-// While finger swipe is in progress (on mobile), these variables store the currently shown column's and row's
-// id. The variables 'selectedColumn' and 'selectedRow' are updated with these value when the swipe ends.
-var newSelectedColumn;
-var newSelectedRow;
-
-// class Preload
-var preloadedImages = {}; // don't let Chrome cancel the images!
-var inFlightImages = 0;
-function preloadImage(row, col) {
-  var url = getImageURL(row, col);
-  if (!preloadedImages[url]) {
-    var img = new Image();
-    img.onload = function() {
-      // We set preloadedImages back to undefined even on successful
-      // load, because this way if the image gets out of disk cache
-      // (which we have no idea of), the next time we preload it
-      // again.  If it's still in the disk cache, then this
-      // unnecessary preload is fast anyway.
-      preloadedImages[url] = undefined;
-      inFlightImages--;
-    }
-    img.onabort = function() {
-      inFlightImages--;
-    }
-    img.onerror = img.onabort;
-    inFlightImages++;
-    img.src = url;
-    preloadedImages[url] = img;
-  }
-}
-
-function preloadCancelImage(row, col) {
-  var url = getImageURL(row, col);
-  var pre = preloadedImages[url];
-  if (pre) {
-    pre.src = "http://placekitten.com/200/300";
-    preloadedImages[url] = undefined;
-  }
-}
-
-// This is like a thread a little bit.
-setInterval(function () {
-  if (inFlightImages > 0) {
-    $("#loading").removeClass("hidden");
-    $("#loading").text("Loading... (" + inFlightImages + ")");
-  } else {
-    $("#loading").addClass("hidden");
-  }
-}, loadingDisplayInterval);
-// end of class
-
 function getImageURL(row, col) {
   var mdate = moment(nasaarray[row].d, "YYYY-MM-DD");
   var imageName = nasaarray[row].i[col];
   return 'https://nasa-kj58yy565gqqhv2gx.netdna-ssl.com/images/'
     + mdate.format('YYYY') + '/' + mdate.format('MM') + '/' + mdate.format('DD')
     + '/' + imageName + '.jpg';
-}
-
-function preloadImagesForSelectedRow() {
-  // we preload the whole current row horizontally
-  for (var col = 0; col < nasaarray[selectedRow].n; col++) preloadImage(selectedRow, col);
-
-  // vertically, we preload +-5 images for the current column
-  for (var currentRow = selectedRow - cacheNearRows;
-       currentRow <= selectedRow + cacheNearRows;
-       currentRow++) {
-    if (currentRow == selectedRow || currentRow >= nasaarray.length || currentRow < 0)
-      continue;
-
-    preloadImage(currentRow, getColumnFromLongitude(currentRow));
-  }
-}
-
-function preloadCancelForSelectedRow() {
-  // we only cancel horizontally
-  for (var col = 0; col < nasaarray[selectedRow].n; col++) preloadCancelImage(selectedRow, col);
-}
-
-var timerPreloadImagesForSelectedPoint = null;
-function preloadImagesForSelectedPoint() {
-  if (timerPreloadImagesForSelectedPoint) {
-    clearTimeout(timerPreloadImagesForSelectedPoint);
-    timerPreloadImagesForSelectedPoint = null;
-  }
-
-  timerPreloadImagesForSelectedPoint = setTimeout(preloadImagesForSelectedRow, pushURLDelay);
 }
 
 // given a row index, gives us the best column index in that row according to goalLongitude
@@ -129,15 +45,15 @@ function getColumnFromLongitude(row) {
   return longitudeDistances.indexOf(Math.min(...longitudeDistances));
 }
 
-function highlightSelectedDot(col) {
+function highlightSelectedDot(col, row) {
   // remove previously highlighted
   $(".highlighted").removeClass("highlighted");
 
   // add the new one
-  $("#dotContainer label:nth-of-type(" + (nasaarray[selectedRow].n - col) + ")").addClass('highlighted');
+  $("#dotContainer label:nth-of-type(" + (nasaarray[row].n - col) + ")").addClass('highlighted');
 }
 
-function getRowFromDate(date) {
+function getRowForDate(date) {
   for (var i = nasaarray.length - 1; i >= 0; --i) {
     if (nasaarray[i].d <= date) {
       return i;
@@ -145,12 +61,6 @@ function getRowFromDate(date) {
   }
   return 0;
 }
-
-RedirectType = {
-  IMMEDIATE_REPLACE: 0, // replace the current history entry, e.g. because it was faulty
-  IMMEDIATE_PUSH: 1,    // push the history, immediately (user is navigating with clicks)
-  DELAYED_PUSH: 2       // push the history if no further delayed pushes (user is navigating with scrolling)
-};
 
 function activateByURL(hash, replace) {
   // TODO: use a regex which checks the format AND splits out the parts
@@ -171,53 +81,32 @@ function activateByURL(hash, replace) {
     date = nasaarray[nasaarray.length-1].d;
     longit = defaultGoalLongitude;
   }
-  
-  selectedRow = getRowFromDate(date);
+
+  selectedRow = getRowForDate(date);
   goalLongitude = longit;
+  gotoRow(selectedRow);
   if (replace) {
-    activateSelectedRow(RedirectType.IMMEDIATE_REPLACE, selectedRow);
+    replaceURL()
   } else {
-    activateSelectedRow(RedirectType.IMMEDIATE_PUSH, selectedRow);
+    pushURL();
   }
 }
 
-function activateSelectedRow(redirectType, selectedRow) {
-  selectedColumn = getColumnFromLongitude(selectedRow);
+function gotoRow(newRow) {
+  selectedColumn = getColumnFromLongitude(newRow);
 
-  $("#dateLabel").text(moment(nasaarray[selectedRow].d).format("YYYY MMMM DD"));
-  $("#targetImage").attr("src", getImageURL(selectedRow, selectedColumn));
+  $("#dateLabel").text(moment(nasaarray[newRow].d).format("YYYY MMMM DD"));
+  $("#targetImage").attr("src", getImageURL(newRow, selectedColumn));
   $("#dotContainer").empty();
-  for (var i = 0; i < nasaarray[selectedRow].n; i++) {
+  for (var i = 0; i < nasaarray[newRow].n; i++) {
     $("#dotContainer").append("<label class='dot clickable'>&#x25CB</label>");
   }
 
   $('.dot').click(function() {
     rotateEarthWithDotClick($('.dot').index(this));
   });
-  
-  highlightSelectedDot(selectedColumn);
-  
-  preloadImagesForSelectedPoint();
-  if (redirectType === RedirectType.IMMEDIATE_REPLACE) {
-    replaceURL();
-  } else if (redirectType === RedirectType.IMMEDIATE_PUSH) {
-    pushURL();
-  } else if (redirectType === RedirectType.DELAYED_PUSH) {
-    pushURLDelayed();
-  } else {
-    console.error("invalid redirecttype");
-  }
-}
 
-// push URL to history after a timeout
-var timerPushURLDelayed = null;
-function pushURLDelayed() {
-  if (timerPushURLDelayed) {
-    clearTimeout(timerPushURLDelayed);
-    timerPushURLDelayed = null;
-  }
-
-  timerPushURLDelayed = setTimeout(pushURL, pushURLDelay);
+  highlightSelectedDot(selectedColumn, newRow);
 }
 
 function generateURL() {
@@ -230,6 +119,18 @@ function pushURL() {
 
 function replaceURL() {
   window.history.replaceState(null, "", generateURL());
+}
+
+function rotateEarthWithDotClick(indexOfDot) {
+  selectedColumn = nasaarray[selectedRow].n - indexOfDot - 1;
+  gotoColumn(selectedColumn);
+  pushURL();
+}
+
+function gotoColumn(newColumn) {
+  goalLongitude = nasaarray[selectedRow].l[newColumn];
+  $("#targetImage").attr("src", getImageURL(selectedRow, newColumn));
+  highlightSelectedDot(newColumn, selectedRow);
 }
 
 // desktop dragdrop api -> rotateEarthApi converter
@@ -249,83 +150,133 @@ function desktopHorizontalDragEnd(mouseAt) {
 }
 // end of desktop dragdrop api -> rotateEarthApi converter
 
-function rotateEarthWithDotClick(indexOfDot) {
-  selectedColumn = nasaarray[selectedRow].n - indexOfDot - 1;
-  gotoColumn(selectedColumn);
-  pushURL();
-}
-
-function gotoColumn(newColumn) {
-  goalLongitude = nasaarray[selectedRow].l[newColumn];
-  $("#targetImage").attr("src", getImageURL(selectedRow, newColumn));
-  highlightSelectedDot(newColumn);
-}
-
-function gotoRow(newRow) {
-  if (newRow < nasaarray.length && newRow >= 0) {
-    preloadCancelForSelectedRow();
-    activateSelectedRow(RedirectType.DELAYED_PUSH, newRow);
-  }
-}
-
-function selectRowWithScroll(event) {
-  if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0) {
-    // scroll up
-    selectedRow = selectedRow + 1;
-    gotoRow(selectedRow);
-  } else {
-    // scroll down
-    selectedRow = selectedRow - 1;
-    gotoRow(selectedRow);
-  }
-}
-
-function selectRowWithSwipe(distance) {
-  newSelectedRow = selectedRow + distance;
-  if (newSelectedRow < 0 ) newSelectedRow = 0;
-  if (newSelectedRow >= nasaarray.length) newSelectedRow = nasaarray.length - 1;
-  gotoRow(newSelectedRow);
-}
-
-function rotateEarthWithSwipe(event, phase, direction, distance) {
-  if (phase === "move") {
-    if (direction === "left" || direction === "up" && distance) distance *= -1;
-    if (direction === "left" || direction === "right") {
-      return rotateEarthAPIMove(Math.round(distance / fingerSwipeDistance));
-    } else { // direction is "up" or "down"
-      return selectRowWithSwipe(Math.round(distance / fingerSwipeDistance));
-    }
-  } else if (phase === "end" || phase == "cancel") {
-    return rotateEarthAPIEnd();
-  }
-}
-
+// --- Rotate API with it's own global variable
+var newSelectedColumn;
 function rotateEarthAPIMove(distance) {
   newSelectedColumn = selectedColumn + distance;
   if (newSelectedColumn < 0) newSelectedColumn = 0;
-  if (newSelectedColumn >= nasaarray[selectedRow].n) newSelectedColumn = nasaarray[selectedRow].n - 1;
+  if (newSelectedColumn > nasaarray[selectedRow].n - 1) newSelectedColumn = nasaarray[selectedRow].n - 1;
   gotoColumn(newSelectedColumn);
 }
 
 function rotateEarthAPIEnd() {
-  if (newSelectedColumn) selectedColumn = newSelectedColumn;
-  if (newSelectedRow) selectedRow = newSelectedRow;
+  selectedColumn = newSelectedColumn;
   pushURL();
 }
+// --- End of Rotate API
 
-function isThereTouchOnDevice() {
-  try {
-    document.createEvent("TouchEvent");
-    return true;
-  } catch(e) {
-    return false;
-  }
+// --- Scroll -> history API converter
+var scrollEndDelay = 400; // once the user is idle, the scroll is "finished"
+var scrollDistance = 0;
+
+function scrollEnd() {
+  historyAPIEnd();
+  scrollDistance = 0;
 }
-  
+
+var timerScrollEndDelayed = null;
+function scrollEndDelayed() {
+  if (timerScrollEndDelayed) {
+    clearTimeout(timerScrollEndDelayed);
+    timerScrollEndDelayed = null;
+  }
+  timerScrollEndDelayed = setTimeout(scrollEnd, scrollEndDelay);
+}
+
+function scrollHandler(event) {
+  if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0) {
+    // scroll up
+    scrollDistance += 1;
+  } else {
+    // scroll down
+    scrollDistance -= 1;
+  }
+  historyAPIMove(scrollDistance);
+
+  scrollEndDelayed();
+}
+// --- End of Scroll -> history API converter
+
+// --- Vertical history API with it's own global variable
+var newSelectedRow;
+function historyAPIMove(distance) {
+  newSelectedRow = selectedRow + distance;
+  if (newSelectedRow < 0) newSelectedRow = 0;
+  if (newSelectedRow > nasaarray.length - 1) newSelectedRow = nasaarray.length - 1;
+  gotoRow(newSelectedRow);
+}
+
+function historyAPIEnd() {
+  selectedRow = newSelectedRow;
+  pushURL();
+}
+// --- End of Rotate API
+
 function absorbEvent(event) {
   event.preventDefault();
   return false;
 }
+
+// --- beginning of our touch lib
+var ourTouchLibState = {
+  inTouch: false, // can be false, "inprogress", then "horizontal" or "vertical"
+  baseX: null,
+  baseY: null
+};
+
+function ourTouchLib(handlers) {
+  return function(event) {
+    // console.log("touch event", event.type, event.touches.length,
+    // 	      (event.touches[0] ? event.touches[0].pageX : "no touch"),
+    // 	      (event.touches[0] ? event.touches[0].pageY : "no touch"));
+
+    if (event.touches.length > 0) {
+      if (ourTouchLibState.inTouch === false) {
+	ourTouchLibState.inTouch = "inprogress";
+	ourTouchLibState.baseX = event.touches[0].screenX;
+	ourTouchLibState.baseY = event.touches[0].screenY;
+      }
+
+      if (ourTouchLibState.inTouch === "inprogress") {
+	if (Math.abs(event.touches[0].screenX - ourTouchLibState.baseX) > (fingerSwipeDistance / 2)) {
+  	  ourTouchLibState.inTouch = "horizontal";
+	} else if (Math.abs(event.touches[0].screenY - ourTouchLibState.baseY) > (fingerSwipeDistance / 2)) {
+  	  ourTouchLibState.inTouch = "vertical";
+	}
+      }
+
+      if (ourTouchLibState.inTouch === "horizontal") {
+	var move = Math.round((event.touches[0].screenX - ourTouchLibState.baseX) / fingerSwipeDistance);
+	handlers.horizontalMove(move);
+      }
+
+      if (ourTouchLibState.inTouch === "vertical") {
+	var move = Math.round((event.touches[0].screenY - ourTouchLibState.baseY) / fingerSwipeDistance);
+	handlers.verticalMove(move);
+      }
+    }
+
+    if (event.touches.length === 0) {
+      var prevInTouch = ourTouchLibState.inTouch;
+      ourTouchLibState.inTouch = false;
+      ourTouchLibState.baseX = null;
+      ourTouchLibState.baseY = null;
+      if (prevInTouch === "horizontal") {
+	handlers.horizontalEnd();
+	return false;
+      }
+
+      if (prevInTouch === "vertical") {
+	handlers.verticalEnd();
+	return false;
+      }
+    }
+
+    // Allow default processing of clicks if they are not part of a valid swipe.
+    return true;
+  }
+}
+// --- end of our touch lib
 
 $(document).ready(function () {
   // Check if there is a specific path and load Earth accordingly
@@ -354,24 +305,18 @@ $(document).ready(function () {
   });
 
   // scrolling vertically with mouse
-  $(window).bind('mousewheel DOMMouseScroll', selectRowWithScroll);
+  $(window).bind('mousewheel DOMMouseScroll', scrollHandler);
 
-  // Swipe on mobile
-  if (isThereTouchOnDevice()) {
-    var swipeOptions = {
-      triggerOnTouchEnd: true,
-      swipeStatus: rotateEarthWithSwipe,
-      allowPageScroll: "vertical",
-      threshold: 1 // -1 or 0 would be ideal but we need at least 1, otherwise clicking on dot doesn't work
-      // (-1 or 0 would be ideal because then swipe's 'cancel' phase would never be called)
-      // (which is a problem because then swipe's 'end' phase is not called which we use to update stuff)
-    }
-
-    $(function() {
-      imgs = $("#imageContainer");
-      imgs.swipe(swipeOptions);
-    });
-  }
+  console.log("ez az uj kod");
+  imgs = $("#imageContainer").bind('touchstart touchend touchcancel touchmove',
+  				   ourTouchLib(
+				     {
+				       horizontalMove: rotateEarthAPIMove,
+				       horizontalEnd: rotateEarthAPIEnd,
+				       verticalMove: historyAPIMove,
+				       verticalEnd: historyAPIEnd
+				     }
+				   ));
 
   // prevent default image dragging by browser
   // for desktop
