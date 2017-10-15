@@ -307,7 +307,6 @@ $(document).ready(function () {
   // scrolling vertically with mouse
   $(window).bind('mousewheel DOMMouseScroll', scrollHandler);
 
-  console.log("ez az uj kod");
   imgs = $("#imageContainer").bind('touchstart touchend touchcancel touchmove',
   				   ourTouchLib(
 				     {
