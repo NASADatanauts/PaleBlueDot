@@ -16,8 +16,6 @@
 // nasaarray is ordered ascending by d.
 
 //_ Settings
-var mouseDragColumnWidth = 100; // user has to drag this many pixels with the mouse to start rotating Earth
-var fingerSwipeDistance = 40; // on mobile, user has to swipe this many pixels to start rotating Earth
 var defaultGoalLongitude = 19; // starting value is Europe
 
 // Global variables
@@ -58,48 +56,84 @@ function getImageURL(row, col, thumb) {
     + '/' + imageName + (thumb ? '-thumb' : '') + '.jpg';
 }
 
-var canvasContext = null; // filled by document ready
-function noop() {};
-function displayOnCanvasFull() {
-  canvasContext.clearRect(0, 0, 1024, 1024);
-  canvasContext.drawImage(this, 0, 0, 1024, 1024);
+function noop() {}
+
+var canvasSingleton = new (function CanvasSingleton() {
+  var canvasContext = null; // filled by document ready
+
+  this.setContext = (function(newContext) {
+    if (canvasContext) {
+      console.error("canvascontext supposed to be set only once at program start");
+    }
+
+    canvasContext = newContext;
+  }).bind(this);
+
+  this.displayImage = (function(imgEvent) {
+    canvasContext.clearRect(0, 0, 1024, 1024);
+    canvasContext.drawImage(imgEvent.target, 0, 0, 1024, 1024);
+  }).bind(this);
+});
+
+function AsyncImage(onload) {
+  this.onload = function (event) {
+    this._phase = "loaded";
+    onload(event);
+  };
+  this.img = null;
+  this._phase = "noimage";
 }
-var lastFull = null;
-function displayOnCanvas() {
-  canvasContext.clearRect(0, 0, 1024, 1024);
-  canvasContext.drawImage(this, 0, 0, 1024, 1024);
-  var newFull = new Image();
-  newFull.onload = displayOnCanvasFull.bind(newFull);
-  newFull.src = getImageURL(this.row, this.col, false);
-  lastFull = newFull;
+
+AsyncImage.prototype.cancel = function() {
+  if (this.img) {
+    this._phase = "noimage";
+    this.img.onload = noop;
+    this.img.src = "";
+    this.img = null;
+  }
 };
-var lastThumb = null;
-var prevShowImageRow = null;
-var prevShowImageCol = null;
-function showImage(row, col) {
-  if (row === prevShowImageRow && col === prevShowImageCol) return;
-  prevShowImageCol = col; prevShowImageRow = row;
 
-  if (lastThumb) {
-    lastThumb.onload = noop;
-    lastThumb.src = "";
-    lastThumb = null;
-  }
+AsyncImage.prototype.start = function(url, imgProps) {
+  if (this.img)
+    console.error("We can't start a new download before you cancel the previous one");
 
-  if (lastFull) {
-    lastFull.onload = noop;
-    lastFull.src = "";
-    lastFull = null;
-  }
+  this._phase = "loading";
+  this.img = new Image();
+  Object.assign(this.img, imgProps);
+  this.img.onload = this.onload;
+  this.img.src = url;
+};
 
-  var newThumb = new Image();
-  newThumb.row = row;
-  newThumb.col = col;
-  newThumb.onload = displayOnCanvas.bind(newThumb);
-  newThumb.src = getImageURL(row, col, true);
+AsyncImage.prototype.getPhase = function() {
+  return this._phase;
+};
 
-  lastThumb = newThumb;
-}
+var showImageSingleton = new (function ShowImageSingleton() {
+  var prevRow = null;
+  var prevCol = null;
+
+  var fullImage = new AsyncImage(canvasSingleton.displayImage);
+
+  var onThumbLoad = function(event) {
+      canvasSingleton.displayImage(event);
+      fullImage.start(getImageURL(event.target.row, event.target.col, false));
+  };
+  var thumbImage = new AsyncImage(onThumbLoad);
+
+  this.show = (function(row, col) {
+    if (row === prevRow && col === prevCol) return;
+    prevCol = col;
+    prevRow = row;
+
+    // cancel already inflight thumbnail
+    thumbImage.cancel();
+
+    // cancel already inflight full image
+    fullImage.cancel();
+
+    thumbImage.start(getImageURL(row, col, true), { row: row, col: col });
+  }).bind(this);
+});
 
 function activateByURL(hash, replace) {
   // TODO: use a regex which checks the format AND splits out the parts
@@ -156,7 +190,7 @@ function gotoRow(newRow) {
   selectedColumn = getColumnFromLongitude(newRow);
 
   $("#dateLabel").text(moment(nasaarray[newRow].d).format("YYYY MMMM DD"));
-  showImage(newRow, selectedColumn);
+  showImageSingleton.show(newRow, selectedColumn);
   $("#dotContainer").empty();
   for (var i = 0; i < nasaarray[newRow].n; i++) {
     $("#dotContainer").append("<label class='dot clickable'>&#x25CB</label>");
@@ -176,152 +210,155 @@ function rotateEarthWithDotClick(event) {
 
 function gotoColumn(newColumn) {
   goalLongitude = nasaarray[selectedRow].l[newColumn];
-  showImage(selectedRow, newColumn);
+  showImageSingleton.show(selectedRow, newColumn);
   highlightSelectedDot(newColumn, selectedRow);
 }
 
 //_ Rotate earth
 // desktop dragdrop api -> rotateEarthApi converter
-var desktopHorizontalMouseAt = null;
-function desktopHorizontalDragStart(mouseAt) {
-  desktopHorizontalMouseAt = mouseAt;
-}
+var desktopDragToRotateEarthConverter = new (function DesktopDragToRotateEarthConverter() {
+  var mouseDragColumnWidth = 100; // user has to drag this many pixels with the mouse to start rotating Earth
+  var desktopHorizontalMouseAt = null;
 
-function desktopHorizontalDragMove(mouseAt) {
-  if (desktopHorizontalMouseAt == null) return;
-  rotateEarthAPIMove(Math.round((mouseAt - desktopHorizontalMouseAt) / mouseDragColumnWidth));
-}
+  this.start = (function(event) {
+    desktopHorizontalMouseAt = event.pageX;
+  }).bind(this);
 
-function desktopHorizontalDragEnd(mouseAt) {
-  desktopHorizontalMouseAt = null;
-  rotateEarthAPIEnd((mouseAt - desktopHorizontalMouseAt) / mouseDragColumnWidth);
-}
+  this.move = (function(event) {
+    if (desktopHorizontalMouseAt == null) return;
+    rotateEarthAPI.move(Math.round((event.pageX - desktopHorizontalMouseAt) / mouseDragColumnWidth));
+  }).bind(this);
+
+  this.end = (function(event) {
+    desktopHorizontalMouseAt = null;
+    rotateEarthAPI.end();
+  }).bind(this);
+});
 // end of desktop dragdrop api -> rotateEarthApi converter
 
 // --- Rotate API with it's own global variable
-var newSelectedColumn;
-function rotateEarthAPIMove(distance) {
-  newSelectedColumn = selectedColumn + distance;
-  if (newSelectedColumn < 0) newSelectedColumn = 0;
-  if (newSelectedColumn > nasaarray[selectedRow].n - 1) newSelectedColumn = nasaarray[selectedRow].n - 1;
-  gotoColumn(newSelectedColumn);
-}
+var rotateEarthAPI = new (function RotateEarthAPI() {
+  var newSelectedColumn = null;
 
-function rotateEarthAPIEnd() {
-  selectedColumn = newSelectedColumn;
-  pushURL();
-}
+  this.move = (function(distance) {
+    newSelectedColumn = selectedColumn + distance;
+    if (newSelectedColumn < 0) newSelectedColumn = 0;
+    if (newSelectedColumn > nasaarray[selectedRow].n - 1) newSelectedColumn = nasaarray[selectedRow].n - 1;
+    gotoColumn(newSelectedColumn);
+  }).bind(this);
+
+  this.end = (function() {
+    selectedColumn = newSelectedColumn;
+    pushURL();
+  }).bind(this);
+});
 // --- End of Rotate API
 
 //_ Scroll earth
-// --- Scroll -> history API converter
-var scrollEndDelay = 400; // once the user is idle, the scroll is "finished"
-var scrollDistance = 0;
+var scrollHistoryConverter = new (function ScrollHistoryConverter() {
+  var scrollEndDelay = 400; // once the user is idle, the scroll is "finished"
+  var scrollDistance = 0;
 
-function scrollEnd() {
-  historyAPIEnd();
-  scrollDistance = 0;
-}
+  var scrollEnd = (function() {
+    historyAPI.end();
+    scrollDistance = 0;
+  }).bind(this);
 
-var timerScrollEndDelayed = null;
-function scrollEndDelayed() {
-  if (timerScrollEndDelayed) {
-    clearTimeout(timerScrollEndDelayed);
-    timerScrollEndDelayed = null;
-  }
-  timerScrollEndDelayed = setTimeout(scrollEnd, scrollEndDelay);
-}
+  var timerScrollEndDelayed = null;
+  var scrollEndDelayed = (function() {
+    if (timerScrollEndDelayed) {
+      clearTimeout(timerScrollEndDelayed);
+      timerScrollEndDelayed = null;
+    }
+    timerScrollEndDelayed = setTimeout(scrollEnd, scrollEndDelay);
+  }).bind(this);
 
-function scrollHandler(event) {
-  if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0) {
-    // scroll up
-    scrollDistance += 1;
-  } else {
-    // scroll down
-    scrollDistance -= 1;
-  }
-  historyAPIMove(scrollDistance);
+  this.scrollHandler = (function(event) {
+    if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0) {
+      // scroll up
+      scrollDistance += 1;
+    } else {
+      // scroll down
+      scrollDistance -= 1;
+    }
+    historyAPI.move(scrollDistance);
 
-  scrollEndDelayed();
-}
-// --- End of Scroll -> history API converter
+    scrollEndDelayed();
+  }).bind(this);
+});
 
-// --- Vertical history API with it's own global variable
-var newSelectedRow;
-function historyAPIMove(distance) {
-  newSelectedRow = selectedRow + distance;
-  if (newSelectedRow < 0) newSelectedRow = 0;
-  if (newSelectedRow > nasaarray.length - 1) newSelectedRow = nasaarray.length - 1;
-  gotoRow(newSelectedRow);
-}
+var historyAPI = new (function HistoryAPI() {
+  var newSelectedRow = null;
 
-function historyAPIEnd() {
-  selectedRow = newSelectedRow;
-  pushURL();
-}
-// --- End of Rotate API
+  this.move = (function(distance) {
+    this.newSelectedRow = selectedRow + distance;
+    if (this.newSelectedRow < 0) this.newSelectedRow = 0;
+    if (this.newSelectedRow > nasaarray.length - 1) this.newSelectedRow = nasaarray.length - 1;
+    gotoRow(this.newSelectedRow);
+  }).bind(this);
+
+  this.end = (function() {
+    selectedRow = this.newSelectedRow;
+    pushURL();
+  }).bind(this);
+});
 
 //_ TouchLib
-// --- beginning of our touch lib
-var ourTouchLibState = {
-  inTouch: false, // can be false, "inprogress", then "horizontal" or "vertical"
-  baseX: null,
-  baseY: null
-};
+var ourTouchLib = new (function OurTouchLib() {
+  var fingerSwipeDistance = 40; // on mobile, user has to swipe this many pixels to start rotating Earth
+  var inTouch = false; // can be false, "inprogress", then "horizontal" or "vertical"
+  var baseX = null;
+  var baseY = null;
 
-function ourTouchLib(handlers) {
-  return function(event) {
-    // console.log("touch event", event.type, event.touches.length,
-    // 	      (event.touches[0] ? event.touches[0].pageX : "no touch"),
-    // 	      (event.touches[0] ? event.touches[0].pageY : "no touch"));
+  this.main = (function (handlers) {
+    return function(event) {
+      if (event.touches.length > 0) {
+	if (inTouch === false) {
+	  inTouch = "inprogress";
+	  baseX = event.touches[0].screenX;
+	  baseY = event.touches[0].screenY;
+	}
 
-    if (event.touches.length > 0) {
-      if (ourTouchLibState.inTouch === false) {
-	ourTouchLibState.inTouch = "inprogress";
-	ourTouchLibState.baseX = event.touches[0].screenX;
-	ourTouchLibState.baseY = event.touches[0].screenY;
-      }
+	if (inTouch === "inprogress") {
+	  if (Math.abs(event.touches[0].screenX - baseX) > (fingerSwipeDistance / 2)) {
+  	    inTouch = "horizontal";
+	  } else if (Math.abs(event.touches[0].screenY - baseY) > (fingerSwipeDistance / 2)) {
+  	    inTouch = "vertical";
+	  }
+	}
 
-      if (ourTouchLibState.inTouch === "inprogress") {
-	if (Math.abs(event.touches[0].screenX - ourTouchLibState.baseX) > (fingerSwipeDistance / 2)) {
-  	  ourTouchLibState.inTouch = "horizontal";
-	} else if (Math.abs(event.touches[0].screenY - ourTouchLibState.baseY) > (fingerSwipeDistance / 2)) {
-  	  ourTouchLibState.inTouch = "vertical";
+	if (inTouch === "horizontal") {
+	  var move = Math.round((event.touches[0].screenX - baseX) / fingerSwipeDistance);
+	  handlers.horizontalMove(move);
+	}
+
+	if (inTouch === "vertical") {
+	  var move = Math.round((event.touches[0].screenY - baseY) / fingerSwipeDistance);
+	  handlers.verticalMove(move);
 	}
       }
 
-      if (ourTouchLibState.inTouch === "horizontal") {
-	var move = Math.round((event.touches[0].screenX - ourTouchLibState.baseX) / fingerSwipeDistance);
-	handlers.horizontalMove(move);
+      if (event.touches.length === 0) {
+	var prevInTouch = inTouch;
+	inTouch = false;
+	baseX = null;
+	baseY = null;
+	if (prevInTouch === "horizontal") {
+	  handlers.horizontalEnd();
+	  return false;
+	}
+
+	if (prevInTouch === "vertical") {
+	  handlers.verticalEnd();
+	  return false;
+	}
       }
 
-      if (ourTouchLibState.inTouch === "vertical") {
-	var move = Math.round((event.touches[0].screenY - ourTouchLibState.baseY) / fingerSwipeDistance);
-	handlers.verticalMove(move);
-      }
+      // Allow default processing of clicks if they are not part of a valid swipe.
+      return true;
     }
-
-    if (event.touches.length === 0) {
-      var prevInTouch = ourTouchLibState.inTouch;
-      ourTouchLibState.inTouch = false;
-      ourTouchLibState.baseX = null;
-      ourTouchLibState.baseY = null;
-      if (prevInTouch === "horizontal") {
-	handlers.horizontalEnd();
-	return false;
-      }
-
-      if (prevInTouch === "vertical") {
-	handlers.verticalEnd();
-	return false;
-      }
-    }
-
-    // Allow default processing of clicks if they are not part of a valid swipe.
-    return true;
-  }
-}
-// --- end of our touch lib
+  }).bind(this);
+});
 
 //_ Main
 function absorbEvent(event) {
@@ -330,8 +367,8 @@ function absorbEvent(event) {
 }
 
 $(document).ready(function () {
-  // used by showImage
-  canvasContext = $("#targetImage")[0].getContext('2d');
+  // used by showImageSingleton.show
+  canvasSingleton.setContext($("#targetImage")[0].getContext('2d'));
 
   // Check if there is a specific path and load Earth accordingly
   var startHash = window.location.hash;
@@ -346,28 +383,20 @@ $(document).ready(function () {
   };
 
   // dragging horizontally with mouse
-  $("#imageContainer").mousedown(function(event) {
-    desktopHorizontalDragStart(event.pageX);
-  });
-
-  $("#imageContainer").mousemove(function(event) {
-    desktopHorizontalDragMove(event.pageX);
-  });
-
-  $("#imageContainer").mouseup(function(event) {
-    desktopHorizontalDragEnd(event.pageX);
-  });
+  $("#imageContainer").mousedown(desktopDragToRotateEarthConverter.start);
+  $("#imageContainer").mousemove(desktopDragToRotateEarthConverter.move);
+  $("#imageContainer").mouseup(desktopDragToRotateEarthConverter.end);
 
   // scrolling vertically with mouse
-  $(window).bind('mousewheel DOMMouseScroll', scrollHandler);
+  $(window).bind('mousewheel DOMMouseScroll', scrollHistoryConverter.scrollHandler);
 
   imgs = $("#imageContainer").bind('touchstart touchend touchcancel touchmove',
-  				   ourTouchLib(
+  				   ourTouchLib.main(
 				     {
-				       horizontalMove: rotateEarthAPIMove,
-				       horizontalEnd: rotateEarthAPIEnd,
-				       verticalMove: historyAPIMove,
-				       verticalEnd: historyAPIEnd
+				       horizontalMove: rotateEarthAPI.move,
+				       horizontalEnd: rotateEarthAPI.end,
+				       verticalMove: historyAPI.move,
+				       verticalEnd: historyAPI.end
 				     }
 				   ));
 
