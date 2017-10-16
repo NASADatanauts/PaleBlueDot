@@ -1,3 +1,4 @@
+//_ Comments
 // Invariants:
 //   - selectedColumn is the index of the closest earth rotation according to goalLongitude in selectedRow
 //   - on the UI the date shown is always nasaarray[selectedRow].d
@@ -14,7 +15,7 @@
 //   l: list of longitudesx (size n)
 // nasaarray is ordered ascending by d.
 
-// Settings
+//_ Settings
 var mouseDragColumnWidth = 100; // user has to drag this many pixels with the mouse to start rotating Earth
 var fingerSwipeDistance = 40; // on mobile, user has to swipe this many pixels to start rotating Earth
 var defaultGoalLongitude = 19; // starting value is Europe
@@ -27,14 +28,7 @@ var selectedColumn;
 // goal longitude of the user
 var goalLongitude;
 
-function getImageURL(row, col) {
-  var mdate = moment(nasaarray[row].d, "YYYY-MM-DD");
-  var imageName = nasaarray[row].i[col];
-  return 'https://nasa-kj58yy565gqqhv2gx.netdna-ssl.com/images/'
-    + mdate.format('YYYY') + '/' + mdate.format('MM') + '/' + mdate.format('DD')
-    + '/' + imageName + '.jpg';
-}
-
+//_ nasaarray accessor functions
 // given a row index, gives us the best column index in that row according to goalLongitude
 function getColumnFromLongitude(row) {
   var longitudes = nasaarray[row].l;
@@ -45,14 +39,6 @@ function getColumnFromLongitude(row) {
   return longitudeDistances.indexOf(Math.min(...longitudeDistances));
 }
 
-function highlightSelectedDot(col, row) {
-  // remove previously highlighted
-  $(".highlighted").removeClass("highlighted");
-
-  // add the new one
-  $("#dotContainer label:nth-of-type(" + (nasaarray[row].n - col) + ")").addClass('highlighted');
-}
-
 function getRowForDate(date) {
   for (var i = nasaarray.length - 1; i >= 0; --i) {
     if (nasaarray[i].d <= date) {
@@ -60,6 +46,15 @@ function getRowForDate(date) {
     }
   }
   return 0;
+}
+
+//_ URL handling
+function getImageURL(row, col) {
+  var mdate = moment(nasaarray[row].d, "YYYY-MM-DD");
+  var imageName = nasaarray[row].i[col];
+  return 'https://nasa-kj58yy565gqqhv2gx.netdna-ssl.com/images/'
+    + mdate.format('YYYY') + '/' + mdate.format('MM') + '/' + mdate.format('DD')
+    + '/' + imageName + '.jpg';
 }
 
 function activateByURL(hash, replace) {
@@ -92,6 +87,27 @@ function activateByURL(hash, replace) {
   }
 }
 
+function generateURL() {
+  return window.location.pathname + "#" + nasaarray[selectedRow].d + "/" + goalLongitude;
+}
+
+function pushURL() {
+  window.history.pushState(null, "", generateURL());
+}
+
+function replaceURL() {
+  window.history.replaceState(null, "", generateURL());
+}
+
+//_ UI change
+function highlightSelectedDot(col, row) {
+  // remove previously highlighted
+  $(".highlighted").removeClass("highlighted");
+
+  // add the new one
+  $("#dotContainer label:nth-of-type(" + (nasaarray[row].n - col) + ")").addClass('highlighted');
+}
+
 function gotoRow(newRow) {
   selectedColumn = getColumnFromLongitude(newRow);
 
@@ -109,18 +125,6 @@ function gotoRow(newRow) {
   highlightSelectedDot(selectedColumn, newRow);
 }
 
-function generateURL() {
-  return window.location.pathname + "#" + nasaarray[selectedRow].d + "/" + goalLongitude;
-}
-
-function pushURL() {
-  window.history.pushState(null, "", generateURL());
-}
-
-function replaceURL() {
-  window.history.replaceState(null, "", generateURL());
-}
-
 function rotateEarthWithDotClick(indexOfDot) {
   selectedColumn = nasaarray[selectedRow].n - indexOfDot - 1;
   gotoColumn(selectedColumn);
@@ -133,6 +137,7 @@ function gotoColumn(newColumn) {
   highlightSelectedDot(newColumn, selectedRow);
 }
 
+//_ Rotate earth
 // desktop dragdrop api -> rotateEarthApi converter
 var desktopHorizontalMouseAt = null;
 function desktopHorizontalDragStart(mouseAt) {
@@ -165,6 +170,7 @@ function rotateEarthAPIEnd() {
 }
 // --- End of Rotate API
 
+//_ Scroll earth
 // --- Scroll -> history API converter
 var scrollEndDelay = 400; // once the user is idle, the scroll is "finished"
 var scrollDistance = 0;
@@ -212,11 +218,7 @@ function historyAPIEnd() {
 }
 // --- End of Rotate API
 
-function absorbEvent(event) {
-  event.preventDefault();
-  return false;
-}
-
+//_ TouchLib
 // --- beginning of our touch lib
 var ourTouchLibState = {
   inTouch: false, // can be false, "inprogress", then "horizontal" or "vertical"
@@ -277,6 +279,12 @@ function ourTouchLib(handlers) {
   }
 }
 // --- end of our touch lib
+
+//_ Main
+function absorbEvent(event) {
+  event.preventDefault();
+  return false;
+}
 
 $(document).ready(function () {
   // Check if there is a specific path and load Earth accordingly
@@ -351,3 +359,10 @@ $(document).ready(function () {
     }
   });
 });
+
+//_ Emacs vars
+// Local Variables:
+// mode: javascript
+// allout-layout: (0 :)
+// eval: (allout-mode)
+// End:
