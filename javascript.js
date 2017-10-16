@@ -48,12 +48,21 @@ function getRowForDate(date) {
 
 //_ URL handling
 function getImageURL(row, col, thumb) {
+  console.log("getImageUrl", row, col, thumb);
   var mdate = moment(nasaarray[row].d, "YYYY-MM-DD");
   var imageName = nasaarray[row].i[col];
 
   return 'https://nasa-kj58yy565gqqhv2gx.netdna-ssl.com/images/'
     + mdate.format('YYYY') + '/' + mdate.format('MM') + '/' + mdate.format('DD')
     + '/' + imageName + (thumb ? '-thumb' : '') + '.jpg';
+}
+
+function getRowURL(row) {
+  var mdate = moment(nasaarray[row].d, "YYYY-MM-DD");
+
+  return 'https://nasa-kj58yy565gqqhv2gx.netdna-ssl.com/images/'
+    + mdate.format('YYYY') + '/' + mdate.format('MM') + '/' + mdate.format('DD')
+    + '/' + mdate.format('YYYY') + '-' + mdate.format('MM') + '-' + mdate.format('DD') + '.jpg';
 }
 
 function noop() {}
@@ -73,11 +82,17 @@ var canvasSingleton = new (function CanvasSingleton() {
     canvasContext.clearRect(0, 0, 1024, 1024);
     canvasContext.drawImage(imgEvent.target, 0, 0, 1024, 1024);
   }).bind(this);
+
+  this.displayImagePart = (function(imgEvent, x, y, w, h) {
+    canvasContext.clearRect(0, 0, 1024, 1024);
+    canvasContext.drawImage(imgEvent.target, x, y, w, h, 0, 0, 1024, 1024);
+  }).bind(this);
 });
 
 function AsyncImage(onload) {
+  var self = this;
   this.onload = function (event) {
-    this._phase = "loaded";
+    self._phase = "loaded";
     onload(event);
   };
   this.img = null;
@@ -86,11 +101,11 @@ function AsyncImage(onload) {
 
 AsyncImage.prototype.cancel = function() {
   if (this.img) {
-    this._phase = "noimage";
     this.img.onload = noop;
     this.img.src = "";
-    this.img = null;
   }
+  this._phase = "noimage";
+  this.img = null;
 };
 
 AsyncImage.prototype.start = function(url, imgProps) {
@@ -114,15 +129,25 @@ var showImageSingleton = new (function ShowImageSingleton() {
 
   var fullImage = new AsyncImage(canvasSingleton.displayImage);
 
-  var onThumbLoad = function(event) {
-      canvasSingleton.displayImage(event);
-      fullImage.start(getImageURL(event.target.row, event.target.col, false));
+  var onRowLoad = function(event) {
+    console.log("on row load finished", event);
   };
-  var thumbImage = new AsyncImage(onThumbLoad);
+  var rowImage = new AsyncImage(onRowLoad);
 
+  var onThumbLoad = function(event) {
+    canvasSingleton.displayImage(event);
+    fullImage.start(getImageURL(event.target.row, event.target.col, false));
+    if (rowImage.getPhase() === "noimage") rowImage.start(getRowURL(event.target.row));
+  };
+
+  var thumbImage = new AsyncImage(onThumbLoad);
+  
   this.show = (function(row, col) {
+    var rowChanged = true;
+    
     if (row === prevRow && col === prevCol) return;
     prevCol = col;
+    if (prevRow === row) rowChanged = false;
     prevRow = row;
 
     // cancel already inflight thumbnail
@@ -131,7 +156,16 @@ var showImageSingleton = new (function ShowImageSingleton() {
     // cancel already inflight full image
     fullImage.cancel();
 
-    thumbImage.start(getImageURL(row, col, true), { row: row, col: col });
+    // cancel and forget already cached row if row changed
+    if (rowChanged) rowImage.cancel();
+
+    if (rowImage.getPhase() === "loaded") {
+      canvasSingleton.displayImagePart({ target: rowImage.img }, 0, col * 256, 256, 256);
+      fullImage.start(getImageURL(row, col, false));
+    } else {
+      thumbImage.start(getImageURL(row, col, true), { row: row, col: col });
+    }
+
   }).bind(this);
 });
 
