@@ -94,7 +94,7 @@ h2 {
     display: inline-block;
 }
 
-#imageContainer img {
+#targetImage {
     margin: auto;
     max-height: 100%;
     max-width: 100%;

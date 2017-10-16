@@ -49,12 +49,29 @@ function getRowForDate(date) {
 }
 
 //_ URL handling
-function getImageURL(row, col) {
+var canvasContext = null; // filled by document ready
+function noop() {};
+lastImage = null;
+function showImage(row, col) {
+  if (lastImage) {
+    lastImage.onload = noop;
+    lastImage.src = "";
+  }
+
+  var newimage = new Image();
+
   var mdate = moment(nasaarray[row].d, "YYYY-MM-DD");
   var imageName = nasaarray[row].i[col];
-  return 'https://nasa-kj58yy565gqqhv2gx.netdna-ssl.com/images/'
+  newimage.onload = function() {
+    canvasContext.clearRect(0, 0, 1024, 1024);
+    canvasContext.drawImage(newimage, 0, 0, 1024, 1024);
+  }
+
+  newimage.src = 'https://nasa-kj58yy565gqqhv2gx.netdna-ssl.com/images/'
     + mdate.format('YYYY') + '/' + mdate.format('MM') + '/' + mdate.format('DD')
     + '/' + imageName + '.jpg';
+
+  lastImage = newimage;
 }
 
 function activateByURL(hash, replace) {
@@ -112,7 +129,7 @@ function gotoRow(newRow) {
   selectedColumn = getColumnFromLongitude(newRow);
 
   $("#dateLabel").text(moment(nasaarray[newRow].d).format("YYYY MMMM DD"));
-  $("#targetImage").attr("src", getImageURL(newRow, selectedColumn));
+  showImage(newRow, selectedColumn);
   $("#dotContainer").empty();
   for (var i = 0; i < nasaarray[newRow].n; i++) {
     $("#dotContainer").append("<label class='dot clickable'>&#x25CB</label>");
@@ -133,7 +150,7 @@ function rotateEarthWithDotClick(indexOfDot) {
 
 function gotoColumn(newColumn) {
   goalLongitude = nasaarray[selectedRow].l[newColumn];
-  $("#targetImage").attr("src", getImageURL(selectedRow, newColumn));
+  showImage(selectedRow, newColumn);
   highlightSelectedDot(newColumn, selectedRow);
 }
 
@@ -287,6 +304,9 @@ function absorbEvent(event) {
 }
 
 $(document).ready(function () {
+  // used by showImage
+  canvasContext = $("#targetImage")[0].getContext('2d');
+
   // Check if there is a specific path and load Earth accordingly
   var startHash = window.location.hash;
   if (!startHash) {
@@ -325,11 +345,8 @@ $(document).ready(function () {
 				     }
 				   ));
 
-  // prevent default image dragging by browser
-  // for desktop
-  $("#targetImage").on('dragstart', absorbEvent);
-  // for mobile
-  var node = document.getElementById('targetImage');
+  // prevent image selection on mobile
+  var node = $('#targetImage')[0];
   node.ontouchstart = absorbEvent;
   node.ontouchmove = absorbEvent;
   node.ontouchend = absorbEvent;
