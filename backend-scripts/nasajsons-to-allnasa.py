@@ -17,7 +17,7 @@ while d <= end_date:
     strdate = d.strftime("%Y-%m-%d")
 
     try:
-        with open("%s.json" % strdate, "r") as f:
+        with open("nasajsons-fixed/%s.json" % strdate, "r") as f:
             j = json.loads(f.read())
             row = {}
             row['d'] = strdate
@@ -33,4 +33,4 @@ while d <= end_date:
 
     d += delta
 
-print("nasaarray = " + json.dumps(rows, separators=(',',':')) + ";")
+print(json.dumps(rows, separators=(',',':')))
