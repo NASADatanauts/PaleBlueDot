@@ -49,29 +49,56 @@ function getRowForDate(date) {
 }
 
 //_ URL handling
-var canvasContext = null; // filled by document ready
-function noop() {};
-lastImage = null;
-function showImage(row, col) {
-  if (lastImage) {
-    lastImage.onload = noop;
-    lastImage.src = "";
-  }
-
-  var newimage = new Image();
-
+function getImageURL(row, col, thumb) {
   var mdate = moment(nasaarray[row].d, "YYYY-MM-DD");
   var imageName = nasaarray[row].i[col];
-  newimage.onload = function() {
-    canvasContext.clearRect(0, 0, 1024, 1024);
-    canvasContext.drawImage(newimage, 0, 0, 1024, 1024);
+
+  return 'https://nasa-kj58yy565gqqhv2gx.netdna-ssl.com/images/'
+    + mdate.format('YYYY') + '/' + mdate.format('MM') + '/' + mdate.format('DD')
+    + '/' + imageName + (thumb ? '-thumb' : '') + '.jpg';
+}
+
+var canvasContext = null; // filled by document ready
+function noop() {};
+function displayOnCanvasFull() {
+  canvasContext.clearRect(0, 0, 1024, 1024);
+  canvasContext.drawImage(this, 0, 0, 1024, 1024);
+}
+var lastFull = null;
+function displayOnCanvas() {
+  canvasContext.clearRect(0, 0, 1024, 1024);
+  canvasContext.drawImage(this, 0, 0, 1024, 1024);
+  var newFull = new Image();
+  newFull.onload = displayOnCanvasFull.bind(newFull);
+  newFull.src = getImageURL(this.row, this.col, false);
+  lastFull = newFull;
+};
+var lastThumb = null;
+var prevShowImageRow = null;
+var prevShowImageCol = null;
+function showImage(row, col) {
+  if (row === prevShowImageRow && col === prevShowImageCol) return;
+  prevShowImageCol = col; prevShowImageRow = row;
+
+  if (lastThumb) {
+    lastThumb.onload = noop;
+    lastThumb.src = "";
+    lastThumb = null;
   }
 
-  newimage.src = 'https://nasa-kj58yy565gqqhv2gx.netdna-ssl.com/images/'
-    + mdate.format('YYYY') + '/' + mdate.format('MM') + '/' + mdate.format('DD')
-    + '/' + imageName + '.jpg';
+  if (lastFull) {
+    lastFull.onload = noop;
+    lastFull.src = "";
+    lastFull = null;
+  }
 
-  lastImage = newimage;
+  var newThumb = new Image();
+  newThumb.row = row;
+  newThumb.col = col;
+  newThumb.onload = displayOnCanvas.bind(newThumb);
+  newThumb.src = getImageURL(row, col, true);
+
+  lastThumb = newThumb;
 }
 
 function activateByURL(hash, replace) {
@@ -135,14 +162,13 @@ function gotoRow(newRow) {
     $("#dotContainer").append("<label class='dot clickable'>&#x25CB</label>");
   }
 
-  $('.dot').click(function() {
-    rotateEarthWithDotClick($('.dot').index(this));
-  });
+  $('.dot').click(rotateEarthWithDotClick);
 
   highlightSelectedDot(selectedColumn, newRow);
 }
 
-function rotateEarthWithDotClick(indexOfDot) {
+function rotateEarthWithDotClick(event) {
+  var indexOfDot = $('.dot').index(this);
   selectedColumn = nasaarray[selectedRow].n - indexOfDot - 1;
   gotoColumn(selectedColumn);
   pushURL();
