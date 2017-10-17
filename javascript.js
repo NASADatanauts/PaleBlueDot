@@ -400,6 +400,11 @@ function absorbEvent(event) {
   return false;
 }
 
+function isTouchDevice() {
+  return 'ontouchstart' in window        // works on most browsers
+    || navigator.maxTouchPoints;       // works on IE10/11 and Surface
+};
+
 $(document).ready(function () {
   // used by showImageSingleton.show
   canvasSingleton.setContext($("#targetImage")[0].getContext('2d'));
@@ -442,9 +447,15 @@ $(document).ready(function () {
   node.ontouchend = absorbEvent;
   node.ontouchcancel = absorbEvent;
 
-  $('#question-mark').hover(function() {
-    $('#help-question').toggle("slide");
-  });
+  if (isTouchDevice()) {
+    $('#question-mark').hover(function() {
+      $('#help-question-mobile').toggle("slide");
+    });
+  } else {
+    $('#question-mark').hover(function() {
+      $('#help-question-desktop').toggle("slide");
+    });
+  }
 
   $('#dateLabel').click(function() {
     activateByURL("#" + nasaarray[nasaarray.length-1].d + "/" + goalLongitude, false);
