@@ -48,7 +48,6 @@ function getRowForDate(date) {
 
 //_ URL handling
 function getImageURL(row, col, thumb) {
-  console.log("getImageUrl", row, col, thumb);
   var mdate = moment(nasaarray[row].d, "YYYY-MM-DD");
   var imageName = nasaarray[row].i[col];
 
@@ -130,7 +129,7 @@ var showImageSingleton = new (function ShowImageSingleton() {
   var fullImage = new AsyncImage(canvasSingleton.displayImage);
 
   var onRowLoad = function(event) {
-    console.log("on row load finished", event);
+    console.log("Row load finished", event);
   };
   var rowImage = new AsyncImage(onRowLoad);
 
@@ -275,9 +274,9 @@ var rotateEarthAPI = new (function RotateEarthAPI() {
   var newSelectedColumn = null;
 
   this.move = (function(distance) {
-    newSelectedColumn = selectedColumn + distance;
-    if (newSelectedColumn < 0) newSelectedColumn = 0;
-    if (newSelectedColumn > nasaarray[selectedRow].n - 1) newSelectedColumn = nasaarray[selectedRow].n - 1;
+    newSelectedColumn = (selectedColumn + distance) % nasaarray[selectedRow].n;
+    if (newSelectedColumn < 0) newSelectedColumn += nasaarray[selectedRow].n;
+
     gotoColumn(newSelectedColumn);
   }).bind(this);
 
