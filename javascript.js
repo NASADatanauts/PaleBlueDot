@@ -18,7 +18,7 @@
 //_ Settings
 var defaultGoalLongitude = 19; // starting value is Europe
 
-// Global variables
+//_ Global variables
 // index in nasaarray[____]
 var selectedRow = nasaarray.length - 1;
 // index in nasaarray[selectedRow].{i,l}[____]
@@ -248,8 +248,8 @@ function gotoColumn(newColumn) {
   highlightSelectedDot(newColumn, selectedRow);
 }
 
-//_ Rotate earth
-// desktop dragdrop api -> rotateEarthApi converter
+//_ Rotate Earth
+// desktop dragdrop api -> rotateEarthAPI converter
 var desktopDragToRotateEarthConverter = new (function DesktopDragToRotateEarthConverter() {
   var mouseDragColumnWidth = 100; // user has to drag this many pixels with the mouse to start rotating Earth
   var desktopHorizontalMouseAt = null;
@@ -268,9 +268,9 @@ var desktopDragToRotateEarthConverter = new (function DesktopDragToRotateEarthCo
     rotateEarthAPI.end();
   }).bind(this);
 });
-// end of desktop dragdrop api -> rotateEarthApi converter
+// end of desktop dragdrop api -> rotateEarthAPI converter
 
-// --- Rotate API with it's own global variable
+// --- Rotate API
 var rotateEarthAPI = new (function RotateEarthAPI() {
   var newSelectedColumn = null;
 
@@ -288,7 +288,7 @@ var rotateEarthAPI = new (function RotateEarthAPI() {
 });
 // --- End of Rotate API
 
-//_ Scroll earth
+//_ Scroll Earth
 var scrollHistoryConverter = new (function ScrollHistoryConverter() {
   var scrollEndDelay = 400; // once the user is idle, the scroll is "finished"
   var scrollDistance = 0;
@@ -372,6 +372,7 @@ var ourTouchLib = new (function OurTouchLib() {
 	}
       }
 
+      // 0 means that no finger is touching the screen => swipe ended
       if (event.touches.length === 0) {
 	var prevInTouch = inTouch;
 	inTouch = false;
@@ -424,6 +425,7 @@ $(document).ready(function () {
   // scrolling vertically with mouse
   $(window).bind('mousewheel DOMMouseScroll', scrollHistoryConverter.scrollHandler);
 
+  // swiping vertically/horizontally with finger on mobile
   imgs = $("#imageContainer").bind('touchstart touchend touchcancel touchmove',
   				   ourTouchLib.main(
 				     {
