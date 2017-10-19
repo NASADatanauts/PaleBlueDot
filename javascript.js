@@ -129,7 +129,7 @@ var showImageSingleton = new (function ShowImageSingleton() {
   var fullImage = new AsyncImage(canvasSingleton.displayImage);
 
   var onRowLoad = function(event) {
-    console.log("Row load finished", event);
+//    console.log("Row load finished", event);
   };
   var rowImage = new AsyncImage(onRowLoad);
 
@@ -168,24 +168,44 @@ var showImageSingleton = new (function ShowImageSingleton() {
   }).bind(this);
 });
 
-function activateByURL(hash, replace) {
-  // TODO: use a regex which checks the format AND splits out the parts
-  // something like this: ^#([0-9]{4}-[0-9]{2}-[0-9]{2})[:/]([0-9.]+)$
-  // if no match -> error
-  // var date = matchobj.part(0)
-  // var longits = matchobj.part(1)
-  // var longit = float(longits); // and if this float is not correct -> error
-  // in case of error: set a correct hash
-  var date = hash.substring(1, 11);
-  var longits = hash.substring(12);
-  var longit = Number(longits);
+function goodFormatDate(d) {
+  var date = d.split("-");
+  var month = date[1];
+  if (month.length == 1) month = "0" + month;
+  var day = date[2];
+  if (day.length == 1) day = "0" + day;
+  return date[0] + "-" + month + "-" + day;
+}
 
-  // TODO: something more complicated here:
-  //   - if date is good, but longits is bad, then go to date + defaultGoalLongitude
-  //   - if both is bad, then use the current solution
-  if (!longits || longits === "" || Number.isNaN(longit)) {
-    date = nasaarray[nasaarray.length-1].d;
-    longit = defaultGoalLongitude;
+function checkAndFormatDate(d) {
+  if (/^\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])$/.test(d)) {
+    return goodFormatDate(d);
+  };
+  return false;
+}
+
+function isValidLongitude(l) {
+  return (l != "") && (!isNaN(l)) && (l <= 180) && (l >= -180);
+}
+
+function activateByURL(hash, replace) {
+  // remove the #
+  hash = hash.slice(1);
+
+  // get the date part
+  var date = hash.split("/")[0];
+  date = checkAndFormatDate(date);
+
+  if (!date) {
+    date = nasaarray[nasaarray.length - 1].d;
+  }
+
+  // get the hash part
+  hash = hash.substring(hash.indexOf("/") + 1);
+  var longit = Number(hash);
+
+  if (!isValidLongitude(longit)) {
+    longit = goalLongitude;
   }
 
   selectedRow = getRowForDate(date);
