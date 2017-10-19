@@ -220,15 +220,21 @@ function activateByURL(hash, replace) {
   }
 }
 
+function generateTitle() {
+  return "~ Pale Blue Dot ~ " + nasaarray[selectedRow].d + "/" + goalLongitude;
+}
+
 function generateURL() {
   return window.location.pathname + "#" + nasaarray[selectedRow].d + "/" + goalLongitude;
 }
 
 function pushURL() {
+  document.title = generateTitle();
   window.history.pushState(null, "", generateURL());
 }
 
 function replaceURL() {
+  document.title = generateTitle();
   window.history.replaceState(null, "", generateURL());
 }
 
