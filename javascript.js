@@ -304,10 +304,10 @@ var desktopDragToRotateEarthConverter = new (function DesktopDragToRotateEarthCo
 // --- Rotate API
 var rotateEarthAPI = new (function RotateEarthAPI() {
   var newSelectedColumn = null;
-
+  var numberOfImagesThisRow = nasaarray[selectedRow].n;
+  
   this.move = (function(distance) {
-    newSelectedColumn = (selectedColumn + distance + nasaarray[selectedRow].n) % nasaarray[selectedRow].n;
-
+    newSelectedColumn = ((selectedColumn + distance) % numberOfImagesThisRow + numberOfImagesThisRow) % numberOfImagesThisRow;
     gotoColumn(newSelectedColumn);
   }).bind(this);
 
