@@ -194,24 +194,26 @@ function activateByURL(hash, replace) {
   // remove the #
   hash = hash.slice(1);
 
+  hashparts = hash.split("/");
+
   // get the date part
-  var date = hash.split("/")[0];
+  var date = hashparts[0];
   date = checkAndFormatDate(date);
 
   if (!date) {
     date = nasaarray[nasaarray.length - 1].d;
   }
 
-  // get the hash part
-  hash = hash.substring(hash.indexOf("/") + 1);
-  var longit = Number(hash);
+  // get the longitude part
+  var stringLongitude = hashparts[hashparts.length-1];
+  var longitude = Number(stringLongitude);
 
-  if (!isValidLongitude(longit)) {
-    longit = goalLongitude;
+  if (!isValidLongitude(longitude)) {
+    longitude = goalLongitude;
   }
 
   selectedRow = getRowForDate(date);
-  goalLongitude = longit;
+  goalLongitude = longitude;
   gotoRow(selectedRow);
   if (replace) {
     replaceURL()
@@ -304,8 +306,7 @@ var rotateEarthAPI = new (function RotateEarthAPI() {
   var newSelectedColumn = null;
 
   this.move = (function(distance) {
-    newSelectedColumn = (selectedColumn + distance) % nasaarray[selectedRow].n;
-    if (newSelectedColumn < 0) newSelectedColumn += nasaarray[selectedRow].n;
+    newSelectedColumn = (selectedColumn + distance + nasaarray[selectedRow].n) % nasaarray[selectedRow].n;
 
     gotoColumn(newSelectedColumn);
   }).bind(this);
