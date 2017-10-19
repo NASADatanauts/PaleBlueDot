@@ -26,6 +26,10 @@ var selectedColumn;
 // goal longitude of the user
 var goalLongitude;
 
+// avoids the usage of an unnecessary date library
+var monthNames = ["January", "February", "March", "April", "May", "June", "July",
+		  "August", "September", "October", "November", "December"];
+
 //_ nasaarray accessor functions
 // given a row index, gives us the best column index in that row according to goalLongitude
 function getColumnFromLongitude(row) {
@@ -48,20 +52,18 @@ function getRowForDate(date) {
 
 //_ URL handling
 function getImageURL(row, col, thumb) {
-  var mdate = moment(nasaarray[row].d, "YYYY-MM-DD");
+  var date = nasaarray[row].d.split("-");
   var imageName = nasaarray[row].i[col];
 
   return 'https://nasa-kj58yy565gqqhv2gx.netdna-ssl.com/images/'
-    + mdate.format('YYYY') + '/' + mdate.format('MM') + '/' + mdate.format('DD')
-    + '/' + imageName + (thumb ? '-thumb' : '') + '.jpg';
+    + date[0] + '/' + date[1] + '/' + date[2] + '/' + imageName + (thumb ? '-thumb' : '') + '.jpg';
 }
 
 function getRowURL(row) {
-  var mdate = moment(nasaarray[row].d, "YYYY-MM-DD");
+  var date = nasaarray[row].d.split("-");
 
   return 'https://nasa-kj58yy565gqqhv2gx.netdna-ssl.com/images/'
-    + mdate.format('YYYY') + '/' + mdate.format('MM') + '/' + mdate.format('DD')
-    + '/' + mdate.format('YYYY') + '-' + mdate.format('MM') + '-' + mdate.format('DD') + '.jpg';
+    + date[0] + '/' + date[1] + '/' + date[2] + '/' + nasaarray[row].d + '.jpg';
 }
 
 function noop() {}
@@ -242,7 +244,9 @@ function highlightSelectedDot(col, row) {
 function gotoRow(newRow) {
   selectedColumn = getColumnFromLongitude(newRow);
 
-  $("#dateLabel").text(moment(nasaarray[newRow].d).format("YYYY MMMM DD"));
+  var date = nasaarray[newRow].d.split("-");
+  $("#dateLabel").text(date[0] + " " + monthNames[parseInt(date[1] - 1)] + " " + date[2]);
+
   showImageSingleton.show(newRow, selectedColumn);
   $("#dotContainer").empty();
   for (var i = 0; i < nasaarray[newRow].n; i++) {
