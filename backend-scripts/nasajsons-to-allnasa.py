@@ -6,7 +6,7 @@ import datetime
 from time import gmtime, strftime, strptime
 import sys
 
-start_date = datetime.date(2015, 10, 12)
+start_date = datetime.date(2015, 06, 13)
 end_date = datetime.date.today()
 
 d = start_date
