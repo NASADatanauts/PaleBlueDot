@@ -130,10 +130,7 @@ var showImageSingleton = new (function ShowImageSingleton() {
 
   var fullImage = new AsyncImage(canvasSingleton.displayImage);
 
-  var onRowLoad = function(event) {
-//    console.log("Row load finished", event);
-  };
-  var rowImage = new AsyncImage(onRowLoad);
+  var rowImage = new AsyncImage(noop);
 
   var onThumbLoad = function(event) {
     canvasSingleton.displayImage(event);
