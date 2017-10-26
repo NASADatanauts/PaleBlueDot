@@ -317,8 +317,10 @@ var rotateEarthAPI = new (function RotateEarthAPI() {
 
 //_ Scroll Earth
 var scrollHistoryConverter = new (function ScrollHistoryConverter() {
-  var scrollEndDelay = 400; // once the user is idle, the scroll is "finished"
-  var scrollDistance = 0;
+  var scrollEndDelay = 500; // once the user is idle, the scroll is "finished"
+  var scrollDistanceWithWheelDelta = 240; // Chrome returns a scroll distance with 'delta'
+  var scrollDistanceWithDetail = 2; // Firefox returns a scroll distance with 'detail'
+  var scrollDistance = 0; // Different mice return different distances, so we normalize them to get how many days to scroll
 
   var scrollEnd = (function() {
     historyAPI.end();
@@ -334,16 +336,23 @@ var scrollHistoryConverter = new (function ScrollHistoryConverter() {
     timerScrollEndDelayed = setTimeout(scrollEnd, scrollEndDelay);
   }).bind(this);
 
-  this.scrollHandler = (function(event) {
-    if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0) {
-      // scroll up
-      scrollDistance += 1;
-    } else {
-      // scroll down
-      scrollDistance -= 1;
-    }
-    historyAPI.move(scrollDistance);
+  this.scrollHandlerWithWheelDelta = (function(event) {
+    scrollDistance += event.originalEvent.wheelDelta;
 
+    scrollRound = scrollDistance / scrollDistanceWithWheelDelta;
+    scrollRound = scrollRound - scrollRound % 1;
+
+    historyAPI.move(scrollRound);
+    scrollEndDelayed();
+  }).bind(this);
+
+  this.scrollHandlerWithDetail = (function(event) {
+    scrollDistance += event.originalEvent.detail;
+
+    scrollRound = scrollDistance / scrollDistanceWithDetail;
+    scrollRound = scrollRound - scrollRound % 1;
+
+    historyAPI.move(-scrollRound);
     scrollEndDelayed();
   }).bind(this);
 });
@@ -455,7 +464,8 @@ $(document).ready(function () {
   $("#imageContainer").mouseup(desktopDragToRotateEarthConverter.end);
 
   // scrolling vertically with mouse
-  $(window).bind('mousewheel DOMMouseScroll', scrollHistoryConverter.scrollHandler);
+  $(window).bind('mousewheel', scrollHistoryConverter.scrollHandlerWithWheelDelta);
+  $(window).bind('DOMMouseScroll', scrollHistoryConverter.scrollHandlerWithDetail);
 
   // swiping vertically/horizontally with finger on mobile
   imgs = $("#imageContainer").bind('touchstart touchend touchcancel touchmove',
