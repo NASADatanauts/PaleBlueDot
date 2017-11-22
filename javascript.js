@@ -96,6 +96,9 @@ function AsyncImage(onload) {
     self._phase = "loaded";
     onload(event);
   };
+  this.onerror = function (event) {
+    console.error("Couldn't load image ", this.src);
+  };
   this.img = null;
   this._phase = "noimage";
 }
@@ -117,6 +120,7 @@ AsyncImage.prototype.start = function(url, imgProps) {
   this.img = new Image();
   Object.assign(this.img, imgProps);
   this.img.onload = this.onload;
+  this.img.onerror = this.onerror;
   this.img.src = url;
 };
 
