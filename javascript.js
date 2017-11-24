@@ -92,12 +92,15 @@ var canvasSingleton = new (function CanvasSingleton() {
 
 function AsyncImage(onload) {
   var self = this;
+
+  // If we were to make this function a proper class function in
+  // prototype, then we would have to remember the onload parameter,
+  // because that is different for constructor call.  Therefore it
+  // would not be a big speedup and it's just easier to declare a new
+  // onload function here for every instance.
   this.onload = function (event) {
     self._phase = "loaded";
     onload(event);
-  };
-  this.onerror = function (event) {
-    console.error("Couldn't load image ", this.src);
   };
   this.img = null;
   this._phase = "noimage";
@@ -106,10 +109,15 @@ function AsyncImage(onload) {
 AsyncImage.prototype.cancel = function() {
   if (this.img) {
     this.img.onload = noop;
+    this.img.onerror = noop;
     this.img.src = "";
   }
   this._phase = "noimage";
   this.img = null;
+};
+
+AsyncImage.prototype.onerror = function(event) {
+  console.error("Couldn't load image ", this.src);
 };
 
 AsyncImage.prototype.start = function(url, imgProps) {
