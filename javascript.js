@@ -93,6 +93,8 @@ var canvasSingleton = new (function CanvasSingleton() {
 function AsyncImage(onload) {
   var self = this;
 
+  this.downloadStartTime = null;
+
   // If we were to make this function a proper class function in
   // prototype, then we would have to remember the onload parameter,
   // because that is different for constructor call.  Therefore it
@@ -100,6 +102,9 @@ function AsyncImage(onload) {
   // onload function here for every instance.
   this.onload = function (event) {
     self._phase = "loaded";
+    var downloadEndTime = new Date().getTime();
+    trackJs.console.log({ "image name": this.src,
+			  "download time (ms)": downloadEndTime - self.downloadStartTime });
     onload(event);
   };
   this.img = null;
@@ -130,6 +135,7 @@ AsyncImage.prototype.start = function(url, imgProps) {
   this.img.onload = this.onload;
   this.img.onerror = this.onerror;
   this.img.src = url;
+  this.downloadStartTime = new Date().getTime();
 };
 
 AsyncImage.prototype.getPhase = function() {
@@ -204,6 +210,11 @@ function activateByURL(hash, replace) {
   hash = hash.slice(1);
 
   hashparts = hash.split("/");
+
+  if (hashparts[hashparts.length - 1] === "debug") {
+    hashparts.pop();
+    console.error("trackjs debug push");
+  }
 
   // get the date part
   var date = hashparts[0];
