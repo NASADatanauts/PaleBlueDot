@@ -61,6 +61,7 @@ function getImageURL(row, col, thumb) {
 
 function getRowURL(row) {
   var date = nasaarray[row].d.split("-");
+
   return 'https://nasa-kj58yy565gqqhv2gx.netdna-ssl.com/images/'
     + date[0] + '/' + date[1] + '/' + date[2] + '/' + nasaarray[row].d + '.jpg';
 }
@@ -102,36 +103,8 @@ function AsyncImage(onload) {
   this.onload = function (event) {
     self._phase = "loaded";
     var downloadEndTime = new Date().getTime();
-
-    try {
-      throw new Error("haha");
-      
-    } catch(err) {
-      c.sendError(err, "Error", function(event) {
-	
-        // set some custom properties on the event
-	event.apiKey = '010638773a20d7494d5edee609e7577221730029493873';
-	event.eventType = "Image download time statistics 4 ";
-	event.logLevel = 'info';
-	event.classification = 'Image download time statistics 4';
-	
-        event.contextOperationTimeMillis = 1000
-        event.eventUser = "jake@trakerr.io"
-        event.eventSession = "20"
-        event.contextDevice = "pc"
-        event.contextAppSku = "mobile"
-        event.contextTags = ["client", "frontend"]
-	
-        event.customProperties = {
-          customString: {
-            customData1: "Some data"
-          }
-        };
-      });
-    }
-
-    console.log({ "image name": this.src,
-		  "download time (ms)": downloadEndTime - self.downloadStartTime });
+    trackJs.console.log({ "image name": this.src,
+			  "download time (ms)": downloadEndTime - self.downloadStartTime });
     onload(event);
   };
   this.img = null;
@@ -492,15 +465,7 @@ function isTouchDevice() {
     || navigator.maxTouchPoints;       // works on IE10/11 and Surface
 };
 
-var c = new TrakerrClient('010638773a20d7494d5edee609e7577221730029493873', '1.3.1', 'master');
-
-function initTrakerr() {
-  c.handleExceptions(false);
-}
-
 $(document).ready(function () {
-  initTrakerr();
-  
   // used by showImageSingleton.show
   canvasSingleton.setContext($("#targetImage")[0].getContext('2d'));
 
