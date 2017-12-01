@@ -103,6 +103,7 @@ function AsyncImage(onload) {
   this.onload = function (event) {
     self._phase = "loaded";
     var downloadEndTime = new Date().getTime();
+    sendEventToTrakErr(this.src, downloadEndTime - self.downloadStartTime);
     trackJs.console.log({ "image name": this.src,
 			  "download time (ms)": downloadEndTime - self.downloadStartTime });
     onload(event);
@@ -455,6 +456,24 @@ var ourTouchLib = new (function OurTouchLib() {
 });
 
 //_ Main
+// Send data to TrakErr.io. This is where image download time statistics is monitored.
+function sendEventToTrakErr(stringData, doubleData) {
+  var trakerrEvent = trakerr.createAppEvent();
+  trakerrEvent.logLevel ='info';
+
+  trakerrEvent.eventMessage = stringData;
+
+  trakerrEvent.customProperties = {
+    doubleData: {
+      customData1: doubleData
+    }
+  };
+
+  trakerrEvent.eventType = "nagykep"; // TODO: decide based on stringData what is the type 
+  
+  trakerr.sendEvent(trakerrEvent, function(error, data, response) {});
+}
+
 function absorbEvent(event) {
   event.preventDefault();
   return false;
