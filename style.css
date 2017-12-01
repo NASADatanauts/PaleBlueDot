@@ -10,6 +10,10 @@ body {
     line-height: 1.1em;
 }
 
+body.perfdebug {
+    background: #7e0a50;
+}
+
 #dotContainer {
     position: absolute;
     top: 10px;

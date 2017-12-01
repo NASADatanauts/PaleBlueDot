@@ -30,6 +30,9 @@ var goalLongitude;
 var monthNames = ["January", "February", "March", "April", "May", "June", "July",
 		  "August", "September", "October", "November", "December"];
 
+// start debug with .../pd/debug_location
+var debug_location = "";
+
 //_ nasaarray accessor functions
 // given a row index, gives us the best column index in that row according to goalLongitude
 function getColumnFromLongitude(row) {
@@ -92,12 +95,21 @@ var canvasSingleton = new (function CanvasSingleton() {
 
 function AsyncImage(onload) {
   var self = this;
+
+  this.downloadStartTime = null;
+
+  // If we were to make this function a proper class function in
+  // prototype, then we would have to remember the onload parameter,
+  // because that is different for constructor call.  Therefore it
+  // would not be a big speedup and it's just easier to declare a new
+  // onload function here for every instance.
   this.onload = function (event) {
     self._phase = "loaded";
+    var downloadEndTime = new Date().getTime();
+    sendEventToTrakErr(this.src, downloadEndTime - self.downloadStartTime);
+    trackJs.console.log({ "image name": this.src,
+			  "download time (ms)": downloadEndTime - self.downloadStartTime });
     onload(event);
-  };
-  this.onerror = function (event) {
-    console.error("Couldn't load image ", this.src);
   };
   this.img = null;
   this._phase = "noimage";
@@ -106,10 +118,15 @@ function AsyncImage(onload) {
 AsyncImage.prototype.cancel = function() {
   if (this.img) {
     this.img.onload = noop;
+    this.img.onerror = noop;
     this.img.src = "";
   }
   this._phase = "noimage";
   this.img = null;
+};
+
+AsyncImage.prototype.onerror = function(event) {
+  console.error("Couldn't load image ", this.src);
 };
 
 AsyncImage.prototype.start = function(url, imgProps) {
@@ -122,6 +139,7 @@ AsyncImage.prototype.start = function(url, imgProps) {
   this.img.onload = this.onload;
   this.img.onerror = this.onerror;
   this.img.src = url;
+  this.downloadStartTime = new Date().getTime();
 };
 
 AsyncImage.prototype.getPhase = function() {
@@ -196,6 +214,19 @@ function activateByURL(hash, replace) {
   hash = hash.slice(1);
 
   hashparts = hash.split("/");
+
+  if (hashparts[hashparts.length - 1] === "debug") {
+    hashparts.pop();
+    console.error("trackjs debug push");
+  }
+
+  if (hashparts[hashparts.length - 2] === "pd") {
+    $("body").addClass("perfdebug");
+    debug_location = hashparts[hashparts.length - 1];
+    hashparts.pop();
+    hashparts.pop();
+    console.error("perf debug enabled with name '" + debug_location + "'");
+  }
 
   // get the date part
   var date = hashparts[0];
@@ -436,6 +467,39 @@ var ourTouchLib = new (function OurTouchLib() {
 });
 
 //_ Main
+// Send data to TrakErr.io. This is where image download time statistics is monitored.
+function sendEventToTrakErr(stringData, doubleData) {
+  var trakerrEvent = trakerr.createAppEvent();
+  trakerrEvent.logLevel ='info';
+
+  trakerrEvent.eventMessage = stringData;
+
+  trakerrEvent.customProperties = {
+    doubleData: {
+      customData1: doubleData
+    }
+  };
+
+  if (debug_location) {
+    trakerrEvent.classification = debug_location;
+  }
+
+  // ...images/2016/07/29/epic_1b_20160729172632-thumb.jpg -> thumbnail
+  // ...images/2016/07/29/epic_1b_20160729172632.jpg -> big_image
+  // ...images/2016/07/29/2016-07-29.jpg -> daily_concat
+  if (stringData.indexOf("thumb") > 0) {
+    trakerrEvent.eventType = "thumbnail";
+  } else if (stringData.indexOf("epic_1b") > 0) {
+    trakerrEvent.eventType = "big_image";
+  } else if ((stringData.indexOf("-") > 0) && (stringData.indexOf("jpg") > 0)) {
+    trakerrEvent.eventType = "daily_concat";
+  } else {
+    trakerrEvent.eventType = "other";
+  }
+
+  trakerr.sendEvent(trakerrEvent, function(error, data, response) {});
+}
+
 function absorbEvent(event) {
   event.preventDefault();
   return false;
