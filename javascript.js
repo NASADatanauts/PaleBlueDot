@@ -30,6 +30,9 @@ var goalLongitude;
 var monthNames = ["January", "February", "March", "April", "May", "June", "July",
 		  "August", "September", "October", "November", "December"];
 
+// start debug with .../pd/debug_location
+var debug_location = "";
+
 //_ nasaarray accessor functions
 // given a row index, gives us the best column index in that row according to goalLongitude
 function getColumnFromLongitude(row) {
@@ -215,6 +218,14 @@ function activateByURL(hash, replace) {
   if (hashparts[hashparts.length - 1] === "debug") {
     hashparts.pop();
     console.error("trackjs debug push");
+  }
+
+  if (hashparts[hashparts.length - 2] === "pd") {
+    $("body").addClass("perfdebug");
+    debug_location = hashparts[hashparts.length - 1];
+    hashparts.pop();
+    hashparts.pop();
+    console.error("perf debug enabled with name '" + debug_location + "'");
   }
 
   // get the date part
@@ -469,8 +480,23 @@ function sendEventToTrakErr(stringData, doubleData) {
     }
   };
 
-  trakerrEvent.eventType = "nagykep"; // TODO: decide based on stringData what is the type 
-  
+  if (debug_location) {
+    trakerrEvent.classification = debug_location;
+  }
+
+  // ...images/2016/07/29/epic_1b_20160729172632-thumb.jpg -> thumbnail
+  // ...images/2016/07/29/epic_1b_20160729172632.jpg -> big_image
+  // ...images/2016/07/29/2016-07-29.jpg -> daily_concat
+  if (stringData.indexOf("thumb") > 0) {
+    trakerrEvent.eventType = "thumbnail";
+  } else if (stringData.indexOf("epic_1b") > 0) {
+    trakerrEvent.eventType = "big_image";
+  } else if ((stringData.indexOf("-") > 0) && (stringData.indexOf("jpg") > 0)) {
+    trakerrEvent.eventType = "daily_concat";
+  } else {
+    trakerrEvent.eventType = "other";
+  }
+
   trakerr.sendEvent(trakerrEvent, function(error, data, response) {});
 }
 
