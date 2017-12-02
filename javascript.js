@@ -32,6 +32,10 @@ var monthNames = ["January", "February", "March", "April", "May", "June", "July"
 
 // start debug with .../pd/debug_location
 var debug_location = "";
+// store download times in these
+var ms_big_image = new DownloadTimeCollector("big_image");
+var ms_thumbnail = new DownloadTimeCollector("thumbnail");
+var ms_daily_concat = new DownloadTimeCollector("daily_concat");
 
 //_ nasaarray accessor functions
 // given a row index, gives us the best column index in that row according to goalLongitude
@@ -93,6 +97,18 @@ var canvasSingleton = new (function CanvasSingleton() {
   }).bind(this);
 });
 
+function eventTypesArray(imageName) {
+  if (imageName.indexOf("thumb") > 0) {
+    return ms_thumbnail;
+  } else if (imageName.indexOf("epic_1b") > 0) {
+    return ms_big_image;
+  } else if ((imageName.indexOf("-") > 0) && (imageName.indexOf("jpg") > 0)) {
+    return ms_daily_concat;
+  } else {
+    console.error("Program error: There is no event type for image name: ", imageName);
+  }
+}
+
 function AsyncImage(onload) {
   var self = this;
 
@@ -106,7 +122,8 @@ function AsyncImage(onload) {
   this.onload = function (event) {
     self._phase = "loaded";
     var downloadEndTime = new Date().getTime();
-    sendEventToTrakErr(this.src, downloadEndTime - self.downloadStartTime);
+    var statisticsToPush = eventTypesArray(this.src);
+    statisticsToPush.addData(downloadEndTime - self.downloadStartTime);
     trackJs.console.log({ "image name": this.src,
 			  "download time (ms)": downloadEndTime - self.downloadStartTime });
     onload(event);
@@ -466,17 +483,52 @@ var ourTouchLib = new (function OurTouchLib() {
   }).bind(this);
 });
 
-//_ Main
+//_ Statistics reporting monitoring metrics
+function DownloadTimeCollector(typeName) {
+  var self = this;
+
+  this.eventType = typeName;
+  this.download_times = [];
+  this.send_after_length = 10;
+}
+
+DownloadTimeCollector.prototype.addData = function(data) {
+  this.download_times.push(data);
+  if (this.download_times.length >= this.send_after_length) {
+    this.sendEventsToTrakErr();
+    this.download_times = [];
+  }
+}
+
+DownloadTimeCollector.prototype.sendEventsToTrakErr = function() {
+  this.download_times.sort(function(a, b) {return a - b;});
+  var events = this.download_times;
+  var slowest_event = events[events.length - 1];
+  var fastest_event = events[0];
+  var sum_of_events = 0;
+  for (var i = 0; i < events.length; i++) {
+    sum_of_events += events[i];
+  }
+  var avg_of_events = sum_of_events / events.length;
+  var median_of_events = events[Math.round(events.length / 2) - 1];
+
+  sendEventToTrakErr(this.eventType, slowest_event, fastest_event, avg_of_events, median_of_events);
+}
+
 // Send data to TrakErr.io. This is where image download time statistics is monitored.
-function sendEventToTrakErr(stringData, doubleData) {
+function sendEventToTrakErr(eventType, slowest, fastest, avg, median) {
   var trakerrEvent = trakerr.createAppEvent();
   trakerrEvent.logLevel ='info';
+  trakerrEvent.eventType = eventType;
 
-  trakerrEvent.eventMessage = stringData;
+  trakerrEvent.eventMessage = "" + eventType + "'s slowest: " + slowest + "ms";
 
   trakerrEvent.customProperties = {
     doubleData: {
-      customData1: doubleData
+      customData1: slowest,
+      customData2: fastest,
+      customData3: avg,
+      customData4: median,
     }
   };
 
@@ -484,22 +536,10 @@ function sendEventToTrakErr(stringData, doubleData) {
     trakerrEvent.classification = debug_location;
   }
 
-  // ...images/2016/07/29/epic_1b_20160729172632-thumb.jpg -> thumbnail
-  // ...images/2016/07/29/epic_1b_20160729172632.jpg -> big_image
-  // ...images/2016/07/29/2016-07-29.jpg -> daily_concat
-  if (stringData.indexOf("thumb") > 0) {
-    trakerrEvent.eventType = "thumbnail";
-  } else if (stringData.indexOf("epic_1b") > 0) {
-    trakerrEvent.eventType = "big_image";
-  } else if ((stringData.indexOf("-") > 0) && (stringData.indexOf("jpg") > 0)) {
-    trakerrEvent.eventType = "daily_concat";
-  } else {
-    trakerrEvent.eventType = "other";
-  }
-
   trakerr.sendEvent(trakerrEvent, function(error, data, response) {});
 }
 
+//_ Main
 function absorbEvent(event) {
   event.preventDefault();
   return false;
