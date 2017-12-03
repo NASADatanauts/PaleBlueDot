@@ -33,9 +33,9 @@ var monthNames = ["January", "February", "March", "April", "May", "June", "July"
 // start debug with .../pd/debug_location
 var debug_location = "";
 // store download times in these
-var ms_big_image = new DownloadTimeCollector("big_image");
-var ms_thumbnail = new DownloadTimeCollector("thumbnail");
-var ms_daily_concat = new DownloadTimeCollector("daily_concat");
+var ms_big_image = new DownloadTimeCollector("big_image", 30);
+var ms_thumbnail = new DownloadTimeCollector("thumbnail", 50);
+var ms_daily_concat = new DownloadTimeCollector("daily_concat", 10);
 
 //_ nasaarray accessor functions
 // given a row index, gives us the best column index in that row according to goalLongitude
@@ -484,17 +484,17 @@ var ourTouchLib = new (function OurTouchLib() {
 });
 
 //_ Statistics reporting monitoring metrics
-function DownloadTimeCollector(typeName) {
+function DownloadTimeCollector(typeName, sendAfterNo) {
   var self = this;
 
   this.eventType = typeName;
   this.download_times = [];
-  this.send_after_length = 10;
+  this.send_after_this_many = sendAfterNo;
 }
 
 DownloadTimeCollector.prototype.addData = function(data) {
   this.download_times.push(data);
-  if (this.download_times.length >= this.send_after_length) {
+  if (this.download_times.length >= this.send_after_this_many) {
     this.sendEventsToTrakErr();
     this.download_times = [];
   }
@@ -512,16 +512,16 @@ DownloadTimeCollector.prototype.sendEventsToTrakErr = function() {
   var avg_of_events = sum_of_events / events.length;
   var median_of_events = events[Math.round(events.length / 2) - 1];
 
-  sendEventToTrakErr(this.eventType, slowest_event, fastest_event, avg_of_events, median_of_events);
+  sendEventToTrakErr(this.eventType, events.length, slowest_event, fastest_event, avg_of_events, median_of_events);
 }
 
 // Send data to TrakErr.io. This is where image download time statistics is monitored.
-function sendEventToTrakErr(eventType, slowest, fastest, avg, median) {
+function sendEventToTrakErr(eventType, no, slowest, fastest, avg, median) {
   var trakerrEvent = trakerr.createAppEvent();
   trakerrEvent.logLevel ='info';
   trakerrEvent.eventType = eventType;
 
-  trakerrEvent.eventMessage = "" + eventType + "'s slowest: " + slowest + "ms";
+  trakerrEvent.eventMessage = "" + eventType + ", " + no + " data, slowest: " + slowest + " ms";
 
   trakerrEvent.customProperties = {
     doubleData: {
@@ -536,7 +536,11 @@ function sendEventToTrakErr(eventType, slowest, fastest, avg, median) {
     trakerrEvent.classification = debug_location;
   }
 
-  trakerr.sendEvent(trakerrEvent, function(error, data, response) {});
+  trakerr.sendEvent(trakerrEvent, function(error, data, response) {
+    if (error) {
+      console.error('Error Response: ' + error + ', data = ' + data + ', response = ' + JSON.stringify(response));
+    }
+  });
 }
 
 //_ Main
