@@ -25,18 +25,30 @@ The goal of [Pale Blue Dot](http://palebluedot.napszel.com) was to create a web 
 
 The first version of the project was pure Javascript that directly talked to NASA's servers. At this stage the focus was on perfecting the User Experience. Even though at first it sounds like a simple enough project, surprisingly many things had to be considered and implemented:
  
- 1. _CSS media query_
- Making it mobile friendly
- 2. _Rotate with mouse drag/swipe, Change date with mouse scroll/swipe_
- 3. _URL handling_: 
- format #date/longitude, edit (different types of dates), copy paste, only date, only longitude, replace url but only after a while
- 4. _Preserving selected longitude_: 
+ 1. **Navigation**
+ Instead of buttons and sliders you can scroll with your mouse to go back in time and load older images. For rotating Earth you can naturally click and drag it. Similarly on mobile: use finger swipe up/down and left/right to change date and rotate Earth. A fast scroll/swipe will change dates very quickly and update the date label at the top of the screen to show where you are at. But it does not slow down the UI because full size images only start to download after 500 ms and they are canceled if you navigate away before the download is finished. Additionally, discrete UI buttons (dots and arrows) are also available in case someone prefers it.
+ [pics showing desktop and mobile navigation]
+ 
+ 2. **CSS media query**
+ Mobile screens are naturally smaller and required a slightly different UI arrangement to fit everything on screen. CSS media queries were used to change the layout for screens below 670px.
+ [screenshot of mobile UI? maybe the previous is enough]
+ 
+ 3. **URL handling** 
+ Project URLs have the format _palebluedot.napszel.com/#2017-06-06/168.016348_. Copy-pasting the URL for sharing is supported. You can also freely edit the path for fast and precise navigation. After the hash mark you can enter a date (in YYYY-MM-DD format), followed by a slash, followed by a longitude. The application will search for the date that is closest to the supplied one (some days might not have images) and then search for the Earth image that is closest to the supplied longitude. You may also enter only a date or only a longitude. In that case the other will take a default value.
+ 
+ 4. **Back/Forward navigation**
+ Since the application does not navigate to different addresses when you load a different day the browsers' Back and Forward button does not do anything by default. For them to work, the application has to push addresses to the browser history. For example, in case you go back one day from today the web application will edit the date part of the address bar and push it to history. If you click the browser's Back button, you are taken back today. But not all navigation results in a path editing. Consider the case where you scroll back 10 days very quickly with a mouse or finger swipe. In this case if the path was edited to all dates during the scroll the browser's history would be polluted with day references which you did not really have the time to look at. To circumvent this, the path is only updated and pushed to history after you spend at least 500 ms viewing a day.
+ 
+ 5. **History**
+ Browsers list only the _title_ of the pages that you visited when you view your history. In order to have a meaningful history items in the list the title of the page also has to be edited.
+ ![image](history.png "History of page")
+  
+ 6. **Preserving selected longitude**
+ Scrolling/swiping up and down between days preserves the longitude setting. This means that if you are viewing the middle of the American continent and then navigate to previous days, the application will always select the images closest to the middle of the American continent in previous days also. However, there are not always a close enough match. 
+ 
  only usa images on solar eclipse, if user scrolls there from europe, stays at europe
- 5. _Back/Forward navigation_:
- 6. _History_:
- Editing the title of the page.
-  ![image](title.png "Title of page")
-  ![image](history.png "History of page")
+ 
+ 
    
 ### The EPIC NASA server
 
@@ -48,7 +60,7 @@ _Especially_, if the UI gives options to change views very quickly, the site has
 
 NASA stores these images on the server epic.gsfc.nasa.gov which accepts requests through an open API. To find out the available images (names and many other information) for a given day, you can request a JSON file. This means you have to download one JSON file to show the images of one day. For example part of the JSON file for 2015-10-31:
 
-```json
+```
 [  
    {  
       "identifier":"20151031003633",
@@ -195,7 +207,7 @@ At the time of writing this document the full JSON file with all the days concat
 - 2048 x2048 too big
 - CDN push zone
 
-### Image size magic
+### Image download time magic
 
 ### Error reporting - TrackJS
 
