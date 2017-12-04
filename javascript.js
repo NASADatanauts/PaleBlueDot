@@ -12,7 +12,7 @@
 //   n: the number of earth images (with different rotation) this day
 //   d: date
 //   i: list of image urls (size n)
-//   l: list of longitudesx (size n)
+//   l: list of longitudes (size n)
 // nasaarray is ordered ascending by d.
 
 //_ Settings
