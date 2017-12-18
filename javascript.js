@@ -45,7 +45,7 @@ function getColumnFromLongitude(row) {
 				 function(value) {
 				   return Math.min(Math.abs(value - goalLongitude), 360 - Math.abs(value - goalLongitude));
 				 });
-  return longitudeDistances.indexOf(Math.min(...longitudeDistances));
+  return longitudeDistances.indexOf(Math.min.apply(null, longitudeDistances));
 }
 
 function getRowForDate(date) {
