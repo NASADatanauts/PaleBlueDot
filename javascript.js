@@ -12,7 +12,7 @@
 //   n: the number of earth images (with different rotation) this day
 //   d: date
 //   i: list of image urls (size n)
-//   l: list of longitudesx (size n)
+//   l: list of longitudes (size n)
 // nasaarray is ordered ascending by d.
 
 //_ Settings
@@ -45,7 +45,7 @@ function getColumnFromLongitude(row) {
 				 function(value) {
 				   return Math.min(Math.abs(value - goalLongitude), 360 - Math.abs(value - goalLongitude));
 				 });
-  return longitudeDistances.indexOf(Math.min(...longitudeDistances));
+  return longitudeDistances.indexOf(Math.min.apply(null, longitudeDistances));
 }
 
 function getRowForDate(date) {
