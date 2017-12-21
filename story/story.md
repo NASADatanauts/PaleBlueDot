@@ -27,7 +27,8 @@ The first version of the project was pure Javascript that directly talked to NAS
  
  1. **Navigation**
  
- Instead of buttons and sliders you can scroll with your mouse (or touchpad) to go back in time and load older images. To rotate Earth you can naturally click and drag it. Similarly on mobile: use finger swipe up/down and left/right to change date and rotate Earth. 
+ Instead of buttons and sliders you can scroll with your mouse (or touchpad) to go back in time and load older images. To rotate Earth you can naturally click and drag it. Similarly on mobile: use finger swipe up/down and left/right to change date and rotate Earth.
+ 
  ![image](scrolling-earth.gif "Scrolling in time")   ![image](rotating-earth.gif "Rotating")
  
  A fast scroll/swipe will change dates very quickly and update the date label on the top of the UI to show where you are at. But it does not cause any waiting time because full size images only start to download after 500 ms and they are canceled if you navigate away before the download is finished. 
@@ -53,6 +54,7 @@ The first version of the project was pure Javascript that directly talked to NAS
  4. **History**
  
  If you look at the history of your page visits in your browser, you can see that only the _title_ of each page is shown. In order to have meaningful history items for Pale Blue Dot the page's title is always edited according to the date/longitude selected. This way, instead of seeing ~ Pale Blue Dot ~, ~ Pale Blue Dot ~, ~ Pale Blue Dot ~ you see meaningful results.
+ 
  ![image](history.png "History of page")
   
  5. **Preserving selected longitude**
@@ -68,6 +70,7 @@ The first version of the project was pure Javascript that directly talked to NAS
  6. **CSS media query**
  
  Mobile screens are naturally smaller and required a slightly different UI arrangement to fit everything on screen. CSS media queries were used to change the layout for any screen below 670px.
+ 
  ![image](mobile-ui-screenshot.png "Scrolling in time") 
    
 ### The EPIC NASA server
@@ -237,12 +240,12 @@ But even the smaller jpg format takes around 1,5 seconds to download from Europe
 
 A user from Europe will experience a minimum of 200 ms of delay just because of the distance from the NASA server. Because of the size of the images this goes up to 1.5 s in total download time. In the USA this should be around 1 s but even worse than 1.5 in Asia.
  
-One second might not sound like a long time but that is all it takes to have a slugging user experience instead of an interactive UI.
+One second might not sound like a long time but that is all it takes to have a sluggish user experience instead of an interactive UI.
  
 **Content distribution network**
 
-A CDN push zone
-CDN pull zone
+- A CDN push zone
+- CDN pull zone
 
 ### Image download time magic
 
