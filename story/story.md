@@ -13,11 +13,11 @@ _Look again at that dot. That's here. That's home. That's us. On it everyone you
  
 I joined Datanauts as a member of the [2017 Spring Class](https://open.nasa.gov/explore/datanauts/2017/spring/). As my project I decided to work with the images taken by NASA's [Earth Polychromatic Imaging Camera](https://epic.gsfc.nasa.gov/epic) (EPIC).
 
-This camera takes multiple colored images of the entire sunlit face of Earth every day. The spacecraft is located at the Earth-Sun Lagrange-1 (L-1) point giving EPIC a unique angular perspective. It has a field of view of 0.62 degrees, which is sufficient to image the entire Earth and its distance from our planet, also allows it to captures Moon transits.
+This camera takes multiple colored images of the entire sunlit face of Earth every day. The spacecraft is located at the Earth-Sun Lagrange-1 (L-1) point giving EPIC a unique angular perspective. It has a field of view of 0.62 degrees, which is sufficient to image the entire Earth. Its distance from our planet, also allows it to captures Moon transits.
 
 ### The Pale Blue Dot project
 
-The goal of [Pale Blue Dot](http://palebluedot.napszel.com) was to create a web page (mobile compatible) where the hundreds of images taken by EPIC can be viewed in an intuitive and enjoyable way. Which means no user interface clutter (no buttons needed to navigate), very responsive experience (minimal waiting time if any) and showing the images as big as possible to let the user get "lost" in what is important: the astonishing images of our planet.
+The goal of [Pale Blue Dot](http://palebluedot.napszel.com) was to create a web page (mobile compatible) where the hundreds of images taken by EPIC can be viewed in an intuitive and enjoyable way. Which means that there is no user interface clutter (no buttons needed to navigate), very responsive experience (minimal waiting time if any) and showing the images as big as possible to let the user get "lost" in what is important: the astonishing images of our planet.
 
 ![image](palebluedot_website.png "Pale Blue Dot website")
 
@@ -29,23 +29,26 @@ The first version of the project was pure Javascript that directly talked to NAS
  
  Instead of buttons and sliders you can scroll with your mouse (or touchpad) to go back in time and load older images. To rotate Earth you can naturally click and drag it. Similarly on mobile: use finger swipe up/down and left/right to change date and rotate Earth.
  
- ![image](scrolling-earth.gif "Scrolling in time")   ![image](rotating-earth.gif "Rotating")
+ Additionally, discrete UI buttons (dots and arrows) are also available for precise navigation.
  
- A fast scroll/swipe will change dates very quickly and update the date label on the top of the UI to show where you are at. But it does not cause any waiting time because full size images only start to download after 500 ms and they are canceled if you navigate away before the download is finished. 
+ ![image](scrolling-earth.gif "Scrolling in time")   ![image](rotating-earth.gif "Rotating Earth with mouse drag")
  
- Additionally, discrete UI buttons (dots and arrows) are also available in case someone prefers them.
+ The UI allows both fast and slow navigation: a small scroll/swipe or arrow click changes the date just by one day. A fast scroll/swipe will instantly update the date label to show the currently selected time. However, images will only start downloading after you view a date for longer than 500 ms. Also, full resolution images are loaded into the same object, which means that if you navigate away from a date before the image has been loaded the not any more needed request is cancelled and the newly requested image download is started instead.
+ 
+ This means that loading a day from a year before will not result in a longer waiting time than loading yesterday's images.
+ 
  
  2. **URL handling**
  
- The Website's URL have the format _palebluedot.napszel.com/#2017-06-06/29_. That is: a hashmark followed by a date (separated by dashes) followed by slash and a longitude number. Navigating to this URL will display an Earth image taken on 2017 June 6th showing Europe/Africa (longitude 29). You may copy-paste such paths for sharing.
+ The Website's URL have the format _palebluedot.napszel.com/#2017-06-06/29_. That is: a hashmark followed by a date (separated by dashes) followed by a slash and a longitude number. Navigating to this URL will display an Earth image taken on 2017 June 6th showing Europe/Africa (longitude 29). You may copy-paste such paths for sharing.
  
  You are also free to edit the URLs to achieve fast and precise navigation. The application will search for the images taken on the supplied date (or if there no images on that day then the closest earlier date when images were taken). Then it will search for the Earth rotation that is closest to the supplied longitude.
  
- You may also enter only a date (_palebluedot.napszel.com/#2017-12-19_) or only a longitude (_palebluedot.napszel.com/#29_). In that case the other will take a default value ('today' for date and '29' for longitude). If neither is given (_palebluedot.napszel.com_) then both takes the default value.
+ You may also enter only a date (_palebluedot.napszel.com/#2017-12-19_) or only a longitude (_palebluedot.napszel.com/#29_). In that case the other will take a default value ('today' for date and '29' for longitude). If neither is given (_palebluedot.napszel.com_) then both takes the default value which results in the latest image of Europe/Africa.
  
  3. **Browser's Back and Forward buttons**
  
- The application does not load different resources when navigating between days and Earth rotations. The address does not change in the address bar only fragment identifiers are added after the hashmark. This means that the browser's Back and Forward button does not do anything by default. For them to work, the application has to manually push addresses to the browser's history.
+ The application does not load different resources when navigating between days and Earth longitudes. The address does not change in the address bar only fragment identifiers are added after the hashmark. This means that the browser's Back and Forward button does not do anything by default. For them to work, the application has to manually push addresses to the browser's history.
  
  For example, in case you go back one day in time, the application will edit the date part of the path and push it to history. Now if you click the browser's Back button, you are taken back to today.
  
@@ -61,9 +64,9 @@ The first version of the project was pure Javascript that directly talked to NAS
  
  Scrolling up and down between days preserves the longitude setting. This means that if you are viewing the European continent and then navigate to previous days, the application will always select the images closest to the European continent in previous days also. 
  
- But what if there are no close matches? For example on the day of the August 21st 2017 solar eclipse, many images were taken of the American continent to capture the event but none of Europe. If you are viewing an image of Europe from 22nd August and scroll to 21st of August the application will "jump" to the American continent. This is inevitable. However, if you continue to 20st of August you will see Europe again.
+ But what if there are no close matches? For example on the day of the August 21st 2017 solar eclipse, multiple images were taken of the American continent to capture the event but none of Europe. If you are viewing an image of Europe from 22nd August and scroll to 21st of August the application will "jump" to the American continent. This is inevitable. However, if you continue to 20st of August you will see Europe again.
   
- This is achieved by making sure that the longitude part of the URL is _not_ updated in case of date changes. The longitude number seen in the path is a "goal" longitude. Meaning that the image shown by the app is the closest image to that longitude. But the opposite is not true: the longitude shown in the path is not necessarily the closest longitude number that the image represents.
+ This is achieved by making sure that the longitude part of the URL is _not_ updated in case of date changes. The longitude number seen in the path is a "goal" longitude. Meaning that the image shown by the app is the closest image to that longitude. But the opposite is not true: the longitude in the path is not necessarily the longitude number that the image represents.
  
  Longitudes are only updated by the app in case the user _rotates_ the earth with click and drag or finger swipe left/right.
  
@@ -75,9 +78,9 @@ The first version of the project was pure Javascript that directly talked to NAS
    
 ### The EPIC NASA server
 
-After the User Interface is ready and the navigation is intuitive, comes the question of _speed_. An interactive UI that is enjoyable responds to every user action within a second (if there is any way possible). Even if the implementation gives a simple way to change dates - mouse scroll -, if the new image takes 3-5 seconds to load, it will quickly board the user and hinder a positive experience. 
+After the User Interface is ready and the navigation is intuitive, comes the question of _speed_. An interactive UI that is enjoyable responds to every user action within a second (if there is any way possible). Even if the implementation gives a simple way to change dates, if the new image takes 3-5 seconds to load, it will quickly board the user and hinder a positive experience. 
 
-_Especially_, if the UI gives options to change views very quickly, the site has to be responsive. If the users were to change date with a date selector, they might be more forgiving in waiting time. However, one of goals of the project was to awe the users with these beautiful, cloudy Earth images swirling in front of their eyes, so waiting time was not something I wanted to compromise on.
+_Especially_, if the UI gives options to change views very quickly, the site has to be responsive. If the users were to change date with a date selector, they might be more forgiving in waiting time. However, one of goals of the project was to awe the users with these beautiful, cloudy Earth images swirling, so waiting time was not something I wanted to compromise on.
 
 ![image](swirls.gif "Swirling clouds")
 
@@ -219,13 +222,13 @@ This extract shows the information for _one day_ with 21 images. The rest of the
 
 To serve such JSON file from our server the following scripts implemented:
  
- 1. A Bash script that downloads recent JSON files from NASA server.
- 2. A Python script that sorts each daily JSON file based on coordinates.
- 3. A Python script that concatenates the sorted daily JSON files into one single JSON file sorted by date (in the format shown above).
- 4. A Bash script that runs all of the above in order.
+ 1. A [Bash script that downloads](../backend-scripts/download-recent-jsons.sh) recent JSON files from NASA server.
+ 2. A [Python script that sorts](../backend-scripts/fix-nasajson.py) each daily JSON file based on coordinates.
+ 3. A [Python script that concatenates](../backend-scripts/nasajsons-to-allnasa.py) the sorted daily JSON files into one single JSON file sorted by date (in the format shown above).
+ 4. A [Bash script that runs](../backend-scripts/daily.sh) all of the above in order.
  5. And finally a cronjob that runs the previous Bash script daily.
    
-At the time of writing this document the full JSON file with all the days concatenated together from the beginning of EPIC's life is 418 kilobytes. This single file is enough to be downloaded once by the application - right at page load - and serves every later data request in an instant.
+At the time of writing this document the full JSON file with all the days concatenated together from the beginning of EPIC's life is 418 kilobytes. This _single file_ is enough to be downloaded _once_ by the application - right at page load - and serves every later data request in an _instant_.
 
 ### Serving the images
 
@@ -233,16 +236,20 @@ The reformatting and serving of the JSON file improved on speed significantly bu
 
 NASA gives options to download the images in two formats:
 
-- png, 2048x2048, ~300Mb
-- jpg, 1080x1080, ~180Kb
+- png, 2048x2048 pixels, ~300Mb file size
+- jpg, 1080x1080 pixels, ~180Kb file size
 
-But even the smaller jpg format takes around 1,5 seconds to download from Europe. Partly because it is only serviced from _one_ NASA server located in the USA and also because if their size. We are talking about _one_ image of a particular day.
+But even the smaller jpg format takes around 1,5 seconds to download from Europe. Partly because it is only serviced from _one_ NASA server located in the USA and also because of their size. We are talking about _one_ image of a particular day.
 
 A user from Europe will experience a minimum of 200 ms of delay just because of the distance from the NASA server. Because of the size of the images this goes up to 1.5 s in total download time. In the USA this should be around 1 s but even worse than 1.5 in Asia.
  
 One second might not sound like a long time but that is all it takes to have a sluggish user experience instead of an interactive UI.
  
 **Content distribution network**
+
+A geographically distributed network of servers that store our images and then service the requests spatially relative to end-users should help our problem.
+
+Such CDN services are available 
 
 - A CDN push zone
 - CDN pull zone
