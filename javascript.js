@@ -545,8 +545,6 @@ function sendEventToTrakErr(eventType, no, slowest, fastest, avg, median) {
 	console.error('Error Response: ' + error + ', data = ' + data + ', response = ' + JSON.stringify(response));
       }
     });
-  } else {
-    console.log("TrakErr failed");
   }
 }
 
