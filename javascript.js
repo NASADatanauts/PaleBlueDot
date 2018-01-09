@@ -152,7 +152,10 @@ AsyncImage.prototype.start = function(url, imgProps) {
 
   this._phase = "loading";
   this.img = new Image();
-  Object.assign(this.img, imgProps);
+  if (imgProps) {
+    this.img.row = imgProps.row;
+    this.img.col = imgProps.col;
+  }
   this.img.onload = this.onload;
   this.img.onerror = this.onerror;
   this.img.src = url;
