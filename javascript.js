@@ -520,30 +520,34 @@ DownloadTimeCollector.prototype.sendEventsToTrakErr = function() {
 
 // Send data to TrakErr.io. This is where image download time statistics is monitored.
 function sendEventToTrakErr(eventType, no, slowest, fastest, avg, median) {
-  var trakerrEvent = trakerr.createAppEvent();
-  trakerrEvent.logLevel ='info';
-  trakerrEvent.eventType = eventType;
+  if (trakerr) {
+    var trakerrEvent = trakerr.createAppEvent();
+    trakerrEvent.logLevel ='info';
+    trakerrEvent.eventType = eventType;
 
-  trakerrEvent.eventMessage = "" + eventType + ", " + no + " data, slowest: " + slowest + " ms";
+    trakerrEvent.eventMessage = "" + eventType + ", " + no + " data, slowest: " + slowest + " ms";
 
-  trakerrEvent.customProperties = {
-    doubleData: {
-      customData1: slowest,
-      customData2: fastest,
-      customData3: avg,
-      customData4: median,
+    trakerrEvent.customProperties = {
+      doubleData: {
+	customData1: slowest,
+	customData2: fastest,
+	customData3: avg,
+	customData4: median,
+      }
+    };
+
+    if (debug_location) {
+      trakerrEvent.classification = debug_location;
     }
-  };
 
-  if (debug_location) {
-    trakerrEvent.classification = debug_location;
+    trakerr.sendEvent(trakerrEvent, function(error, data, response) {
+      if (error) {
+	console.error('Error Response: ' + error + ', data = ' + data + ', response = ' + JSON.stringify(response));
+      }
+    });
+  } else {
+    console.log("TrakErr failed");
   }
-
-  trakerr.sendEvent(trakerrEvent, function(error, data, response) {
-    if (error) {
-      console.error('Error Response: ' + error + ', data = ' + data + ', response = ' + JSON.stringify(response));
-    }
-  });
 }
 
 //_ Main
