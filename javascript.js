@@ -261,7 +261,7 @@ function activateByURL(hash, replace) {
   var longitude = Number(stringLongitude);
 
   if (!isValidLongitude(longitude)) {
-    longitude = goalLongitude;
+    longitude = defaultGoalLongitude;
   }
 
   selectedRow = getRowForDate(date);
