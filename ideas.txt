@@ -19,8 +19,3 @@ comments:
 - is it enough to load the same index image for that day when scrolling? NO
 - example image link: https://epic.gsfc.nasa.gov/epic-archive/jpg/epic_1b_20170618113111_02.jpg
 - if there is no image for current day then skip
-
-TODO:
-- make it work only with date
-- #/19 should show Europe
-- Remove pre-caching and then remove the loading message
