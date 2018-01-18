@@ -235,11 +235,13 @@ function activateByURL(hash, replace) {
 
   hashparts = hash.split("/");
 
+  // palebluedot.napszel.com/#2018-01-16/29/debug
   if (hashparts[hashparts.length - 1] === "debug") {
     hashparts.pop();
     console.error("trackjs debug push");
   }
 
+  // palebluedot.napszel.com/#2018-01-16/29/pd/debug_location
   if (hashparts[hashparts.length - 2] === "pd") {
     $("body").addClass("perfdebug");
     debug_location = hashparts[hashparts.length - 1];
@@ -261,7 +263,7 @@ function activateByURL(hash, replace) {
   var longitude = Number(stringLongitude);
 
   if (!isValidLongitude(longitude)) {
-    longitude = goalLongitude;
+    longitude = defaultGoalLongitude;
   }
 
   selectedRow = getRowForDate(date);
@@ -279,7 +281,11 @@ function generateTitle() {
 }
 
 function generateURL() {
-  return window.location.pathname + "#" + nasaarray[selectedRow].d + "/" + goalLongitude;
+  if ((nasaarray[selectedRow].d == nasaarray[nasaarray.length - 1].d) && (goalLongitude == defaultGoalLongitude)) {
+    return window.location.pathname + "#" + "latest";
+  } else {
+    return window.location.pathname + "#" + nasaarray[selectedRow].d + "/" + goalLongitude;
+  }
 }
 
 function pushURL() {
@@ -613,7 +619,7 @@ $(document).ready(function () {
   }
 
   $('#dateLabel').click(function() {
-    activateByURL("#" + nasaarray[nasaarray.length-1].d + "/" + goalLongitude, false);
+    activateByURL("#" + nasaarray[nasaarray.length-1].d + "/" + defaultGoalLongitude, false);
   });
 
   $('#satellite-icon').hover(function() {
