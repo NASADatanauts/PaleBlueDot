@@ -34,7 +34,7 @@ The first version of the project was pure Javascript that directly talked to NAS
  
  Additionally, discrete UI buttons (dots and arrows) are also available for precise navigation.
  
- ![image](scrolling-earth.gif "Scrolling in time")   ![image](rotating-earth.gif "Rotating Earth with mouse drag")
+ ![Scrolling in time](scrolling-earth.gif "scrolling-earth")   ![Rotating Earth with mouse drag](rotating-earth.gif "rotating-earth")
  
  The UI allows both fast and slow navigation: a small scroll/swipe or arrow click changes the date just by one day. With a few fast scrolls/swipes you can easily go back to images of the past year. 
  
@@ -285,7 +285,7 @@ c. A [Bash script that pushes](../backend-scripts/upload-allnasa.sh) our reforma
 
 Having the huge images and the optimized JSON file in a Content Distribution Network (updated and pushed every night) maximally optimized the download speed of assets, for every user, anywhere in the world. The download times of images went *below*  0.5 sec (for users with a gigabit internet) which gives a smooth user experience navigating between any of the Earth images. This would have been impossible with the NASA provided API.
 
-###Image manipulation
+### Image manipulation
 ------------------------
 
 The user experience on a gigabit internet is flawless at this point with the minimized, single JSON file and assests distributed from a CDN. But of course not everybody has a gigabit internet. Even if you do, you might be travelling or on mobile data.
@@ -361,11 +361,3 @@ Better compact JSON
 #### Feedback
 
 eva@napszel.com
-
-<script src="http://vjs.zencdn.net/4.0/video.js"></script>
-
-<video id="pelican-installation" class="video-js vjs-default-skin" controls
-preload="auto" width="683" height="384" poster="/static/screencasts/pelican-installation.png"
-data-setup="{}">
-<source src="video.mp4" type='video/mp4'>
-</video>
