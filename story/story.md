@@ -2,7 +2,7 @@
 ### Project website: [palebluedot.napszel.com](palebluedot.napszel.com)
 contact: eva@napszel.com
 
-![image](3dots.png "Three earth images")
+![3dots](3dots.png "Three earth images")
 
 _Look again at that dot. That's here. That's home. That's us. On it everyone you love, everyone you know, everyone you ever heard of, every human being who ever was, lived out their lives. ... -on a mote of dust suspended in a sunbeam._
 
@@ -20,7 +20,7 @@ This camera takes multiple colored images of the entire sunlit face of Earth eve
 
 The goal of [Pale Blue Dot](http://palebluedot.napszel.com) was to create a mobile compatible web page where the hundreds of images taken by EPIC can be viewed in an intuitive and enjoyable way. Which means that there is no user interface clutter (buttons not even needed to navigate), a very responsive experience (minimal waiting time if any) and showing the images almost full screen. This will hopefully ensure that rather than getting lost in the UI the users can submerge in the experience instead.
 
-![image](palebluedot_website.png "Pale Blue Dot website")
+![palebluedot_website](palebluedot_website.png "Pale Blue Dot website")
 
 
 ### JavaScript UX/UI
@@ -62,7 +62,7 @@ The first version of the project was pure Javascript that directly talked to NAS
  
  For example, in case you go back one day in time, the application will edit the date part of the path and push it to history. Now if you click the browser's Back button, you are taken back to today.
 
- ![image](chrome-history.png "History example from Chrome")
+ ![chrome-history](chrome-history.png "History example from Chrome")
  
   But not all navigation results in a path editing and history update. Consider the case where the user scrolls back 10 days very quickly with a mouse scroll or finger swipe. In this case if the path were edited to all dates during the scroll the browser's history would be polluted with day references which the user did not really have the time to look at (the images might have been not even loaded). To circumvent this, the path is only updated and pushed to history after you spend at least 500 ms viewing a day.
  
@@ -73,7 +73,7 @@ The first version of the project was pure Javascript that directly talked to NAS
  
  In order to have meaningful history items for Pale Blue Dot the page's title is always edited according to the date/longitude selected. This way, instead of seeing ~ Pale Blue Dot ~, ~ Pale Blue Dot ~, ~ Pale Blue Dot ~ you see meaningful results.
  
- ![image](history.png "History of page")
+ ![history](history.png "History of page")
   
  6. **Preserving selected longitude**
  
@@ -89,7 +89,7 @@ The first version of the project was pure Javascript that directly talked to NAS
  
  Mobile screens are naturally smaller and required a slightly different UI arrangement to fit everything on screen. CSS media queries were used to change the layout for any screen below 670px.
  
- ![image](mobile-ui-screenshot.png "Scrolling in time") 
+ ![mobile-ui-screenshot](mobile-ui-screenshot.png "Scrolling in time") 
  
  Since the threshold for "too small screen" is based on browser window size and not based on device type, the same rearranging of the UI happens on a regular desktop too if the browser window is shrunk. 
    
@@ -100,7 +100,7 @@ After the User Interface is ready and the navigation is intuitive, comes the que
 
 _Especially_, if the UI gives options to change views very quickly, the site has to be responsive. If the users were to change date with a date selector, they might be more forgiving in waiting time. However, one of goals of the project was to be able to enjoy these beautiful cloudy Earth images swirling, so waiting time was not something I wanted to compromise on.
 
-![image](swirls.gif "Swirling clouds")
+![swirls](swirls.gif "Swirling clouds")
 
 1. **The NASA server's JSON files**
 
@@ -302,11 +302,11 @@ There are thumbnails provided by the NASA API but they are so small that they lo
 
 This is an example of a NASA provided thumbnail stretched to 1024x1024 (5 KB):
  
-![image](thumbnail-nasa-big.png "Nasa thumbnail example")
+![thumbnail-nasa-big](thumbnail-nasa-big.png "Nasa thumbnail example")
 
 However, with a little image conversion magic the Pale Blue Dot project generates their own thumbnails which are only 3 KBs more in size but looking much better in 1024x1024:
 
-![image](thumbnail-big.jpg "PBD thumbnail example") 
+![thumbnail-big](thumbnail-big.jpg "PBD thumbnail example") 
 
 The download time for these thumbnails are 20 ms on a gigabit internet and 600 ms on 3G. The latter is already fast enough that it provides an acceptable user experience.
 
@@ -318,7 +318,7 @@ The second improvement idea came from the assumption that once a user loaded a s
 
 To make sure that Earth rotations cause absolute no delay, there is an additional image download that starts in the background when a user is spending time on a date: a concatenated image of all thumbnail images for one particular day. See example of this below.
 
-![image](thumbnail-concatenated.jpg "Thumbnails concatenated")
+![thumbnail-concatenated](thumbnail-concatenated.jpg "Thumbnails concatenated")
 
 This image is "cut and zoomed in" when the user rotates the Earth. This means that once this image is downloaded, the user is free to rotate Earth left and right with 0 delay and no network request.  
 
