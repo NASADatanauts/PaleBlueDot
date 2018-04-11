@@ -34,7 +34,7 @@ The first version of the project was pure Javascript that directly talked to NAS
  
  Additionally, discrete UI buttons (dots and arrows) are also available for precise navigation.
  
- ![Scrolling in time](scrolling-earth.gif "scrolling-earth")   ![Rotating Earth with mouse drag](rotating-earth.gif "rotating-earth")
+ ![scrolling-earth](scrolling-earth.gif "Scrolling in time")   ![rotating-earth](rotating-earth.gif "Rotating Earth with mouse drag")
  
  The UI allows both fast and slow navigation: a small scroll/swipe or arrow click changes the date just by one day. With a few fast scrolls/swipes you can easily go back to images of the past year. 
  
