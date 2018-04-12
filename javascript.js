@@ -61,9 +61,24 @@ function getRowForDate(date) {
 function getImageURL(row, col, thumb) {
   var date = nasaarray[row].d.split("-");
   var imageName = nasaarray[row].i[col];
-
+  
   return 'https://nasa-kj58yy565gqqhv2gx.netdna-ssl.com/images/'
     + date[0] + '/' + date[1] + '/' + date[2] + '/' + imageName + (thumb ? '-thumb' : '') + '.jpg';
+}
+
+function getFullSizeImageURL(row, col) {
+  var date = nasaarray[row].d.split("-");
+  var imageName = nasaarray[row].i[col];
+
+  return 'https://epic.gsfc.nasa.gov/archive/natural/'
+    + date[0] + '/' + date[1] + '/' + date[2] + '/png/' + imageName + '.png';
+}
+
+function getFullSizeImageName(row, col) {
+  var date = nasaarray[row].d.split("-");
+  var imageName = nasaarray[row].i[col];
+
+  return imageName + '.png';
 }
 
 function getRowURL(row) {
@@ -618,6 +633,7 @@ $(document).ready(function () {
     });
   }
 
+  // click icons
   $('#dateLabel').click(function() {
     activateByURL("#" + nasaarray[nasaarray.length-1].d + "/" + defaultGoalLongitude, false);
   });
@@ -636,6 +652,11 @@ $(document).ready(function () {
     if (selectedRow > 0) {
       activateByURL("#" + nasaarray[selectedRow - 1].d + "/" + goalLongitude, false);
     }
+  });
+
+  $('#downloadLink').hover(function() {
+    $("#downloadLink").attr("href", getFullSizeImageURL(selectedRow, selectedColumn));
+    $("#downloadLink").attr("download", getFullSizeImageName(selectedRow, selectedColumn));
   });
 });
 
