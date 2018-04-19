@@ -23,3 +23,5 @@ Script to be put in the html:
         }
       }
     </script>
+
+4. Change hover image at Big Image part!
