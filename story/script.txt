@@ -1,0 +1,27 @@
+To generate html:
+generate-md --layout github --input story.md --output ./html
+
+Then:
+1. Move all images to the html folder (or make sure it's uploaded to server where html is)
+2. Edit html to be called index.html
+3. Edit html to according to the following:
+
+Example image:
+- change src to <name>.png from <name>.gif
+- add onClick="playGif('<name/title of image>')"
+<img src="scrolling-earth.png" onClick="playGif('scrolling-earth')" alt="Scrolling in time" title="scrolling-earth">
+
+Script to be put in the html:
+    <script>
+      function playGif() {
+        var name = arguments[0];
+        var image = document.querySelector('[alt=' + name + ']');
+        if (image.getAttribute('src') == name + ".png") {
+          image.src = name + ".gif";
+        } else {
+          image.src = name + ".png";
+        }
+      }
+    </script>
+
+4. Change hover image at Big Image part!
