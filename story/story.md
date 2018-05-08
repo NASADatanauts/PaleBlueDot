@@ -1,8 +1,8 @@
 # Pale Blue Dot - a NASA Datanauts project
-##### Project website: [palebluedot.napszel.com](palebluedot.napszel.com)
+#### Project website: [palebluedot.napszel.com](palebluedot.napszel.com)
 
 
-#####[Source code](https://github.com/NASADatanauts/PaleBlueDot) on GitHub
+#### [Source code](https://github.com/NASADatanauts/PaleBlueDot) on GitHub
 
 contact: eva@napszel.com
 
