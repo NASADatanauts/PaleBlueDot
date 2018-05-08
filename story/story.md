@@ -89,7 +89,7 @@ In this document you can read about all the problems that have risen and their s
 
 **5. [Performance reporting - TrakErr](#5-performance-reporting---trakerr) - Monitoring**
 
-5.1. [Statistics of download times around the world](#)
+5.1. [Statistics of download times around the world](#51-statistics-of-download-times-around-the-world)
 
 **6. [Future development ideas](#6-future-development-ideas)**
 
