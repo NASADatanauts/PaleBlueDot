@@ -37,9 +37,9 @@ In this document you can read about all the problems that have risen and their s
 
 **1. [JavaScript UX/UI](#1-javascript-uxui) - Frontend**
 
-1.1. [Navigation](#1.1.-navigation)
+1.1. [Navigation](#11-navigation-no-buttons-necessary) - no buttons necessary
 
-1.2. [URL handling](#1.2.-url-handling)
+1.2. [URL handling](#12-url-handling-editshare-the-links) - edit/share the links
 
 1.3. Updating the URL
 
@@ -98,7 +98,7 @@ In this document you can read about all the problems that have risen and their s
 
 The first version of the project was pure Javascript that directly talked to NASA's servers. At this stage the focus was on perfecting the User Experience. Even though at first it sounds like a simple enough project, surprisingly many things had to be considered and implemented:
  
- **1.1. Navigation** - no buttons necessary
+##### 1.1. Navigation - no buttons necessary
  
  Instead of buttons and sliders you can scroll with your mouse (or touchpad) to go back in time and load older images. To rotate Earth you can naturally click and drag it. Similarly on mobile: use finger swipe up/down and left/right to change date and rotate Earth.
  
@@ -110,7 +110,7 @@ The first version of the project was pure Javascript that directly talked to NAS
  
  To make sure that every user action has an instant feedback on the UI, a fast scroll will instantly update the date label to show the currently selected date. Even if the user has to wait a little for the images to load.
   
- **1.2. URL handling** - edit/share the links
+##### 1.2. URL handling - edit/share the links
  
  The Website's URL has the format _palebluedot.napszel.com/#2017-06-06/29_. That is: a hashmark followed by a date (separated by dashes) followed by a slash and a longitude number. Navigating to this URL will display an Earth image taken on 2017 June 6th showing Europe/Africa (longitude 29). You may copy-paste such paths for sharing.
  
