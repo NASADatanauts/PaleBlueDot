@@ -1,10 +1,5 @@
 # Pale Blue Dot - a NASA Datanauts project
-#### Project website: [palebluedot.napszel.com](palebluedot.napszel.com)
-
-
-#### [Source code](https://github.com/NASADatanauts/PaleBlueDot) on GitHub
-
-contact: eva@napszel.com
+#### Project at [palebluedot.napszel.com](palebluedot.napszel.com) | [Source code](https://github.com/NASADatanauts/PaleBlueDot) on GitHub | Contact: eva@napszel.com
 
 
 ![3dots](3dots.png "Three earth images")
@@ -497,7 +492,7 @@ I use this feature to log some image download times. For example, if while trave
 - Use tiny, actual image thumbnails instead of circles for navigation.
 - Show date selector when clicking on the date in the header.
 
-#### Feedback
+### Feedback
 
 Feel free to drop me an email with any questions/comments at eva@napszel.com.
 
