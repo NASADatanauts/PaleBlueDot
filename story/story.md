@@ -35,7 +35,7 @@ Even though at first sight the project looks easy and straight forward, actually
 
 In this document you can read about all the problems that have risen and their solutions in detail. (TODO: mention how technical the documentation is?) More specifically on the following subjects:
 
-**1. [JavaScript UX/UI](###1.-javascript-ux/ui) - Frontend**
+**1. [JavaScript UX/UI](#1-javascript-uxui) - Frontend**
 
 1.1. [Navigation](#1.1.-navigation)
 
