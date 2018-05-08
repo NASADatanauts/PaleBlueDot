@@ -37,9 +37,9 @@ In this document you can read about all the problems that have risen and their s
 
 **1. JavaScript UX/UI - Frontend**
 
-1.1. [Navigation - no buttons necessary](#1.1.-navigation)
+1.1. [Navigation](#1.1.-navigation)
 
-1.2. [URL handling - edit/share the links](#1.2.-url-handling)
+1.2. [URL handling](#1.2.-url-handling)
 
 1.3. Updating the URL
 
