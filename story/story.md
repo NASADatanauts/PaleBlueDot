@@ -1,6 +1,10 @@
 # Pale Blue Dot - a NASA Datanauts project
-#### Website [palebluedot.napszel.com](palebluedot.napszel.com). Code on [GitHub](https://github.com/NASADatanauts/PaleBlueDot).
- contact: eva@napszel.com
+##### Project website: [palebluedot.napszel.com](palebluedot.napszel.com)
+
+
+#####[Source code](https://github.com/NASADatanauts/PaleBlueDot) on GitHub
+
+contact: eva@napszel.com
 
 
 ![3dots](3dots.png "Three earth images")
@@ -21,48 +25,66 @@ This camera takes multiple colored images every day of the entire sunlit face of
 
 The goal of [Pale Blue Dot](http://palebluedot.napszel.com) was to create a web page (that is also mobile compatible) where the hundreds of images taken by EPIC can be viewed in an intuitive and enjoyable way. Which means that there is no user interface clutter (not even buttons are needed to navigate), a very responsive experience (minimal waiting time if any) and showing the images almost full screen. This will hopefully ensure that rather than getting lost in the UI the users can submerge in the experience instead.
 
-The UI design of the Pale Blue Dot project website:
+The UI of the Pale Blue Dot project website:
 
 ![palebluedot_website](palebluedot_website.png "Pale Blue Dot website")
 
-###The challenges
+### The challenges
 
-Even though at first sight the project looks easy and straight forward, but actually many things had to be considered and implemented both on the front end and the back end to make sure that the goals were achieved.
+Even though at first sight the project looks easy and straight forward, actually many things had to be considered and implemented both on the front end and the back end to make sure that the goals were achieved.
 
-In this document you can read about all the problems that have risen and their solutions in detail. More specifically on the following subjects:
+In this document you can read about all the problems that have risen and their solutions in detail. (TODO: mention how technical the documentation is?) More specifically on the following subjects:
 
 **1. JavaScript UX/UI - Frontend**
 
 1.1. [Navigation - no buttons necessary](#1.1.-navigation)
+
 1.2. [URL handling - edit/share the links](#1.2.-url-handling)
+
 1.3. Updating the URL
+
 1.4. Browser's Back and Forward buttons - feel free to use them
+
 1.5. History - updating the title of the page
+
 1.6. Preserving selected longitude
+
 1.7. CSS media query - try it on mobile.
 
 **2. Serving the assets - Backend**
 
 2.1. The NASA server's JSON files
+
 2.2. Serving the JSON files
+
 2.3. Scripts for the JSON files
+
 2.4. Image sizes and download times
+
 2.5. Serving the images - MaxCDN
+
 2.6. Scripts for MaxCDN
 
 **3. Image manipulation - Backend**
 
 3.1. Individual thumbnails
+
 3.2. Concatenated thumbnails
+
 3.3. Big image
+
 3.4. Scripts for image manipulation
+
 3.5. Parallel loading
+
 3.6. Cancelling of obsolete
+
 3.7. Download biggest resolution image
 
 **4. Error reporting - Monitoring**
 
 4.1. Catching errors
+
 4.2. Debugging
 
 **5. Performance reporting - Monitoring**
