@@ -43,55 +43,55 @@ In this document you can read about all the problems that have risen and their s
 
 1.3. [Updating the URL](#13-updating-the-url)
 
-1.4. Browser's Back and Forward buttons - feel free to use them
+1.4. [Browser's Back and Forward buttons](#14-browsers-back-and-forward-buttons) - feel free to use them
 
-1.5. History - updating the title of the page
+1.5. [History](#15-history---updating-the-title-of-the-page) - updating the title of the page
 
-1.6. Preserving selected longitude
+1.6. [Preserving selected longitude](#16-preserving-selected-longitude)
 
-1.7. CSS media query - try it on mobile.
+1.7. [CSS media query](#17-css-media-query) - try it on mobile.
 
-**2. Serving the assets - Backend**
+**2. [Serving the assets](#2-serving-the-assets) - Backend**
 
-2.1. The NASA server's JSON files
+2.1. [The NASA server's JSON files](#21-the-nasa-servers-json-files)
 
-2.2. Serving the JSON files
+2.2. [Serving the JSON files](#22-serving-the-json-files)
 
-2.3. Scripts for the JSON files
+2.3. [Scripts for the JSON files](#23-scripts-for-the-json-files)
 
-2.4. Image sizes and download times
+2.4. [Image sizes and download times](#24-image-sizes-and-download-times)
 
-2.5. Serving the images - MaxCDN
+2.5. [Serving the images - MaxCDN](#25-serving-the-images---maxcdn)
 
-2.6. Scripts for MaxCDN
+2.6. [Scripts for MaxCDN](#26-scripts-for-maxcdn)
 
-**3. Image manipulation - Backend**
+**3. [Image manipulation](#3-image-manipulation) - Backend**
 
-3.1. Individual thumbnails
+3.1. [Individual thumbnails](#31-individual-thumbnails)
 
-3.2. Concatenated thumbnails
+3.2. [Concatenated thumbnails](#32-concatenated-thumbnails)
 
-3.3. Big image
+3.3. [Big image](#33-big-image)
 
-3.4. Scripts for image manipulation
+3.4. [Scripts for image manipulation](#34-scripts-for-image-manipulation)
 
-3.5. Parallel loading
+3.5. [Parallel loading](#35-parallel-loading)
 
-3.6. Cancelling of obsolete
+3.6. [Cancelling of obsolete](#36-cancelling-of-obsolete)
 
-3.7. Download biggest resolution image
+3.7. [Download biggest resolution image](#37-download-biggest-resolution-image)
 
-**4. Error reporting - Monitoring**
+**4. [Error reporting - TrackJS](#4-error-reporting---trackjs) - Monitoring**
 
-4.1. Catching errors
+4.1. [Catching errors](#41-catching-errors)
 
-4.2. Debugging
+4.2. [Debugging](#42-debugging)
 
-**5. Performance reporting - Monitoring**
+**5. [Performance reporting - TrakErr](#5-performance-reporting---trakerr) - Monitoring**
 
-5.1. Statistics of download times around the world
+5.1. [Statistics of download times around the world](#)
 
-**6. Future development ideas**
+**6. [Future development ideas](#6-future-development-ideas)**
 
 ### 1. JavaScript UX/UI
 -------------------------------------
