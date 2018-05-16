@@ -1,5 +1,5 @@
 # Pale Blue Dot - a NASA Datanauts project
-#### Project at [palebluedot.napszel.com](palebluedot.napszel.com) | [Source code](https://github.com/NASADatanauts/PaleBlueDot) on GitHub | Contact: eva@napszel.com
+#### Project at [palebluedot.napszel.com](palebluedot.napszel.com) | [Source code](https://github.com/NASADatanauts/PaleBlueDot) on GitHub | Contact me at eva@napszel.com
 
 
 ![3dots](3dots.png "Three earth images")
@@ -18,25 +18,37 @@ This camera takes multiple colored images every day of the entire sunlit face of
 
 ### The Pale Blue Dot project
 
-The goal of [Pale Blue Dot](http://palebluedot.napszel.com) was to create a web page (that is also mobile compatible) where the hundreds of images taken by EPIC can be viewed in an intuitive and enjoyable way. Which means that there is no user interface clutter (not even buttons are needed to navigate), a very responsive experience (minimal waiting time if any) and showing the images almost full screen. This will hopefully ensure that rather than getting lost in the UI the users can submerge in the experience instead.
+The goal of [Pale Blue Dot](http://palebluedot.napszel.com) was to create a web page where the hundreds of images taken by EPIC can be viewed in an intuitive and enjoyable way. The main requirements set were the following:
 
-The UI of the Pale Blue Dot project website:
+- Mobile compatible web page.
+
+- No user interface clutter: not even buttons are needed to navigate.
+
+- The possibility to see the images almost full screen: as big as possible.
+
+- A very responsive experience: minimal waiting time if any.
+
+These will hopefully ensure that rather than getting lost in the UI the users can submerge in the experience instead.
+
+The final UI of the Pale Blue Dot project website:
 
 ![palebluedot_website](palebluedot_website.png "Pale Blue Dot website")
 
-### The challenges
+### About this document
 
-Even though at first sight the project looks easy and straight forward, actually many things had to be considered and implemented both on the front end and the back end to make sure that the goals were achieved.
+Even though at first sight the project might look easy and straight forward, actually many things had to be considered and implemented both on the front end and the back end to make sure that the goals were achieved.
 
-In this document you can read about all the problems that have risen and their solutions in detail. (TODO: mention how technical the documentation is?) More specifically on the following subjects:
+In this document you can read about all the problems that have risen and their solutions in detail. It aims to be understandable by anyone with minimal computer science knowledge.
+
+### Table of contents
 
 **1. [JavaScript UX/UI](#1-javascript-uxui) - Frontend**
 
 1.1. [Navigation](#11-navigation---no-buttons-necessary) - no buttons necessary
 
-1.2. [URL handling](#12-url-handling---editshare-the-links) - edit/share the links
+1.2. [URL handling](#12-url-handling---edit-the-links) - edit the links
 
-1.3. [Updating the URL](#13-updating-the-url)
+1.3. [Updating the URL](#13-updating-the-url---share-the-links) - share the links
 
 1.4. [Browser's Back and Forward buttons](#14-browsers-back-and-forward-buttons) - feel free to use them
 
@@ -44,7 +56,7 @@ In this document you can read about all the problems that have risen and their s
 
 1.6. [Preserving selected longitude](#16-preserving-selected-longitude)
 
-1.7. [CSS media query](#17-css-media-query) - try it on mobile.
+1.7. [CSS media query](#17-css-media-query---try-it-on-mobile) - try it on mobile.
 
 **2. [Serving the assets](#2-serving-the-assets) - Backend**
 
@@ -82,16 +94,12 @@ In this document you can read about all the problems that have risen and their s
 
 4.2. [Debugging](#42-debugging)
 
-**5. [Performance reporting - TrakErr](#5-performance-reporting---trakerr) - Monitoring**
-
-5.1. [Statistics of download times around the world](#51-statistics-of-download-times-around-the-world)
-
-**6. [Future development ideas](#6-future-development-ideas)**
+**5. [Future development ideas](#5-future-development-ideas)**
 
 ### 1. JavaScript UX/UI
 -------------------------------------
 
-The first version of the project was pure Javascript that directly talked to NASA's servers. At this stage the focus was on perfecting the User Experience. Even though at first it sounds like a simple enough project, surprisingly many things had to be considered and implemented:
+The first version of the project was pure Javascript that directly talked to NASA's servers. At this stage the focus was on perfecting the User Experience.
  
 #### 1.1. Navigation - no buttons necessary
  
@@ -105,7 +113,7 @@ The first version of the project was pure Javascript that directly talked to NAS
  
  To make sure that every user action has an instant feedback on the UI, a fast scroll will instantly update the date label to show the currently selected date. Even if the user has to wait a little for the images to load.
   
-#### 1.2. URL handling - edit/share the links
+#### 1.2. URL handling - edit the links
  
  The Website's URL has the format _palebluedot.napszel.com/#2017-06-06/29_. That is: a hashmark followed by a date (separated by dashes) followed by a slash and a longitude number. Navigating to this URL will display an Earth image taken on 2017 June 6th showing Europe/Africa (longitude 29). You may copy-paste such paths for sharing.
  
@@ -113,19 +121,21 @@ The first version of the project was pure Javascript that directly talked to NAS
  
  You may also enter only a date (_palebluedot.napszel.com/#2017-12-19_) or only a longitude (_palebluedot.napszel.com/#29_). In that case the other will take a default value ('today' for date and '29' for longitude). If neither (_palebluedot.napszel.com_) or 'latest' (_palebluedot.napszel.com/#latest_) is given then both takes the default value which results in the latest image of Europe/Africa.
  
-#### 1.3. Updating the URL
+#### 1.3. Updating the URL - share the links
   
- As explained above, if the URL is edited the application catches this event and the UI is loaded accordingly. The opposite also had to be implemented: if the UI changes the fragment identifiers in the URL are edited by the application. 
+ As explained above, if the URL is edited by the user the application catches this event and the UI is loaded accordingly. The opposite also had to be implemented: if the UI changes based on user action the fragment identifiers in the URL have to be edited by the application. 
  
- For example if the user navigates back one day from the latest images then the path will change from _palebluedot.napszel.com/#latest_ to _palebluedot.napszel.com/#2018-01-14/29_ in case this happened on Jan 16th. 
+ For example if the user navigates back one day from the latest images then the path will change from _palebluedot.napszel.com/#latest_ to _palebluedot.napszel.com/#2018-01-14/29_ in case this happened on Jan 16th.
  
- Note that not every day has images. For example 2018 Jan 15th had none. Going back one day from Jan 16th will skip 15th and update the date on the UI and in the path to Jan 14th and load those images. Similarly, manually editing the path to _palebluedot.napszel.com/#2018-01-15/29_ will result in the same.
+ The path is continuously kept up to date with every image change. This means that the path always specifies exactly that single image that is currently shown on the screen. It is enough to copy and paste the URL in the browser window to share a specific image with a friend.
+ 
+ Note that not every day has images. For example 2018 Jan 15th had none (but the day before and the day after had). Going back one day from Jan 16th will skip 15th and update the date on the UI and in the path to Jan 14th and load those images.
    
 #### 1.4. Browser's Back and Forward buttons
  
- The application does not load different html resources when navigating on the UI. This means that the browser's Back and Forward buttons do nothing by default. For them to work, the application manually pushes addresses to the browser's history.
+ The application does not load different html resources when navigating on the UI. This means that the browser's Back and Forward buttons do nothing by default. For them to work, the application has to manually push addresses to the browser's history.
  
- For example, in case you go back one day in time, the application will edit the date part of the path and push it to history. Now if you click the browser's Back button, you are taken back to today.
+ For example, in case you go back one day in time, the application will edit the date part of the path (explained in the previous point) and push it to history. Now if you click the browser's Back button, you are taken back to today.
 
  ![chrome-history](chrome-history.png "History example from Chrome")
  
@@ -135,23 +145,27 @@ The first version of the project was pure Javascript that directly talked to NAS
  
  Browsers save your page visits in a list called history. If you check this list, you will see that it only shows the _title_ of each page you visited.
  
- In order to have meaningful history items for Pale Blue Dot the page's title is always edited according to the date/longitude selected. This way, instead of seeing ~ Pale Blue Dot ~, ~ Pale Blue Dot ~, ~ Pale Blue Dot ~ you see meaningful results.
+ In order to have meaningful history items for Pale Blue Dot the page's title is always edited according to the date/longitude selected (similarly how the URL is also edited). This way, instead of seeing ~ Pale Blue Dot ~, ~ Pale Blue Dot ~, ~ Pale Blue Dot ~ you see meaningful results.
  
  ![history](history.png "History of page")
   
 #### 1.6. Preserving selected longitude
  
- Scrolling up and down between days preserves the longitude setting. This means that if you are viewing the European continent and then navigate to previous days, the application will always select the images closest to the European continent in previous days also. 
+ Scrolling up and down between days preserves the longitude setting. This means that if you are viewing the European continent and then navigate to previous days, the application will always select the images closest to the European continent in previous days also.
  
  But what if there are no close matches? For example on the day of the August 21st 2017 solar eclipse, multiple images were taken of the American continent to capture the event but none of Europe. If you are viewing an image of Europe from 22nd August and scroll to 21st of August the application will "jump" to the American continent. This is inevitable. However, if you continue going back one more day in August you will see Europe again.
+ 
+ This allows a nice way for example to scroll through a year and see how Europe changes during the seasons. Even if there are occasional jumps east and west. If this feature was not implemented the view point of Earth would seemingly jump around randomly and not return to the user's original longitude request.
   
- This is achieved by making sure that the longitude part of the URL is _not_ updated in case of date changes. The longitude number seen in the path is only a "goal" longitude. Meaning that the image shown by the app is always the closest image to that longitude but not necessarily the exact match. 
+ To achieve this experience the longitude part of the URL is _not_ updated in case of date changes. The longitude number seen in the path is only a "goal" longitude. Meaning that the image shown by the app is _the closest_ image to that longitude but not necessarily the exact match. 
  
  Longitudes are only updated by the app in case the user _rotates_ the earth left or right with click and drag or finger swipe. After this event the longitude is updated in the path and becomes the new "goal" longitude.
  
-#### 1.7. CSS media query
+#### 1.7. CSS media query - try it on mobile
  
  Mobile screens are naturally smaller and required a slightly different UI arrangement to fit everything on screen. CSS media queries were used to change the layout for any screen below 670px.
+ 
+ Screenshot of the UI design on mobile device:
  
  ![mobile-ui-screenshot](mobile-ui-screenshot.png "Scrolling in time") 
  
@@ -301,7 +315,7 @@ To shrink the JSON files the images are grouped together by date. This way only 
 ]
 ```
  
-This extract shows the information for _one day_ with 21 images. The rest of the days would follow after. So instead of having one JSON file for one day we have one JSON file for _all data_ (all days). Roughly storing the same amount of information for *one day as for one image* before.
+This extract shows the information for _one day_ with 21 images. The rest of the days would follow after. So instead of having one JSON file for one day we have one JSON file for _all data_ (all days). Roughly storing the same amount of information for *one day* as for *one image* before.
 
 At the time of writing this document the full JSON file with all the days concatenated together from the beginning of EPIC's life is 418 kilobytes. This _single file_ is enough to be downloaded _once_ by the application - right at page load - and serves every later data request in an _instant_.
 
@@ -329,12 +343,14 @@ NASA gives options to download the images in 3 formats:
 - jpg, 1080x1080 pixels, ~190Kb file size
 - jpg, 120x120 pixels, thumbnail
 
-The thumbnails are obviously not big enough to shown in full screen. Out of the other two formats, even the smaller jpg format takes around 1.5 seconds to download for a user in Europe even on a gigabit internet. Partly because it is only serviced from one NASA server located in the USA and also because of their size. We are talking about _one_ image of a particular day.
+The thumbnails are obviously not big enough to shown in full screen. Out of the other two formats, even the smaller jpg format takes around 1.5 seconds to download for a user in Europe even on a gigabit internet.
 
-A user from Europe will experience a minimum of 200 ms of delay just because of the distance from the NASA server. Because of the size of the images this goes up to 1.5 s in total download time. In the USA this should be around 1 s but even worse than 1.5 s in Asia.
+This is partly because of the distance to the NASA server: a user from Europe will experience a minimum of 200 ms. Because of the size of the images this goes up to 1.5 s in total download time. In the USA this should be around 1 s but even worse than 1.5 s in Asia. We are talking about _one_ image of a particular day.
  
 Waiting around 1 second every time the user tries to navigate around the images results in a sluggish user experience instead of an interactive UI.
- 
+
+--- itt tartok az atnezesben
+
 #### 2.5. Serving the images - MaxCDN
 
 To solve the delay problem for users located far from the single NASA server a _Content Distribution Network_ (CDN) comes to mind. That is, a geographically distributed network of servers that store the NASA images and then services the requests spatially relative to users.
@@ -481,12 +497,7 @@ When an error is caught by TrackJS, it will be displayed on your Dashboard toget
 I use this feature to log some image download times. For example, if while travelling and testing the website from different locations/browsers, something suspicious happens I can trigger a debug. This causes TrackJS to log the event together with statistics so later it can be viewed and examined.
 
 
-### 5. Performance reporting - TrakErr
---------------------------------------
-
-#### 5.1. Statistics of download times around the world
-
-### 6. Future development ideas
+### 5. Future development ideas
 -------------------------------
 - Better compact the JSON file that describes the images.
 - Use tiny, actual image thumbnails instead of circles for navigation.
