@@ -519,53 +519,7 @@ function DownloadTimeCollector(typeName, sendAfterNo) {
 DownloadTimeCollector.prototype.addData = function(data) {
   this.download_times.push(data);
   if (this.download_times.length >= this.send_after_this_many) {
-    this.sendEventsToTrakErr();
     this.download_times = [];
-  }
-}
-
-DownloadTimeCollector.prototype.sendEventsToTrakErr = function() {
-  this.download_times.sort(function(a, b) {return a - b;});
-  var events = this.download_times;
-  var slowest_event = events[events.length - 1];
-  var fastest_event = events[0];
-  var sum_of_events = 0;
-  for (var i = 0; i < events.length; i++) {
-    sum_of_events += events[i];
-  }
-  var avg_of_events = sum_of_events / events.length;
-  var median_of_events = events[Math.round(events.length / 2) - 1];
-
-  sendEventToTrakErr(this.eventType, events.length, slowest_event, fastest_event, avg_of_events, median_of_events);
-}
-
-// Send data to TrakErr.io. This is where image download time statistics is monitored.
-function sendEventToTrakErr(eventType, no, slowest, fastest, avg, median) {
-  if (trakerr) {
-    var trakerrEvent = trakerr.createAppEvent();
-    trakerrEvent.logLevel ='info';
-    trakerrEvent.eventType = eventType;
-
-    trakerrEvent.eventMessage = "" + eventType + ", " + no + " data, slowest: " + slowest + " ms";
-
-    trakerrEvent.customProperties = {
-      doubleData: {
-	customData1: slowest,
-	customData2: fastest,
-	customData3: avg,
-	customData4: median,
-      }
-    };
-
-    if (debug_location) {
-      trakerrEvent.classification = debug_location;
-    }
-
-    trakerr.sendEvent(trakerrEvent, function(error, data, response) {
-      if (error) {
-	console.error('Error Response: ' + error + ', data = ' + data + ', response = ' + JSON.stringify(response));
-      }
-    });
   }
 }
 
