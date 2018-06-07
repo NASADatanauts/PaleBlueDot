@@ -4,7 +4,7 @@ generate-md --layout github --input story.md --output ./html
 Then:
 1. Move all images to the html folder (or make sure it's uploaded to server where html is)
 2. Edit html to be called index.html
-3. Edit html to according to the following:
+3. Edit html to according to the following (so the gif images don't play forever but only after click):
 
 Example image:
 - change src to <name>.png from <name>.gif
@@ -24,4 +24,4 @@ Script to be put in the html:
       }
     </script>
 
-4. Change hover image at Big Image part!
+4. Change hover image at Big Image part! ("Hover image to see the NASA API provided 1080x1080 jpg which is 195 Kb.")
