@@ -8,6 +8,7 @@ _Look again at that dot. That's here. That's home. That's us. On it everyone you
 
 -- Carl Sagan, Pale Blue Dot, 1994
 
+
 ### Being a NASA Datanaut
 
 [NASA Datanauts](https://open.nasa.gov/explore/datanauts/) is a community of volunteer data scientists who work with [NASA's open data](https://open.nasa.gov/open-data/) to solve data challenges. Every half a year the Datanauts founding class welcomes 50 newcomers to join the community to advance their data science skills. Datanauts engage with each other and subject matter experts, listen to presentations, learn by completing challenges and work on their own projects.
@@ -15,6 +16,7 @@ _Look again at that dot. That's here. That's home. That's us. On it everyone you
 I joined Datanauts as a member of the [2017 Spring Class](https://open.nasa.gov/explore/datanauts/2017/spring/). As my project I decided to work with the images taken by NASA's [Earth Polychromatic Imaging Camera](https://epic.gsfc.nasa.gov/epic) (EPIC).
 
 This camera takes multiple colored images every day of the entire sunlit face of the Earth. The spacecraft is located at the Earth-Sun Lagrange-1 (L-1) point giving EPIC a unique angular perspective. It has a field of view of 0.62 degrees, which is sufficient to image the entire Earth. Its distance from our planet also allows it to captures Moon transits.
+
 
 ### The Pale Blue Dot project
 
@@ -34,11 +36,13 @@ The final UI of the Pale Blue Dot project website:
 
 ![palebluedot_website](palebluedot_website.png "Pale Blue Dot website")
 
+
 ### About this document
 
 Even though at first sight the project might look easy and straight forward, actually many things had to be considered and implemented both on the front end and the back end to make sure that the goals were achieved.
 
 In this document you can read about all the problems that have risen and their solutions in detail. It aims to be understandable by anyone with minimal computer science knowledge.
+
 
 ### Table of contents
 
@@ -72,6 +76,8 @@ In this document you can read about all the problems that have risen and their s
 
 2.6. [Scripts for MaxCDN](#26-scripts-for-maxcdn)
 
+2.7. [Download times rundown](#27-download-times-rundown)
+
 **3. [Image manipulation](#3-image-manipulation) - Backend**
 
 3.1. [Individual thumbnails](#31-individual-thumbnails)
@@ -96,10 +102,12 @@ In this document you can read about all the problems that have risen and their s
 
 **5. [Future development ideas](#5-future-development-ideas)**
 
+
 ### 1. JavaScript UX/UI
 -------------------------------------
 
 The first version of the project was pure Javascript that directly talked to NASA's servers. At this stage the focus was on perfecting the User Experience.
+ 
  
 #### 1.1. Navigation - no buttons necessary
  
@@ -113,6 +121,7 @@ The first version of the project was pure Javascript that directly talked to NAS
  
  To make sure that every user action has an instant feedback on the UI, a fast scroll will instantly update the date label to show the currently selected date. Even if the user has to wait a little for the images to load.
   
+  
 #### 1.2. URL handling - edit the links
  
  The Website's URL has the format _palebluedot.napszel.com/#2017-06-06/29_. That is: a hashmark followed by a date (separated by dashes) followed by a slash and a longitude number. Navigating to this URL will display an Earth image taken on 2017 June 6th showing Europe/Africa (longitude 29). You may copy-paste such paths for sharing.
@@ -120,6 +129,7 @@ The first version of the project was pure Javascript that directly talked to NAS
  You are also free to edit the URLs to achieve fast and precise navigation. The application will search for the images taken on the supplied date (or if there are no images on that day then the closest earlier date when images were taken). Then it will search for the Earth rotation that is closest to the supplied longitude.
  
  You may also enter only a date (_palebluedot.napszel.com/#2017-12-19_) or only a longitude (_palebluedot.napszel.com/#29_). In that case the other will take a default value ('today' for date and '29' for longitude). If neither (_palebluedot.napszel.com_) or 'latest' (_palebluedot.napszel.com/#latest_) is given then both takes the default value which results in the latest image of Europe/Africa.
+ 
  
 #### 1.3. Updating the URL - share the links
   
@@ -141,6 +151,7 @@ The first version of the project was pure Javascript that directly talked to NAS
  
   But not all navigation results in a path editing and history update. Consider the case where the user scrolls back 10 days very quickly with a mouse scroll or finger swipe. In this case if the path were edited to all dates during the scroll the browser's history would be polluted with day references which the user did not really have the time to look at (the images might have been not even loaded). To circumvent this, the path is only updated and pushed to history after you spend at least 500 ms viewing a day.
  
+ 
 #### 1.5. History - updating the title of the page
  
  Browsers save your page visits in a list called history. If you check this list, you will see that it only shows the _title_ of each page you visited.
@@ -148,6 +159,7 @@ The first version of the project was pure Javascript that directly talked to NAS
  In order to have meaningful history items for Pale Blue Dot the page's title is always edited according to the date/longitude selected (similarly how the URL is also edited). This way, instead of seeing ~ Pale Blue Dot ~, ~ Pale Blue Dot ~, ~ Pale Blue Dot ~ you see meaningful results.
  
  ![history](history.png "History of page")
+  
   
 #### 1.6. Preserving selected longitude
  
@@ -161,6 +173,7 @@ The first version of the project was pure Javascript that directly talked to NAS
  
  Longitudes are only updated by the app in case the user _rotates_ the earth left or right with click and drag or finger swipe. After this event the longitude is updated in the path and becomes the new "goal" longitude.
  
+ 
 #### 1.7. CSS media query - try it on mobile
  
  Mobile screens are naturally smaller and required a slightly different UI arrangement to fit everything on screen. CSS media queries were used to change the layout for any screen below 670px.
@@ -171,6 +184,7 @@ The first version of the project was pure Javascript that directly talked to NAS
  
  Since the threshold for "too small screen" is based on browser window size and not based on device type, the same rearranging of the UI happens on a regular desktop too if the browser window is shrunk. 
    
+   
 ### 2. Serving the assets
 --------------------------
 
@@ -179,6 +193,7 @@ After the User Interface is ready and the navigation is intuitive, comes the que
 _Especially_, if the UI gives options to change views very quickly, the site has to be responsive. If the users were to change date with a date selector, they might be more forgiving in waiting time. However, one of goals of the project was to be able to enjoy these beautiful cloudy Earth images swirling, so waiting time was not something I wanted to compromise on.
 
 ![swirls](swirls.gif "Swirling clouds")
+
 
 #### 2.1. The NASA server's JSON files
 
@@ -251,6 +266,7 @@ NASA stores these images on the server _epic.gsfc.nasa.gov_ which accepts reques
 
 This extract shows the information for _one image_ of the given date. The camera might take as many as 22 images per day. A full JSON file for such day is around 22 kilobytes which can take up to 1 second to download on fast internet and up to 3 seconds on slower one in Europe (results should be better closer to the server in USA and worse in Asia). And this is _only the JSON file_. We are not yet talking about downloading the images themselves.
 
+
 #### 2.2. Serving the JSON files
 
 The JSON files provided by NASA contained too many unnecessary information for my project and is serviced too slow for the UX I had in mind. See in the previous file example - marked with asterisks - the 3 data that I actually need for one image: name, longitude and date. 
@@ -319,6 +335,7 @@ This extract shows the information for _one day_ with 21 images. The rest of the
 
 At the time of writing this document the full JSON file with all the days concatenated together from the beginning of EPIC's life is 418 kilobytes. This _single file_ is enough to be downloaded _once_ by the application - right at page load - and serves every later data request in an _instant_.
 
+
 #### 2.3. Scripts for the JSON files
 
 To serve this JSON file from our server (an Amazon Web Services virtual machine) the following scripts were implemented:
@@ -332,7 +349,8 @@ To serve this JSON file from our server (an Amazon Web Services virtual machine)
  d. A [Bash script that runs](https://github.com/NASADatanauts/PaleBlueDot/blob/master/backend-scripts/daily.sh) all of the above in order.
  
  e. And finally a cronjob that runs the previous Bash script daily.
-   
+
+
 #### 2.4. Image sizes and download times
 
 The reformatting and serving of the JSON file improved on speed significantly but the huge size of the images were still making the UX too slow.
@@ -349,21 +367,21 @@ This is partly because of the distance to the NASA server: a user from Europe wi
  
 Waiting around 1 second every time the user tries to navigate around the images results in a sluggish user experience instead of an interactive UI.
 
---- itt tartok az atnezesben
 
 #### 2.5. Serving the images - MaxCDN
 
-To solve the delay problem for users located far from the single NASA server a _Content Distribution Network_ (CDN) comes to mind. That is, a geographically distributed network of servers that store the NASA images and then services the requests spatially relative to users.
+To solve the delay problem for users located far from the only NASA server a _Content Distribution Network_ (CDN) comes to mind. That is, a geographically distributed network of servers that store the NASA images and then services the requests spatially relative to users.
 
-It is possible to buy such CDN services for a relatively small monthly fee. However, it is important to understand the different features they offer and picking the correct one for the project to actually makes the web app faster.
+It is possible to buy such CDN services for a relatively small monthly fee. However, it is important to understand the different solutions they offer and to pick the correct one for the project to actually make it faster.
 
-The most common feature a CDN service will offer is a so called _CDN pull zone_. This means they "pull" the static assets from your projects to cache it and serve it from their CDN Network. However, "pulling" only happens if an asset is requested by a user and the cache is cleared usually after 24 hours. This kind of CDN is useful for websites with many visits, requesting the same assets over and over again.
+The most common feature a CDN service will offer is a so called _CDN pull zone_. This means they "pull" the static assets from your project to cache it and serve it from their CDN Network. However, "pulling" only happens if an asset is requested by a user and the cache is cleared usually after 24 hours. This kind of CDN is useful for websites with many visits, requesting the same assets over and over again.
 
 It is easy to see that for the images of the Pale Blue Dot project this would not be of much use. After a user loads the images of today, they have hundreds of other options for images they might want to load next. So it is very unlikely that even two users will request the same assets and so they would not see see any advantage of a pull zone.
  
 What the Pale Blue Dot project needed was a much less common feature, called a _CDN push zone_. The only service found (middle of 2017) that offered this feature was [MaxCDN](https://www.maxcdn.com/). A MaxCDN push zone gives you the option to directly upload your files to a server which is then synced out to the distribution network. So even the first user gets serviced fast and the assets never get cleared like caches on a pull zone.
 
 Having the huge images and the optimized JSON file in a Content Distribution Network (updated and pushed every night) maximally optimized the download speed of assets, for every user, anywhere in the world. The download times of images went *below*  0.5 sec (for users with a gigabit internet) which gives a smooth user experience navigating between any of the Earth images. This would have been impossible with the NASA provided API.
+
 
 #### 2.6. Scripts for MaxCDN
 
@@ -376,20 +394,48 @@ b. A [Bash script that pushes](https://github.com/NASADatanauts/PaleBlueDot/blob
 c. A [Bash script that pushes](https://github.com/NASADatanauts/PaleBlueDot/blob/master/backend-scripts/upload-allnasa.sh) our reformatted JSON file to MaxCDN.
 
 
+#### 2.7. Download times rundown
+
+To compare what we improved here are the download sizes and download times needed to display *one* single random image after page load on a gigabit internet. Comparing NASA API supported options to features implemented by Pale Blue Dot.
+
+Download times needed for one random image:
+
+|              |  NASA API | PaleBlueDot |
+| ------------ |:---------:| :----------:|
+| JSON File    |  >1s      |    0s       |
+| Image asset  | >1.5s     |   0.3-0.4s  |
+| *TOTAL*      | *>2.5s*   |  *0.3-0.4s* |
+
+Download sizes needed for one random image:
+
+|              |  NASA API | PaleBlueDot |
+| ------------ |:---------:| :----------:|
+| JSON File    |  ~22Kb    |      -      |
+| Image asset  | ~190Kb    |   ~190Kb    |
+| *TOTAL*      | *~212Kb*  |  *~190Kb*   |
+
+Note that NASA API's download times depend also on geographical location of the user as well as internet speed. The download time shown here is the _minimum_ time needed even on gigabit internet. Pale Blue Dot download times only depend on internet speed of the user because of the MaxCDN solution explained in point 2.5.
+
+Also note that Pale Blue Dot does not require a JSON file download to display a new image because of the restructuring of the file seen in point 2.2.
+
+Because of the JSON file pre-processing and the Content Distribution Network solution of Pale Blue Dot the time to display an image went down from *>2.5s* to *0.3-0.4s* considering the same, gigabit internet conditions.
+
+
 ### 3. Image manipulation
 ------------------------
 
-The user experience on a gigabit internet is flawless at this point with the minimized, single JSON file and assests distributed from a CDN. But of course not everybody has a gigabit internet. Even if you do, you might be travelling or on mobile data.
+The user experience on a gigabit internet is flawless at this point with the minimized, single JSON file and assets distributed from a CDN. But of course not everybody has a gigabit internet. Even if you do, you might be travelling or on mobile data.
 
 There is nothing really left to optimize on the server, it services the JSON file and images as fast as it is possible. The only thing left to improve is the size of the images it has to service.
  
+ 
 #### 3.1. Individual thumbnails
 
-The idea is to show a smaller resolution version of the requested image in place of the real one until the full size image loads. 
+The idea is to show a smaller resolution version of the requested image (stretched to full size) in place of the real one until the full resolution image loads. 
 
 The goal is to make these initial thumbnail images small enough that the application is able to instantly respond to user interaction with them (less than a second of download time even on mobile internet) but also big enough that the user sees what they are looking at.
 
-There are thumbnails provided by the NASA API but they are so small that they looked unacceptable when stretched to full screen.
+There are thumbnails provided by the NASA API but they are so resolution that they looked unacceptable when stretched to full screen.
 
 This is an example of a NASA provided thumbnail stretched to 1024x1024 (5 KB):
  
@@ -400,6 +446,7 @@ However, with a little image conversion (with the [ImageMagick tool](https://www
 ![thumbnail-big](thumbnail-big.jpg "PBD thumbnail example") 
 
 The download time for these thumbnails are 20 ms on a gigabit internet and 600 ms on 3G. The latter is already fast enough that it provides an acceptable user experience.
+
 
 #### 3.2. Concatenated thumbnails
 
@@ -414,6 +461,7 @@ To make sure that Earth rotations cause absolutely no delay, there is an additio
 This image is "cut and zoomed in" when the user rotates the Earth. This means that once this image is downloaded, the user is free to rotate Earth left and right with 0 delay and no network request. Even if the user loses internet connection they can still enjoy the current days images.
 
 These concatenated thumbnails are around ~60KB depending on how many images were taken on that day. This takes 40 ms to download on gigabit internet and around 1.2 s on slow mobile internet.
+
 
 #### 3.3. Big image
 
@@ -431,6 +479,7 @@ See below the Pale Blue Dot generated 1024x1024 pixels jpg that is 115 Kb in siz
 ![pbd-full](pbd_full.jpg "Pale Blue Dot jpg")
 ![nasa-full](nasa_full.jpg "NASA jpg")
 
+
 #### 3.4. Scripts for image manipulation
 
 To generate the previously described _thumbnails_ the _concatenated images_ and the optimzes _big images_ the following scripts were implemented and added to our own server (an Amazon Web Services virtual machine):
@@ -443,6 +492,7 @@ c. A [Bash script that saves](https://github.com/NASADatanauts/PaleBlueDot/blob/
 
 d. A [Bash script that runs](https://github.com/NASADatanauts/PaleBlueDot/blob/master/backend-scripts/do-image-for-day.sh) all of the above in order.
 
+
 #### 3.5. Parallel loading
 
 As hinted before, all image downloads happen in parallel. When a user stops on a particular image of a particular day the following image downloads start in parallel:
@@ -452,6 +502,7 @@ b. Full size version of the image of date/longitude; ~120 Kb; 50-2600ms
 c. Concatenated thumbnails of images of date; ~60 Kb, 40-1200ms
 
 The user sees the small thumbnail first (a). This is almost instant. The full size version of the same image is downloading in the background. As soon as it is loaded (b) it replaces the small resolution image. During these two downloads, the concatenated thumbnails were also downloading in the background (c). Once that is finished, there is no download time to show Earth from any direction of that day.
+
 
 #### 3.6. Cancelling of obsolete
 
@@ -465,11 +516,13 @@ See a screenshot of Google Chrome's network logging. All the red lines show canc
 
 This also means that scrolling through a bulk of images from different days does not accumulate downloads and so, does not lag the UI. Loading a day from a year before takes the same amount of time as loading today's images.
 
+
 #### 3.7. Download biggest resolution image
 
 At this point the shown images are fully optimized for maximum speed and usability. However, if speed is not an issue then having access to the best quality images can come in handy.
 
 For this reason, the UI has a download button under each image that opens the biggest resolution image, directly from NASA's EPIC website. You can right click and select "Save Link As..." to download the 2048x2048 image to your computer or left click to open it in a new browser tab to view it full size.
+
 
 ### 4. Error reporting - TrackJS
 --------------------------------
@@ -478,9 +531,11 @@ To make sure that the quality of the website is kept over time and users from al
  
 The error reporting tool that was chosen is called [TrackJS](https://trackjs.com). It reports every javascript error that occurs  to any user. Error reports are logged together with stacktrace, OS/Browser details and some other statistics.
 
+
 #### 4.1. Catching errors
 
 For example, there was a [Spread syntax](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax) in the first version of the javascript code. But one day, TrackJS sent a notification that this particular line caused an error for a user who was using a specific OS with a specific browser. So rather than never finding out about this issue, the code was quickly refactored and hopefully one user gained back and other future users never lost.
+
 
 #### 4.2. Debugging
 
@@ -502,6 +557,7 @@ I use this feature to log some image download times. For example, if while trave
 - Better compact the JSON file that describes the images.
 - Use tiny, actual image thumbnails instead of circles for navigation.
 - Show date selector when clicking on the date in the header.
+
 
 ### Feedback
 
