@@ -15,7 +15,7 @@ _Look again at that dot. That's here. That's home. That's us. On it everyone you
  
 I joined Datanauts as a member of the [2017 Spring Class](https://open.nasa.gov/explore/datanauts/2017/spring/). As my project I decided to work with the images taken by NASA's [Earth Polychromatic Imaging Camera](https://epic.gsfc.nasa.gov/epic) (EPIC).
 
-This camera takes multiple colored images every day of the entire sunlit face of the Earth. The spacecraft is located at the Earth-Sun Lagrange-1 (L-1) point giving EPIC a unique angular perspective. It has a field of view of 0.62 degrees, which is sufficient to image the entire Earth. Its distance from our planet also allows it to captures Moon transits.
+This camera takes multiple colored images every day of the entire sunlit face of the Earth. The spacecraft is located at the Earth-Sun Lagrange-1 (L-1) point giving EPIC a unique angular perspective. It has a field of view of 0.62 degrees, which is sufficient to image the entire Earth. Its distance from our planet also allows it to capture Moon transits.
 
 
 ### The Pale Blue Dot project
@@ -32,7 +32,7 @@ The goal of [Pale Blue Dot](http://palebluedot.napszel.com) was to create a web 
 
 These will hopefully ensure that rather than getting lost in the UI the users can submerge in the experience instead.
 
-The final UI of the Pale Blue Dot project website:
+The final UI of the Pale Blue Dot project website looks like this:
 
 ![palebluedot_website](palebluedot_website.png "Pale Blue Dot website")
 
@@ -76,8 +76,6 @@ In this document you can read about all the problems that have risen and their s
 
 2.6. [Scripts for MaxCDN](#26-scripts-for-maxcdn)
 
-2.7. [Download times rundown](#27-download-times-rundown)
-
 **3. [Image manipulation](#3-image-manipulation) - Backend**
 
 3.1. [Individual thumbnails](#31-individual-thumbnails)
@@ -94,13 +92,15 @@ In this document you can read about all the problems that have risen and their s
 
 3.7. [Download biggest resolution image](#37-download-biggest-resolution-image)
 
-**4. [Error reporting - TrackJS](#4-error-reporting---trackjs) - Monitoring**
+**4. [Improvements rundown](#4-improvements-rundown)**
 
-4.1. [Catching errors](#41-catching-errors)
+**5. [Error reporting - TrackJS](#5-error-reporting---trackjs) - Monitoring**
 
-4.2. [Debugging](#42-debugging)
+5.1. [Catching errors](#51-catching-errors)
 
-**5. [Future development ideas](#5-future-development-ideas)**
+5.2. [Debugging](#52-debugging)
+
+**6. [Future development ideas](#6-future-development-ideas)**
 
 
 ### 1. JavaScript UX/UI
@@ -126,14 +126,14 @@ The first version of the project was pure Javascript that directly talked to NAS
  
  The Website's URL has the format _palebluedot.napszel.com/#2017-06-06/29_. That is: a hashmark followed by a date (separated by dashes) followed by a slash and a longitude number. Navigating to this URL will display an Earth image taken on 2017 June 6th showing Europe/Africa (longitude 29). You may copy-paste such paths for sharing.
  
- You are also free to edit the URLs to achieve fast and precise navigation. The application will search for the images taken on the supplied date (or if there are no images on that day then the closest earlier date when images were taken). Then it will search for the Earth rotation that is closest to the supplied longitude.
+ You are also free to edit the URLs to achieve fast and precise navigation. The application will search for the images taken on the supplied date (or if there are no images on the given day then the closest earlier date). Then it will search for the Earth rotation that is closest to the supplied longitude.
  
  You may also enter only a date (_palebluedot.napszel.com/#2017-12-19_) or only a longitude (_palebluedot.napszel.com/#29_). In that case the other will take a default value ('today' for date and '29' for longitude). If neither (_palebluedot.napszel.com_) or 'latest' (_palebluedot.napszel.com/#latest_) is given then both takes the default value which results in the latest image of Europe/Africa.
  
  
 #### 1.3. Updating the URL - share the links
   
- As explained above, if the URL is edited by the user the application catches this event and the UI is loaded accordingly. The opposite also had to be implemented: if the UI changes based on user action the fragment identifiers in the URL have to be edited by the application. 
+ As explained above, if the URL is edited by the user the application catches this event and the UI is loaded accordingly. The opposite also had to be implemented: if the UI changes based on user action the fragment identifiers in the URL have to be edited. 
  
  For example if the user navigates back one day from the latest images then the path will change from _palebluedot.napszel.com/#latest_ to _palebluedot.napszel.com/#2018-01-14/29_ in case this happened on Jan 16th.
  
@@ -188,9 +188,9 @@ The first version of the project was pure Javascript that directly talked to NAS
 ### 2. Serving the assets
 --------------------------
 
-After the User Interface is ready and the navigation is intuitive, comes the question of _speed_. An interactive UI that is enjoyable responds to every user action within a second (if there is any way possible). Even if the implementation gives a simple way to change dates, if the new image takes 3-5 seconds to load, it will quickly board the user and hinder a positive experience. 
+After the User Interface is ready and the navigation is intuitive, comes the question of _speed_. An interactive UI that is enjoyable responds to every user action within a second (if there is any way possible). Even if the implementation gives a simple way to change dates, if the new image takes 3-5 seconds to load, it will quickly bore the user and hinder a positive experience. 
 
-_Especially_, if the UI gives options to change views very quickly, the site has to be responsive. If the users were to change date with a date selector, they might be more forgiving in waiting time. However, one of goals of the project was to be able to enjoy these beautiful cloudy Earth images swirling, so waiting time was not something I wanted to compromise on.
+_Especially_, if the UI gives options to change views very quickly, the site has to be responsive. If the users were to change date with a date selector, they might be more forgiving in waiting time. However, one of the goals of the project was to be able to enjoy these beautiful cloudy Earth images swirling, so waiting time was not something I wanted to compromise on.
 
 ![swirls](swirls.gif "Swirling clouds")
 
@@ -273,7 +273,7 @@ The JSON files provided by NASA contained too many unnecessary information for m
 
 To improve on speed the JSON files were compacted and serviced from our own server. 
 
-To shrink the JSON files the images are grouped together by date. This way only a list of name-longitude pairs are left. If the days are also grouped together in one singe JSON file we get this format:
+To shrink the JSON files the images are grouped together by date. This way only a list of name-longitude pairs are left. When the days are also grouped together in one singe JSON file we get this format:
 
 ```
 [  
@@ -363,7 +363,7 @@ NASA gives options to download the images in 3 formats:
 
 The thumbnails are obviously not big enough to shown in full screen. Out of the other two formats, even the smaller jpg format takes around 1.5 seconds to download for a user in Europe even on a gigabit internet.
 
-This is partly because of the distance to the NASA server: a user from Europe will experience a minimum of 200 ms. Because of the size of the images this goes up to 1.5 s in total download time. In the USA this should be around 1 s but even worse than 1.5 s in Asia. We are talking about _one_ image of a particular day.
+This is partly because of the distance to the NASA server: a user from Europe will experience a minimum of 200 ms delay. Because of the size of the images this goes up to 1.5 s in total download time. In the USA this should be around 1 s but even worse than 1.5 s in Asia. We are talking about _one_ image of a particular day.
  
 Waiting around 1 second every time the user tries to navigate around the images results in a sluggish user experience instead of an interactive UI.
 
@@ -394,33 +394,6 @@ b. A [Bash script that pushes](https://github.com/NASADatanauts/PaleBlueDot/blob
 c. A [Bash script that pushes](https://github.com/NASADatanauts/PaleBlueDot/blob/master/backend-scripts/upload-allnasa.sh) our reformatted JSON file to MaxCDN.
 
 
-#### 2.7. Download times rundown
-
-To compare what we improved here are the download sizes and download times needed to display *one* single random image after page load on a gigabit internet. Comparing NASA API supported options to features implemented by Pale Blue Dot.
-
-Download times needed for one random image:
-
-|              |  NASA API | PaleBlueDot |
-| ------------ |:---------:| :----------:|
-| JSON File    |  >1s      |    0s       |
-| Image asset  | >1.5s     |   0.3-0.4s  |
-| *TOTAL*      | *>2.5s*   |  *0.3-0.4s* |
-
-Download sizes needed for one random image:
-
-|              |  NASA API | PaleBlueDot |
-| ------------ |:---------:| :----------:|
-| JSON File    |  ~22Kb    |      -      |
-| Image asset  | ~190Kb    |   ~190Kb    |
-| *TOTAL*      | *~212Kb*  |  *~190Kb*   |
-
-Note that NASA API's download times depend also on geographical location of the user as well as internet speed. The download time shown here is the _minimum_ time needed even on gigabit internet. Pale Blue Dot download times only depend on internet speed of the user because of the MaxCDN solution explained in point 2.5.
-
-Also note that Pale Blue Dot does not require a JSON file download to display a new image because of the restructuring of the file seen in point 2.2.
-
-Because of the JSON file pre-processing and the Content Distribution Network solution of Pale Blue Dot the time to display an image went down from *>2.5s* to *0.3-0.4s* considering the same, gigabit internet conditions.
-
-
 ### 3. Image manipulation
 ------------------------
 
@@ -433,9 +406,9 @@ There is nothing really left to optimize on the server, it services the JSON fil
 
 The idea is to show a smaller resolution version of the requested image (stretched to full size) in place of the real one until the full resolution image loads. 
 
-The goal is to make these initial thumbnail images small enough that the application is able to instantly respond to user interaction with them (less than a second of download time even on mobile internet) but also big enough that the user sees what they are looking at.
+The goal is to make these initial thumbnail images small enough that the application is able to instantly respond to user interaction with them (less than a second of download time even on *mobile* internet) but also big enough that the user sees what they are looking at.
 
-There are thumbnails provided by the NASA API but they are so resolution that they looked unacceptable when stretched to full screen.
+There are thumbnails provided by the NASA API but they are so low resolution that they looked unacceptable when stretched to full screen.
 
 This is an example of a NASA provided thumbnail stretched to 1024x1024 (5 KB):
  
@@ -445,14 +418,14 @@ However, with a little image conversion (with the [ImageMagick tool](https://www
 
 ![thumbnail-big](thumbnail-big.jpg "PBD thumbnail example") 
 
-The download time for these thumbnails are 20 ms on a gigabit internet and 600 ms on 3G. The latter is already fast enough that it provides an acceptable user experience.
+The download time for these thumbnails are 20 ms on a gigabit internet and 600 ms on 3G. The latter is already fast enough that it provides a smooth user experience.
 
 
 #### 3.2. Concatenated thumbnails
 
 But there is still in improvement that removes some of those 20-600ms waiting times.
 
-The second improvement idea came from the assumption that once a user loaded a specific date they might be interested in all or some of the other images of that day too. E.g. they will drag and rotate Earth around.
+The second improvement idea came from the assumption that once a user loaded a specific date they might be interested in all or some of the other images of the same day too. E.g. they will drag and rotate Earth around.
 
 To make sure that Earth rotations cause absolutely no delay, there is an additional image download that starts in the background when a user is spending time on a date: a concatenated image of all thumbnail images for one particular day. See example of this below.
 
@@ -465,24 +438,24 @@ These concatenated thumbnails are around ~60KB depending on how many images were
 
 #### 3.3. Big image
 
-All of the above image manipulation with smaller resolution images is only needed to make sure that the user experience is smooth and without waiting time. But at the end of the day, the app has to display a full screen version of the image.
+All of the above image manipulation with smaller resolution images is only needed to make sure that the user experience is smooth and without any visible waiting time. But at the end of the day, the app has to download and display a full screen version of the image requested.
 
-As mentioned before the NASA API provides 1080x1080 pixel image files that are around 190 Kb each. That size is optimal. These are the images that you see on the official [EPIC website](https://epic.gsfc.nasa.gov/).
+As mentioned before the NASA API provides 1080x1080 pixel image files that are around 190 Kb each. These are the images that you see on the official [EPIC website](https://epic.gsfc.nasa.gov/).
 
-Also, the API provides "full resolution" image downloads that are 2048x2048 in pixels and around 3 Mbs in size. The EPIC website lets you to download these with a button but doesn't display them.
- 
-Downloading and attempting to display the biggest resolution images in fact would be unnecessary as it would take considerable amount of network traffic and most screens would have to shrink it anyway as they do not fit.
+Also, the NASA API provides "full resolution" image downloads that are 2048x2048 in pixels and around 3 Mbs in size. The EPIC website lets you to download these with a button but doesn't display them. This is a good choice as downloading and attempting to display such big resolution images would be unnecessary as it would use considerable amount of network traffic and most screens would have to shrink it anyway as they do not fit on screen.
 
-Instead, the Pale Blue Dot website downloads the biggest resolution images daily at night, then converts them (with the [ImageMagick tool](https://www.systutorials.com/docs/linux/man/1-ImageMagick/)) to a smaller jpg version that is 1024x1024 pixels and only around 120 Kb in size. Which is even smaller than the NASA API provided full size jpg images but result in no visible quality loss.
+The Pale Blue Dot website works similarly to the official EPIC Website as it also displays 1024x1024 images in full screen and only offers a _download button_ for the twice as big full resolution images (see point 3.7). However, it achieves a 40% reduction in image size for the displayed full screen images with no visible quality loss.
 
-See below the Pale Blue Dot generated 1024x1024 pixels jpg that is 115 Kb in size. Hover image to see the NASA API provided 1080x1080 jpg which is 195 Kb.
+Pale Blue Dot downloads the biggest resolution images (the 2048x2048 ones) daily at night, then converts them (with the [ImageMagick tool](https://www.systutorials.com/docs/linux/man/1-ImageMagick/)) to a smaller jpg version that is 1024x1024 pixels and only around 120 Kb in size. Which is even smaller than the NASA API provided full size jpg images but result in no visible quality loss.
+
+See below the Pale Blue Dot generated 1024x1024 pixels jpg that is 115 Kb in size. Hover image to see the NASA API provided 1080x1080 jpg which is 195 Kb. See any quality loss?
 ![pbd-full](pbd_full.jpg "Pale Blue Dot jpg")
 ![nasa-full](nasa_full.jpg "NASA jpg")
 
 
 #### 3.4. Scripts for image manipulation
 
-To generate the previously described _thumbnails_ the _concatenated images_ and the optimzes _big images_ the following scripts were implemented and added to our own server (an Amazon Web Services virtual machine):
+To generate the previously described _thumbnails_ the _concatenated images_ and the optimzed _big images_ the following scripts were implemented and added to our own server (an Amazon Web Services virtual machine):
 
 a. A [Bash script that generates](https://github.com/NASADatanauts/PaleBlueDot/blob/master/backend-scripts/resize-images-for-day.sh) the needed thumbnails.
 
@@ -501,7 +474,7 @@ a. Small thumbnail of the image of date/longitude; ~8 Kb, ~20ms-600ms
 b. Full size version of the image of date/longitude; ~120 Kb; 50-2600ms
 c. Concatenated thumbnails of images of date; ~60 Kb, 40-1200ms
 
-The user sees the small thumbnail first (a). This is almost instant. The full size version of the same image is downloading in the background. As soon as it is loaded (b) it replaces the small resolution image. During these two downloads, the concatenated thumbnails were also downloading in the background (c). Once that is finished, there is no download time to show Earth from any direction of that day.
+The user sees the small thumbnail first (a). This is almost instant. The full size version of the same image is downloading in the background. As soon as it is loaded (b) it replaces the small resolution image. During these two downloads, the concatenated thumbnails were also downloading in the background (c). Once that is finished, there is no download time to show Earth from any point of view on that day.
 
 
 #### 3.6. Cancelling of obsolete
@@ -524,7 +497,34 @@ At this point the shown images are fully optimized for maximum speed and usabili
 For this reason, the UI has a download button under each image that opens the biggest resolution image, directly from NASA's EPIC website. You can right click and select "Save Link As..." to download the 2048x2048 image to your computer or left click to open it in a new browser tab to view it full size.
 
 
-### 4. Error reporting - TrackJS
+### 4. Improvements rundown
+
+To visualise the improvements, here are the download sizes and download times needed to display *one* single random image after page load. Comparing NASA API supported options to features implemented by Pale Blue Dot.
+
+Download *times* needed for one random image:
+
+|              |  NASA API | PaleBlueDot |
+| ------------ |:---------:| :----------:|
+| JSON File    |  >1s      |    0s       |
+| Image asset  | >1.5s     |   0.1-0.4s  |
+| *TOTAL*      | *>2.5s*   |  *0.1-0.4s* |
+
+Download *sizes* needed for one random image:
+
+|              |  NASA API | PaleBlueDot |
+| ------------ |:---------:| :----------:|
+| JSON File    |  ~22Kb    |      -      |
+| Image asset  | ~190Kb    |  ~125Kb     |
+| *TOTAL*      | *~212Kb*  |  *~125Kb*   |
+
+Note that NASA API's download times depend also on geographical location of the user as well as internet speed. The download time shown here is the _minimum_ time needed even on gigabit internet. Pale Blue Dot download times only depend on internet speed of the user because of the MaxCDN solution explained in point 2.5.
+
+Also note that Pale Blue Dot does not require to download a JSON file to display a new image because of the restructuring of the file seen in point 2.2.
+
+Finally, because of the image thumbnail pre loading of Pale Blue Dot (seen in point 3.1) the download time results are about the same on mobile internet as on gigabit internet. The difference will be in the initial *quality* of the image rather than longer waiting time.
+
+
+### 5. Error reporting - TrackJS
 --------------------------------
 
 To make sure that the quality of the website is kept over time and users from all type of Operating Systems and Web Browsers can enjoy it, an error reporting system has been integrated into the code.
@@ -532,12 +532,12 @@ To make sure that the quality of the website is kept over time and users from al
 The error reporting tool that was chosen is called [TrackJS](https://trackjs.com). It reports every javascript error that occurs  to any user. Error reports are logged together with stacktrace, OS/Browser details and some other statistics.
 
 
-#### 4.1. Catching errors
+#### 5.1. Catching errors
 
 For example, there was a [Spread syntax](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax) in the first version of the javascript code. But one day, TrackJS sent a notification that this particular line caused an error for a user who was using a specific OS with a specific browser. So rather than never finding out about this issue, the code was quickly refactored and hopefully one user gained back and other future users never lost.
 
 
-#### 4.2. Debugging
+#### 5.2. Debugging
 
 An other useful specialty of TrackJS that the Pale Blue Dot project is using is the _trackjs.console.log_. You have the option to push logs to TrackJS that does not show up in the browsers' console window (or anywhere else for that matter) but TrackJS stores it for your project, you just need a trick to access it. This allows to have an instant "debug" feature the following way:
 
@@ -552,15 +552,16 @@ When an error is caught by TrackJS, it will be displayed on your Dashboard toget
 I use this feature to log some image download times. For example, if while travelling and testing the website from different locations/browsers, something suspicious happens I can trigger a debug. This causes TrackJS to log the event together with statistics so later it can be viewed and examined.
 
 
-### 5. Future development ideas
+### 6. Future development ideas
 -------------------------------
 - Better compact the JSON file that describes the images.
 - Use tiny, actual image thumbnails instead of circles for navigation.
-- Show date selector when clicking on the date in the header.
+- Include further information of each image. For example: EPIC's distance from Earth when the image was taken.
+- Include 'Enhanced Color Images' provided by NASA.
 
 
 ### Feedback
 
 Feel free to drop me an email with any questions/comments at eva@napszel.com.
 
-If you would like to report a bug or submit a feature request, go to the project's [GitHub page](https://github.com/NASADatanauts/PaleBlueDot).
+If you would like to report a bug or submit a feature request, use to the project's [GitHub page](https://github.com/NASADatanauts/PaleBlueDot).
