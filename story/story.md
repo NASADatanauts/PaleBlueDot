@@ -448,7 +448,7 @@ The Pale Blue Dot website works similarly to the official EPIC Website as it als
 
 Pale Blue Dot downloads the biggest resolution images (the 2048x2048 ones) daily at night, then converts them (with the [ImageMagick tool](https://www.systutorials.com/docs/linux/man/1-ImageMagick/)) to a smaller jpg version that is 1024x1024 pixels and only around 120 Kb in size. Which is even smaller than the NASA API provided full size jpg images but result in no visible quality loss.
 
-See below the Pale Blue Dot generated 1024x1024 pixels jpg that is 115 Kb in size. Hover image to see the NASA API provided 1080x1080 jpg which is 195 Kb. See any difference?
+See below the Pale Blue Dot generated 1024x1024 pixels jpg that is 115 Kb in size. Hover image to see the NASA API provided 1080x1080 jpg which is 195 Kb. See any quality loss?
 ![pbd-full](pbd_full.jpg "Pale Blue Dot jpg")
 ![nasa-full](nasa_full.jpg "NASA jpg")
 
