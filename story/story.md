@@ -131,18 +131,18 @@ The first version of the project was pure Javascript that downloaded data direct
   
 #### 1.2. URL handling - edit the links
  
- The Website's URL has the format _palebluedot.napszel.com/#2017-06-26/29_. That is: a hashmark followed by a date (separated by dashes) followed by a slash and a longitude number. Navigating to this URL will display an Earth image taken on 2017 June 26th showing Europe/Africa (longitude 29). You may copy-paste such paths for sharing.
+ The Website's URL has the format _palebluedot.napszel.com/#2017-06-26/19_. That is: a hashmark followed by a date (separated by dashes) followed by a slash and a longitude number. Navigating to this URL will display an Earth image taken on 2017 June 26th showing Europe/Africa (longitude 19). You may copy-paste such paths for sharing.
  
  You are also free to edit the URLs to achieve fast and precise navigation. The application will search for the images taken on the supplied date (or if there are no images on the given day then the closest earlier date). Then it will search for the Earth rotation that is closest to the supplied longitude.
  
- You may also enter only a date (_palebluedot.napszel.com/#2017-12-19_) or only a longitude (_palebluedot.napszel.com/#29_). In that case the other will take a default value ('today' for date and '29' for longitude). If neither (_palebluedot.napszel.com_) or 'latest' (_palebluedot.napszel.com/#latest_) is given then both takes the default value which results in the latest image of Europe/Africa.
+ You may also enter only a date (_palebluedot.napszel.com/#2017-12-19_) or only a longitude (_palebluedot.napszel.com/#-74_). In that case the other will take a default value ('today' for date and '-47' for longitude). If neither (_palebluedot.napszel.com_) or 'latest' (_palebluedot.napszel.com/#latest_) is given then both takes the default value which results in the latest image of America.
  
  
 #### 1.3. Updating the URL - share the links
   
  As explained above, if the URL is edited by the user the application catches this event and the UI is updated accordingly. The opposite also had to be implemented: if the UI changes based on user action the fragment identifiers in the URL have to be edited.
  
- For example if the user navigates back one day from the latest images then the path will change from _palebluedot.napszel.com/#latest_ to _palebluedot.napszel.com/#2018-01-14/29_ in case this happened on Jan 16th.
+ For example if the user navigates back one day from the latest images then the path will change from _palebluedot.napszel.com/#latest_ to _palebluedot.napszel.com/#2018-01-14/-74_ in case this happened on Jan 16th.
  
  The path is continuously kept up to date with every image change. This means that the path always specifies exactly that single image that is currently shown on the screen. It is enough to copy and paste the URL in the browser window to share a specific image with a friend.
  
