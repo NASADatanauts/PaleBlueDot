@@ -10,7 +10,7 @@ _Look again at that dot. That's here. That's home. That's us. On it everyone you
 
 ### Executive summary
 
-As a volunteer to NASA, I have reimplemented the data storage and the UI for the EPIC image archive. The end users can use the new solution to browse the image archive using a streamlined user experience, with considerably better image loading times. The new solution is also comfortable to use from mobile and tablet devices which are being increasingly more important for publicity projects of NASA.
+As a volunteer to NASA, I have reimplemented the data storage and the UI for the [EPIC image archive](https://epic.gsfc.nasa.gov/epic). The end users can use the new solution to browse the image archive using a streamlined user experience, with considerably better image loading times. Sharing specific images with friends are made easy by simply copying the URL. The new solution is also comfortable to use from mobile and tablet devices which are being increasingly more important for publicity projects of NASA.
 
 This document details the engineering methods and technical solutions that I have used to achieve these usability gains. It aims to be understandable by anyone with minimal computer science knowledge.
 
@@ -176,7 +176,7 @@ The first version of the project was pure Javascript that downloaded data direct
  
  This allows a nice way for example to scroll through a year and see how Europe changes during the seasons. Even if there are occasional jumps east and west. If this feature was not implemented the view point of Earth would seemingly jump around randomly and not return to the user's original longitude request.
   
- To achieve this experience the longitude part of the URL is _not_ updated in case of date changes. The longitude number seen in the path is only a "goal" longitude. Meaning that the image shown by the app is _the closest_ image to that longitude but not necessarily the exact match. 
+ To achieve this experience the longitude part of the URL is _not_ updated in case of date changes. The longitude number seen in the path is only a "goal" longitude. Meaning that the image shown by the app is the _closest_ image to that longitude but not necessarily the exact match.
  
  This goal longitude is only updated by the app in case the user _rotates_ the earth left or right with click and drag or finger swipe. After this event the goal longitude is updated in the URL.
  
@@ -274,7 +274,7 @@ NASA stores these images on the server _epic.gsfc.nasa.gov_ which accepts reques
 
 This extract shows the information for _one image_ of the given date. The camera might take as many as 22 images per day. A full JSON file for such day is around 22 kilobytes.
 
-That might not sound like a huge amount of data. However, there is only one NASA server located in the USA so latency becomes an issue from Europe and Asia. No matter of the speed of your internet, if you are located in Europe there will be around 200 ms latency between your client and the NASA server (interestingly, even the theoretical limit based on speed of light would be around 30 ms). With this latency, downloading a small file is around 0.5 s. Therefore we can't afford to do this multiple times for every UI action, we have to batch data. This will be worse from Asia.
+That might not sound like a huge amount of data. However, there is only one NASA server located in the USA so latency becomes an issue from Europe and Asia. No matter of the speed of your internet, if you are located in Europe there will be around 200ms latency between your client and the NASA server (interestingly, even the theoretical limit based on speed of light would be around 30ms). With this latency, downloading a small file is around 0.5s. Therefore we can't afford to do this multiple times for every UI action, we have to batch data. These numbers would be even worse from Asia.
 
 And we are only talking about downloading the _JSON file_ for one day. We are not yet talking about downloading the much bigger image files themselves.
 
@@ -371,13 +371,13 @@ The reformatting and serving of the JSON file improved on speed significantly bu
 
 NASA gives options to download the images in 3 formats:
 
-- png, 2048x2048 pixels, ~3Mb file size
-- jpg, 1080x1080 pixels, ~190Kb file size
+- png, 2048x2048 pixels, ~3MB file size
+- jpg, 1080x1080 pixels, ~190KB file size
 - jpg, 120x120 pixels, thumbnail
 
 The thumbnails are obviously not big enough to be shown in full screen. Out of the other two formats, even the smaller jpg format takes around 1.5 seconds to download for a user in Europe even on a gigabit internet, because of the NASA server's latency and bandwidth issues.
 
-This is partly because of the distance to the NASA server: a user from Europe will experience a minimum of 200 ms latency. Because of the size of the images this goes up to 1.5 s in total download time. In the USA this should be around 1 s but even worse than 1.5 s in Asia. We are talking about _one_ image of a particular day.
+More specifically, the issue is partly because of the distance to the NASA server: a user from Europe will experience a minimum of 200ms latency. Because of the size of the images this goes up to 1.5s in total download time. In the USA this should be around 1s but even worse than 1.5s in Asia. We are talking about _one_ image of a particular day.
  
 Waiting around 1 second every time the user tries to navigate around the images results in a sluggish user experience instead of an interactive UI.
 
@@ -426,20 +426,20 @@ The goal is to make these initial thumbnail images small enough that the applica
 
 There are thumbnails provided by the NASA API but they are so low resolution that they looked unacceptable when stretched to full screen.
 
-This is an example of a NASA provided thumbnail stretched to 1024x1024 (5 KB):
+This is an example of a NASA provided thumbnail stretched to 1024x1024 (5KB):
  
 ![thumbnail-nasa-big](thumbnail-nasa-big.png "Nasa thumbnail example")
 
-However, with a little image conversion (with the [ImageMagick tool](https://www.systutorials.com/docs/linux/man/1-ImageMagick/)) the Pale Blue Dot project generates their own thumbnails which are only 3 KBs more in size but are looking much better in 1024x1024:
+However, with a little image conversion (with the [ImageMagick tool](https://www.systutorials.com/docs/linux/man/1-ImageMagick/)) the Pale Blue Dot project generates their own thumbnails which are only 3KB more in size but are looking much better in 1024x1024:
 
 ![thumbnail-big](thumbnail-big.jpg "PBD thumbnail example") 
 
-The download time for these thumbnails are 20 ms on a gigabit internet and 600 ms on 3G. The latter is already fast enough that it provides a smooth user experience.
+The download time for these thumbnails are 20ms on a gigabit internet and 600ms on 3G. The latter is already fast enough that it provides a smooth user experience.
 
 
 #### 3.2. Concatenated thumbnails
 
-But there is still in improvement that removes some of those 20-600ms waiting times.
+But there is still an improvement that removes some of those 20-600ms waiting times.
 
 The second improvement idea came from the assumption that once a user stops on a date, they will most likely rotate Earth.
 
@@ -449,22 +449,22 @@ To make sure that Earth rotations cause absolutely no delay, there is an additio
 
 This image is "cut and zoomed in" when the user rotates Earth. This means that once this image is downloaded, the user is free to rotate Earth left and right with no delay and no network requests. Even if the user loses internet connection they can still enjoy the currently selected day (in thumbnail quality).
 
-These concatenated thumbnails are around ~60KB depending on how many images were taken on that day. This takes 40 ms to download on gigabit internet and around 1.2s on a slow mobile internet.
+These concatenated thumbnails are around ~60KB depending on how many images were taken on that day. This takes 40ms to download on gigabit internet and around 1.2s on a slow mobile internet.
 
 
 #### 3.3. Big image
 
 All of the above image manipulation with smaller resolution images is only needed to make sure that the user experience is smooth and without any visible waiting time. But at the end of the day, the app has to download and display a full screen version of the image requested.
 
-As mentioned before the NASA API provides 1080x1080 pixel image files that are around 190 Kb each. These are the images that you see on the official [EPIC website](https://epic.gsfc.nasa.gov/).
+As mentioned before, the NASA API provides 1080x1080 pixel image files that are around 190KB each. These are the images that you see on the official [EPIC website](https://epic.gsfc.nasa.gov/).
 
-Also, the NASA API provides "full resolution" image downloads that are 2048x2048 in pixels and around 3 Mbs in size. The EPIC website lets you to download these with a button but doesn't display them. This is a good choice as downloading and attempting to display such big resolution images would be unnecessary as it would use considerable amount of network traffic and most screens would have to shrink it anyway as they do not fit on screen.
+Also, the NASA API provides "full resolution" image downloads that are 2048x2048 in pixels and around 3MB in size. The EPIC website lets you to download these with a button but doesn't display them. This is a good choice as downloading and attempting to display such big resolution images would be unnecessary as it would use considerable amount of network traffic and most screens would have to shrink it anyway as they do not fit on screen.
 
-The Pale Blue Dot website works similarly to the official EPIC Website as it also displays 1024x1024 images in full screen and only offers a _download button_ for the twice as big full resolution images (see point 3.7). However, it achieves a 40% reduction in image size for the displayed full screen images with no visible quality loss.
+The Pale Blue Dot website works similarly to the official EPIC Website as it also displays 1024x1024 images in full screen and only offers a download button for the twice as big full resolution images (see point 3.7). However, it achieves a 40% reduction in image size for the displayed full screen images with no visible quality loss.
 
-Pale Blue Dot downloads the biggest resolution images (the 2048x2048 ones) daily at night, then converts them (with the [ImageMagick tool](https://www.systutorials.com/docs/linux/man/1-ImageMagick/)) to a smaller jpg version that is 1024x1024 pixels and only around 120 Kb in size. Which is even smaller than the NASA API provided full size jpg images but result in no visible quality loss.
+Pale Blue Dot downloads the biggest resolution images (the 2048x2048 ones) daily at night, then converts them (with the [ImageMagick tool](https://www.systutorials.com/docs/linux/man/1-ImageMagick/)) to a smaller jpg version that is 1024x1024 pixels and only around 120KB in size. Which is even smaller than the NASA API provided full size jpg images but result in no visible quality loss.
 
-See below the Pale Blue Dot generated 1024x1024 pixels jpg that is 115 Kb in size. Hover image to see the NASA API provided 1080x1080 jpg which is 195 Kb. See any quality loss?
+See below the Pale Blue Dot generated 1024x1024 pixels jpg that is 115KB in size. Hover the image to see the NASA API provided 1080x1080 jpg which is 195KB. Do you see any quality loss?
 ![pbd-full](pbd_full.jpg "Pale Blue Dot jpg")
 ![nasa-full](nasa_full.jpg "NASA jpg")
 
@@ -487,11 +487,11 @@ You can find all back-end scripts on the project's Github page: [https://github.
 
 As hinted before, all image downloads happen in parallel. When a user stops on a particular image of a particular day the following image downloads start in parallel:
 
-a. Small thumbnail of the image of date/longitude; ~8 Kb, ~20ms-600ms
-b. Full size version of the image of date/longitude; ~120 Kb; 50-2600ms
-c. Concatenated thumbnails of images of date; ~60 Kb, 40-1200ms
+a. Small thumbnail of the image of date/longitude; ~8KB, ~20ms-600ms
+b. Full size version of the image of date/longitude; ~120KB; 50-2600ms
+c. Concatenated thumbnails of images of date; ~60KB, 40-1200ms
 
-The user sees the small thumbnail first (a). This is almost instant. The full size version of the same image is downloading in the background. As soon as it is loaded (b) it replaces the small resolution image. During these two downloads, the concatenated thumbnails were also downloading in the background (c). Once that is finished, there is no download time to show Earth from any point of view on that day.
+The user sees the small thumbnail first (a). This is almost instant. The full size version of the same image is downloading in the background. As soon as it is loaded (b) it replaces the small resolution image. During these two downloads the concatenated thumbnails were also downloading in the background (c). Once that is finished, there is no download time to show Earth from any point of view on that day.
 
 
 #### 3.6. Cancelling of obsolete
@@ -530,9 +530,9 @@ Download *sizes* needed for one random image:
 
 |              |  NASA API | PaleBlueDot |
 | ------------ |:---------:| :----------:|
-| JSON File    |  ~22Kb    |      -      |
-| Image asset  | ~190Kb    |  ~125Kb     |
-| *TOTAL*      | *~212Kb*  |  *~125Kb*   |
+| JSON File    |  ~22KB    |      -      |
+| Image asset  | ~190KB    |  ~125KB     |
+| *TOTAL*      | *~212KB*  |  *~125KB*   |
 
 Note that NASA API's download times depend also on geographical location of the user as well as internet speed. The download time shown here is the _minimum_ time needed even on gigabit internet. Pale Blue Dot download times only depend on internet speed of the user because of the MaxCDN solution explained in point 2.5.
 
@@ -556,7 +556,7 @@ For example, there was a [Spread syntax](https://developer.mozilla.org/en-US/doc
 
 #### 5.2. Debugging
 
-An other useful specialty of TrackJS that the Pale Blue Dot project is using is the _trackjs.console.log_. You have the option to push logs to TrackJS that does not show up in the browsers' console window (or anywhere else for that matter) but TrackJS stores it for your project, you just need a trick to access it. This allows to have an instant "debug" feature the following way:
+An other useful specialty of TrackJS that the Pale Blue Dot project is using is the _trackjs.console.log_. You have the option to push logs to TrackJS that does not show up in the browser's console window (or anywhere else for that matter) but TrackJS stores it for your project, you just need a trick to access it. This allows to have an instant "debug" feature the following way:
 
 When an error is caught by TrackJS, it will be displayed on your Dashboard together with the most recent trackjs.console.logs. So simply any error has to be triggered to get access to your debug logs. For this reason if you edit the URL of Pale Blue Dot to contain the word _debug_, you will see a deliberate error in the console "trackjs debug push":
 
@@ -576,10 +576,11 @@ I use this feature to log some image download times. For example, if while trave
 - Use tiny, actual image thumbnails instead of circles for navigation.
 - Include further information of each image. For example: EPIC's distance from Earth when the image was taken.
 - Include 'Enhanced Color Images' provided by NASA.
+- Add a subtle date selector which displays which days have images.
 
 
 ### Feedback
 
 Feel free to drop me an email with any questions/comments at eva@napszel.com.
 
-If you would like to report a bug or submit a feature request, use to the project's [GitHub page](https://github.com/NASADatanauts/PaleBlueDot).
+If you would like to report a bug or submit a feature request, use to the project's GitHub page: [https://github.com/NASADatanauts/PaleBlueDot](https://github.com/NASADatanauts/PaleBlueDot).
