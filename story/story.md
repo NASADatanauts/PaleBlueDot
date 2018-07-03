@@ -95,7 +95,7 @@ Disclaimer: The mentioned numbers about download times on "fast" and "gigabit" i
 
 3.5. [Parallel loading](#35-parallel-loading)
 
-3.6. [Cancelling of obsolete](#36-cancelling-of-obsolete)
+3.6. [Canceling of obsolete](#36-canceling-of-obsolete)
 
 3.7. [Download biggest resolution image](#37-download-biggest-resolution-image)
 
@@ -150,7 +150,7 @@ The first version of the project was pure Javascript that downloaded data direct
    
 #### 1.4. Browser's Back and Forward buttons
  
- The application does not load different html resources when navigating on the UI. This means that the browser's Back and Forward buttons would load the wrong page by default. For them to work correctly, the application has to manage the browser history with HTML5 APIs.
+ The application does not load different HTML resources when navigating on the UI. This means that the browser's Back and Forward buttons would load the wrong page by default. For them to work correctly, the application has to manage the browser history with HTML5 APIs.
  
  For example, in case you go back one day in time, the application will edit the date part of the path (explained in the previous point) and push it to history. Now if you click the browser's Back button, you are taken back to today.
 
@@ -413,7 +413,7 @@ You can find all back-end scripts on the project's Github page: [https://github.
 ### 3. Image manipulation
 ------------------------
 
-The user experience on a gigabit internet is flawless at this point with the minimized, single JSON file and assets distributed from a CDN. But of course not everybody has a gigabit internet. Even if you do, you might be travelling or on mobile data.
+The user experience on a gigabit internet is flawless at this point with the minimized, single JSON file and assets distributed from a CDN. But of course not everybody has a gigabit internet. Even if you do, you might be traveling or on mobile data.
 
 There is nothing really left to optimize on the server, it services the JSON file and images as fast as it is possible. The only thing left to improve is the size of the images it has to service.
  
@@ -471,7 +471,7 @@ See below the Pale Blue Dot generated 1024x1024 pixels jpg that is 115KB in size
 
 #### 3.4. Scripts for image manipulation
 
-To generate the previously described _thumbnails_ the _concatenated images_ and the optimzed _big images_ the following scripts were implemented and added to our own server (an Amazon Web Services virtual machine):
+To generate the previously described _thumbnails_ the _concatenated images_ and the optimized _big images_ the following scripts were implemented and added to our own server (an Amazon Web Services virtual machine):
 
 a. [resize-images-for-day.sh](https://github.com/NASADatanauts/PaleBlueDot/blob/master/backend-scripts/resize-images-for-day.sh): A Bash script that generates the needed thumbnails.
 
@@ -496,15 +496,15 @@ c. Concatenated thumbnails of images of date; ~60KB, 40-1200ms
 The user sees the small thumbnail first (a). This is almost instant. The full size version of the same image is downloading in the background. As soon as it is loaded (b) it replaces the small resolution image. During these two downloads the concatenated thumbnails were also downloading in the background (c). Once that is finished, there is no download time to show Earth from any point of view on that day.
 
 
-#### 3.6. Cancelling of obsolete
+#### 3.6. Canceling of obsolete
 
 Modern browser are built in with a feature that cancels downloads that became unnecessary. For example, if the DOM element that caused the request got deleted or one particular object's source were overwritten with a new resource. In both cases the original resource's download can be canceled as it will surely no longer be needed. 
 
-To make sure that the Pale Blue Dot website takes advantage of this feature, the full resolution images are loaded into the same object. This means that if you navigate away from a date before the image has been loaded the obsolete request is cancelled and the currently needed image's download is started instead.
+To make sure that the Pale Blue Dot website takes advantage of this feature, the full resolution images are loaded into the same object. This means that if you navigate away from a date before the image has been loaded the obsolete request is canceled and the currently needed image's download is started instead.
 
-See a screenshot of Google Chrome's network logging. All the red lines show cancelled downloads of images of days that the user quickly skipped over.
+See a screenshot of Google Chrome's network logging. All the red lines show canceled downloads of images of days that the user quickly skipped over.
 
-![cancelled](cancelled.png)
+![canceled](cancelled.png)
 
 This also means that scrolling through a bulk of images from different days does not accumulate downloads and so, does not lag the UI. Loading a day from a year before takes the same amount of time as loading today's images.
 
@@ -518,7 +518,7 @@ For this reason, the UI has a download button under each image that opens the bi
 
 ### 4. Improvements rundown
 
-To visualise the improvements, here are the download sizes and download times needed to display *one* single random image after page load. Comparing NASA API supported options to features implemented by Pale Blue Dot.
+To visualize the improvements, here are the download sizes and download times needed to display *one* single random image after page load. Comparing NASA API supported options to features implemented by Pale Blue Dot.
 
 Download *times* needed for one random image:
 
@@ -568,7 +568,7 @@ When an error is caught by TrackJS, it will be displayed on your Dashboard toget
 
 ![trackJS](trackJS.png "TrackJS error example")
 
-I use this feature to log some image download times. For example, if while travelling and testing the website from different locations/browsers, something suspicious happens I can trigger a debug. This causes TrackJS to log the event together with statistics so later it can be viewed and examined.
+I use this feature to log some image download times. For example, if while traveling and testing the website from different locations/browsers, something suspicious happens I can trigger a debug. This causes TrackJS to log the event together with statistics so later it can be viewed and examined.
 
 
 ### 6. Future development ideas

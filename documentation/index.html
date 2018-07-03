@@ -53,7 +53,7 @@
 <p>In this document you can read about all the problems that have risen and their solutions in detail.</p>
 <p>Disclaimer: The mentioned numbers about download times on &quot;fast&quot; and &quot;gigabit&quot; internet were measured on a gigabit connection in Switzerland. The referenced &quot;slow&quot; and &quot;mobile&quot; internet speeds were measured on Chrome browser by limiting the download speed and latency with the built in developer tools to &quot;3G&quot;.</p>
 <h3 id="table-of-contents"><a class="header-link" href="#table-of-contents"></a>Table of contents</h3>
-<p><strong>1. <a href="#1.-javascript-ux/ui">JavaScript UX/UI</a> - Frontend</strong></p>
+<p><strong>1. <a href="#1.-javascript-ux/ui">JavaScript UX/UI</a> - Front-end</strong></p>
 <p>1.1. <a href="#1.1.-navigation---no-buttons-necessary">Navigation</a> - no buttons necessary</p>
 <p>1.2. <a href="#1.2.-url-handling---edit-the-links">URL handling</a> - edit the links</p>
 <p>1.3. <a href="#1.3.-updating-the-url---share-the-links">Updating the URL</a> - share the links</p>
@@ -61,20 +61,20 @@
 <p>1.5. <a href="#1.5.-history---updating-the-title-of-the-page">History</a> - updating the title of the page</p>
 <p>1.6. <a href="#1.6.-preserving-selected-longitude">Preserving selected longitude</a></p>
 <p>1.7. <a href="#1.7.-css-media-query---try-it-on-mobile">CSS media query</a> - try it on mobile.</p>
-<p><strong>2. <a href="#2.-serving-the-assets">Serving the assets</a> - Backend</strong></p>
+<p><strong>2. <a href="#2.-serving-the-assets">Serving the assets</a> - Back-end</strong></p>
 <p>2.1. <a href="#2.1.-the-nasa-server's-json-files">The NASA server&#39;s JSON files</a></p>
 <p>2.2. <a href="#2.2.-serving-the-json-files">Serving the JSON files</a></p>
 <p>2.3. <a href="#2.3.-scripts-for-the-json-files">Scripts for the JSON files</a></p>
 <p>2.4. <a href="#2.4.-image-sizes-and-download-times">Image sizes and download times</a></p>
 <p>2.5. <a href="#2.5.-serving-the-images---maxcdn">Serving the images - MaxCDN</a></p>
 <p>2.6. <a href="#2.6.-scripts-for-maxcdn">Scripts for MaxCDN</a></p>
-<p><strong>3. <a href="#3.-image-manipulation">Image manipulation</a> - Backend</strong></p>
+<p><strong>3. <a href="#3.-image-manipulation">Image manipulation</a> - Back-end</strong></p>
 <p>3.1. <a href="#3.1.-individual-thumbnails">Individual thumbnails</a></p>
 <p>3.2. <a href="#3.2.-concatenated-thumbnails">Concatenated thumbnails</a></p>
 <p>3.3. <a href="#3.3.-big-image">Big image</a></p>
 <p>3.4. <a href="#3.4.-scripts-for-image-manipulation">Scripts for image manipulation</a></p>
 <p>3.5. <a href="#3.5.-parallel-loading">Parallel loading</a></p>
-<p>3.6. <a href="#3.6.-cancelling-of-obsolete">Cancelling of obsolete</a></p>
+<p>3.6. <a href="#3.6.-canceling-of-obsolete">Canceling of obsolete</a></p>
 <p>3.7. <a href="#3.7.-download-biggest-resolution-image">Download biggest resolution image</a></p>
 <p><strong>4. <a href="#4.-improvements-rundown">Improvements rundown</a></strong></p>
 <p><strong>5. <a href="#5.-error-reporting---trackjs">Error reporting - TrackJS</a> - Monitoring</strong></p>
@@ -103,7 +103,7 @@
 <p> The path is continuously kept up to date with every image change. This means that the path always specifies exactly that single image that is currently shown on the screen. It is enough to copy and paste the URL in the browser window to share a specific image with a friend.</p>
 <p> Note that NASA does not publish images from the satellite every day. For example 2018 Jan 15th has no images to show (but the day before and the day after has). Going back one day from Jan 16th will skip 15th and update the date on the UI and in the path to Jan 14th and load those images.</p>
 <h4 id="1.4.-browser's-back-and-forward-buttons"><a class="header-link" href="#1.4.-browser's-back-and-forward-buttons"></a>1.4. Browser&#39;s Back and Forward buttons</h4>
-<p> The application does not load different html resources when navigating on the UI. This means that the browser&#39;s Back and Forward buttons would load the wrong page by default. For them to work correctly, the application has to manage the browser history with HTML5 APIs.</p>
+<p> The application does not load different HTML resources when navigating on the UI. This means that the browser&#39;s Back and Forward buttons would load the wrong page by default. For them to work correctly, the application has to manage the browser history with HTML5 APIs.</p>
 <p> For example, in case you go back one day in time, the application will edit the date part of the path (explained in the previous point) and push it to history. Now if you click the browser&#39;s Back button, you are taken back to today.</p>
 <p> <img src="chrome-history.png" alt="chrome-history" title="History example from Chrome"></p>
 <p>  But not all navigation results in a path editing and history update. Consider the case where the user scrolls back 10 days very quickly with a mouse scroll or finger swipe. In this case if the path were edited to all dates during the scroll the browser&#39;s history would be polluted with day references which the user did not really have the time to look at (the images might have been not even loaded). To circumvent this, the path is only updated and pushed to history after you spend at least half a second viewing a day.</p>
@@ -288,7 +288,7 @@
 <p>You can find all back-end scripts on the project&#39;s Github page: <a href="https://github.com/NASADatanauts/PaleBlueDot/blob/master/backend-scripts/">https://github.com/NASADatanauts/PaleBlueDot/blob/master/backend-scripts/</a></p>
 <h3 id="3.-image-manipulation"><a class="header-link" href="#3.-image-manipulation"></a>3. Image manipulation</h3>
 <hr>
-<p>The user experience on a gigabit internet is flawless at this point with the minimized, single JSON file and assets distributed from a CDN. But of course not everybody has a gigabit internet. Even if you do, you might be travelling or on mobile data.</p>
+<p>The user experience on a gigabit internet is flawless at this point with the minimized, single JSON file and assets distributed from a CDN. But of course not everybody has a gigabit internet. Even if you do, you might be traveling or on mobile data.</p>
 <p>There is nothing really left to optimize on the server, it services the JSON file and images as fast as it is possible. The only thing left to improve is the size of the images it has to service.</p>
 <h4 id="3.1.-individual-thumbnails"><a class="header-link" href="#3.1.-individual-thumbnails"></a>3.1. Individual thumbnails</h4>
 <p>The idea is to show a smaller resolution version of the requested image (stretched to full size) in place of the real one until the full resolution image loads. </p>
@@ -316,7 +316,7 @@
 <img src="pbd_full.jpg" alt="pbd-full" title="Pale Blue Dot jpg" onmouseover="this.src='nasa_full.jpg'" onmouseout="this.src='pbd_full.jpg'"/>
 </p>
 <h4 id="3.4.-scripts-for-image-manipulation"><a class="header-link" href="#3.4.-scripts-for-image-manipulation"></a>3.4. Scripts for image manipulation</h4>
-<p>To generate the previously described <em>thumbnails</em> the <em>concatenated images</em> and the optimzed <em>big images</em> the following scripts were implemented and added to our own server (an Amazon Web Services virtual machine):</p>
+<p>To generate the previously described <em>thumbnails</em> the <em>concatenated images</em> and the optimized <em>big images</em> the following scripts were implemented and added to our own server (an Amazon Web Services virtual machine):</p>
 <p>a. <a href="https://github.com/NASADatanauts/PaleBlueDot/blob/master/backend-scripts/resize-images-for-day.sh">resize-images-for-day.sh</a>: A Bash script that generates the needed thumbnails.</p>
 <p>b. <a href="https://github.com/NASADatanauts/PaleBlueDot/blob/master/backend-scripts/concat.scans">concat.scans</a>: A magic script that concatenates the thumbnails.</p>
 <p>c. <a href="https://github.com/NASADatanauts/PaleBlueDot/blob/master/backend-scripts/save-images-for-day.sh">save-images-for-day.sh</a>: A Bash script that saves the images generated by the previous two scripts.</p>
@@ -328,17 +328,17 @@
 b. Full size version of the image of date/longitude; ~120KB; 50-2600ms<br/>
 c. Concatenated thumbnails of images of date; ~60KB, 40-1200ms</p>
 <p>The user sees the small thumbnail first (a). This is almost instant. The full size version of the same image is downloading in the background. As soon as it is loaded (b) it replaces the small resolution image. During these two downloads the concatenated thumbnails were also downloading in the background (c). Once that is finished, there is no download time to show Earth from any point of view on that day.</p>
-<h4 id="3.6.-cancelling-of-obsolete"><a class="header-link" href="#3.6.-cancelling-of-obsolete"></a>3.6. Cancelling of obsolete</h4>
+<h4 id="3.6.-canceling-of-obsolete"><a class="header-link" href="#3.6.-canceling-of-obsolete"></a>3.6. Canceling of obsolete</h4>
 <p>Modern browser are built in with a feature that cancels downloads that became unnecessary. For example, if the DOM element that caused the request got deleted or one particular object&#39;s source were overwritten with a new resource. In both cases the original resource&#39;s download can be canceled as it will surely no longer be needed. </p>
-<p>To make sure that the Pale Blue Dot website takes advantage of this feature, the full resolution images are loaded into the same object. This means that if you navigate away from a date before the image has been loaded the obsolete request is cancelled and the currently needed image&#39;s download is started instead.</p>
-<p>See a screenshot of Google Chrome&#39;s network logging. All the red lines show cancelled downloads of images of days that the user quickly skipped over.</p>
-<p class="img-container"><img src="cancelled.png" alt="cancelled"></p>
+<p>To make sure that the Pale Blue Dot website takes advantage of this feature, the full resolution images are loaded into the same object. This means that if you navigate away from a date before the image has been loaded the obsolete request is canceled and the currently needed image&#39;s download is started instead.</p>
+<p>See a screenshot of Google Chrome&#39;s network logging. All the red lines show canceled downloads of images of days that the user quickly skipped over.</p>
+<p class="img-container"><img src="cancelled.png" alt="canceled"></p>
 <p>This also means that scrolling through a bulk of images from different days does not accumulate downloads and so, does not lag the UI. Loading a day from a year before takes the same amount of time as loading today&#39;s images.</p>
 <h4 id="3.7.-download-biggest-resolution-image"><a class="header-link" href="#3.7.-download-biggest-resolution-image"></a>3.7. Download biggest resolution image</h4>
 <p>At this point the shown images are fully optimized for maximum speed and usability. However, if speed is not an issue then having access to the best quality images can come in handy.</p>
 <p>For this reason, the UI has a download button under each image that opens the biggest resolution image, directly from NASA&#39;s EPIC website. You can right click and select &quot;Save Link As...&quot; to download the 2048x2048 image to your computer or left click to open it in a new browser tab to view it full size.</p>
 <h3 id="4.-improvements-rundown"><a class="header-link" href="#4.-improvements-rundown"></a>4. Improvements rundown</h3>
-<p>To visualise the improvements, here are the download sizes and download times needed to display <em>one</em> single random image after page load. Comparing NASA API supported options to features implemented by Pale Blue Dot.</p>
+<p>To visualize the improvements, here are the download sizes and download times needed to display <em>one</em> single random image after page load. Comparing NASA API supported options to features implemented by Pale Blue Dot.</p>
 <p>Download <em>times</em> needed for one random image:</p>
 <table>
 <thead>
@@ -408,7 +408,7 @@ c. Concatenated thumbnails of images of date; ~60KB, 40-1200ms</p>
 <p class="img-container"><img src="debug.png" alt="debug" title="Debugging with TrackJS"></p>
 <p>...and now, TrackJS Dashboard will show that there has been an error with some debug logs around it:</p>
 <p class="img-container"><img src="trackJS.png" alt="trackJS" title="TrackJS error example"></p>
-<p>I use this feature to log some image download times. For example, if while travelling and testing the website from different locations/browsers, something suspicious happens I can trigger a debug. This causes TrackJS to log the event together with statistics so later it can be viewed and examined.</p>
+<p>I use this feature to log some image download times. For example, if while traveling and testing the website from different locations/browsers, something suspicious happens I can trigger a debug. This causes TrackJS to log the event together with statistics so later it can be viewed and examined.</p>
 <h3 id="6.-future-development-ideas"><a class="header-link" href="#6.-future-development-ideas"></a>6. Future development ideas</h3>
 <hr>
 <ul class="list">
