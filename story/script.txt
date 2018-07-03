@@ -1,15 +1,20 @@
 To generate html:
+cd ../PaleBlueDot/story
 generate-md --layout github --input story.md --output ./html
 
 Then:
-1. Move all images to the html folder (or make sure it's uploaded to server where html is)
-2. Edit html to be called index.html
-3. Edit html to according to the following (so the gif images don't play forever but only after click):
+1. Move the generated story.html to ../documentation
+cp -r html/ ../documentation/
+2. Rename story.html to index.html
+3. Copy the images to the documentation folder
+4. Edit html according to the following (so the gif images don't play forever but only after click) 3 PLACES:
 
 Example image:
 - change src to <name>.png from <name>.gif
 - add onClick="playGif('<name/title of image>')"
-<img src="scrolling-earth.png" onClick="playGif('scrolling-earth')" alt="Scrolling in time" title="scrolling-earth">
+	<img src="scrolling-earth.png" onClick="playGif('scrolling-earth')" alt="scrolling-earth" title="scrolling-earth" />
+	<img src="rotating-earth.png" onClick="playGif('rotating-earth')" alt="rotating-earth" title="Rotating Earth with mouse drag" />
+	<img src="swirls.png" onClick="playGif('swirls')"  alt="swirls" title="Swirling clouds">
 
 Script to be put in the html:
     <script>
@@ -25,3 +30,36 @@ Script to be put in the html:
     </script>
 
 4. Change hover image at Big Image part! ("Hover image to see the NASA API provided 1080x1080 jpg which is 195 Kb.")
+<img src="pbd_full.jpg" alt="pbd-full" title="Pale Blue Dot jpg" onmouseover="this.src='nasa_full.jpg'" onmouseout="this.src='pbd_full.jpg'"/>
+
+5. Change table of contents to this:
+<p><strong>1. <a href="#1.-javascript-ux/ui">JavaScript UX/UI</a> - Frontend</strong></p>
+<p>1.1. <a href="#1.1.-navigation---no-buttons-necessary">Navigation</a> - no buttons necessary</p>
+<p>1.2. <a href="#1.2.-url-handling---edit-the-links">URL handling</a> - edit the links</p>
+<p>1.3. <a href="#1.3.-updating-the-url---share-the-links">Updating the URL</a> - share the links</p>
+<p>1.4. <a href="#1.4.-browser's-back-and-forward-buttons">Browser&#39;s Back and Forward buttons</a> - feel free to use them</p>
+<p>1.5. <a href="#1.5.-history---updating-the-title-of-the-page">History</a> - updating the title of the page</p>
+<p>1.6. <a href="#1.6.-preserving-selected-longitude">Preserving selected longitude</a></p>
+<p>1.7. <a href="#1.7.-css-media-query---try-it-on-mobile">CSS media query</a> - try it on mobile.</p>
+<p><strong>2. <a href="#2.-serving-the-assets">Serving the assets</a> - Backend</strong></p>
+<p>2.1. <a href="#2.1.-the-nasa-server's-json-files">The NASA server&#39;s JSON files</a></p>
+<p>2.2. <a href="#2.2.-serving-the-json-files">Serving the JSON files</a></p>
+<p>2.3. <a href="#2.3.-scripts-for-the-json-files">Scripts for the JSON files</a></p>
+<p>2.4. <a href="#2.4.-image-sizes-and-download-times">Image sizes and download times</a></p>
+<p>2.5. <a href="#2.5.-serving-the-images---maxcdn">Serving the images - MaxCDN</a></p>
+<p>2.6. <a href="#2.6.-scripts-for-maxcdn">Scripts for MaxCDN</a></p>
+<p><strong>3. <a href="#3.-image-manipulation">Image manipulation</a> - Backend</strong></p>
+<p>3.1. <a href="#3.1.-individual-thumbnails">Individual thumbnails</a></p>
+<p>3.2. <a href="#3.2.-concatenated-thumbnails">Concatenated thumbnails</a></p>
+<p>3.3. <a href="#3.3.-big-image">Big image</a></p>
+<p>3.4. <a href="#3.4.-scripts-for-image-manipulation">Scripts for image manipulation</a></p>
+<p>3.5. <a href="#3.5.-parallel-loading">Parallel loading</a></p>
+<p>3.6. <a href="#3.6.-cancelling-of-obsolete">Cancelling of obsolete</a></p>
+<p>3.7. <a href="#3.7.-download-biggest-resolution-image">Download biggest resolution image</a></p>
+<p><strong>4. <a href="#4.-improvements-rundown">Improvements rundown</a></strong></p>
+<p><strong>5. <a href="#5.-error-reporting---trackjs">Error reporting - TrackJS</a> - Monitoring</strong></p>
+<p>5.1. <a href="#5.1.-catching-errors">Catching errors</a></p>
+<p>5.2. <a href="#5.2.-debugging">Debugging</a></p>
+<p><strong>6. <a href="#6.-future-development-ideas">Future development ideas</a></strong></p>
+
+

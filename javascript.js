@@ -16,7 +16,7 @@
 // nasaarray is ordered ascending by d.
 
 //_ Settings
-var defaultGoalLongitude = 19; // starting value is Europe
+var defaultGoalLongitude = -74; // starting value is America
 
 //_ Global variables
 // index in nasaarray[____]
