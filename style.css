@@ -75,9 +75,10 @@ h2 {
 .help-text {
     font-size: .5em;
     letter-spacing: .1em;
-    top: 13px;
+    top: 11px;
     left: 85px;
     position: absolute;
+    background-color: #004b80;
 }
 
 #loading {
