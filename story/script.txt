@@ -4,7 +4,7 @@ generate-md --layout github --input story.md --output ./html
 
 Then:
 1. Move the generated story.html to ../documentation
-cp -r story/html/ ./documentation/
+cp -r html/ ../documentation/
 2. Rename story.html to index.html
 3. Copy the images to the documentation folder
 4. Edit html according to the following (so the gif images don't play forever but only after click) 3 PLACES:
@@ -12,7 +12,9 @@ cp -r story/html/ ./documentation/
 Example image:
 - change src to <name>.png from <name>.gif
 - add onClick="playGif('<name/title of image>')"
-<img src="scrolling-earth.png" onClick="playGif('scrolling-earth')" alt="Scrolling in time" title="scrolling-earth">
+	<img src="scrolling-earth.png" onClick="playGif('scrolling-earth')" alt="scrolling-earth" title="scrolling-earth" />
+	<img src="rotating-earth.png" onClick="playGif('rotating-earth')" alt="rotating-earth" title="Rotating Earth with mouse drag" />
+	<img src="swirls.png" onClick="playGif('swirls')"  alt="swirls" title="Swirling clouds">
 
 Script to be put in the html:
     <script>
