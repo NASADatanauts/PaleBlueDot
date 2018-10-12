@@ -40,12 +40,19 @@ var ms_daily_concat = new DownloadTimeCollector("daily_concat", 10);
 //_ nasaarray accessor functions
 // given a row index, gives us the best column index in that row according to goalLongitude
 function getColumnFromLongitude(row) {
-  var longitudes = nasaarray[row].l;
-  var longitudeDistances = $.map(longitudes,
-				 function(value) {
-				   return Math.min(Math.abs(value - goalLongitude), 360 - Math.abs(value - goalLongitude));
-				 });
-  return longitudeDistances.indexOf(Math.min.apply(null, longitudeDistances));
+  trackJs.console.log({ "nasaarray.length": nasaarray.length,
+			"nasaarray[0]": nasaarray[0],
+			"row": row });
+  if (!nasaarray[row]) {
+    console.error("nasaarray[row] was null");
+  } else {
+    var longitudes = nasaarray[row].l;
+    var longitudeDistances = $.map(longitudes,
+				   function(value) {
+				     return Math.min(Math.abs(value - goalLongitude), 360 - Math.abs(value - goalLongitude));
+				   });
+    return longitudeDistances.indexOf(Math.min.apply(null, longitudeDistances));
+  }
 }
 
 function getRowForDate(date) {
