@@ -66,8 +66,8 @@
 <p>2.2. <a href="#2.2.-serving-the-json-files">Serving the JSON files</a></p>
 <p>2.3. <a href="#2.3.-scripts-for-the-json-files">Scripts for the JSON files</a></p>
 <p>2.4. <a href="#2.4.-image-sizes-and-download-times">Image sizes and download times</a></p>
-<p>2.5. <a href="#2.5.-serving-the-images---maxcdn">Serving the images - MaxCDN</a></p>
-<p>2.6. <a href="#2.6.-scripts-for-maxcdn">Scripts for MaxCDN</a></p>
+<p>2.5. <a href="#2.5.-serving-the-images---stackpath">Serving the images - StackPath</a></p>
+<p>2.6. <a href="#2.6.-scripts-for-stackpath">Scripts for StackPath</a></p>
 <p><strong>3. <a href="#3.-image-manipulation">Image manipulation</a> - Back-end</strong></p>
 <p>3.1. <a href="#3.1.-individual-thumbnails">Individual thumbnails</a></p>
 <p>3.2. <a href="#3.2.-concatenated-thumbnails">Concatenated thumbnails</a></p>
@@ -272,19 +272,19 @@
 <p>The thumbnails are obviously not big enough to be shown in full screen. Out of the other two formats, even the smaller jpg format takes around 1.5 seconds to download for a user in Europe even on a gigabit internet, because of the NASA server&#39;s latency and bandwidth issues.</p>
 <p>More specifically, the issue is partly because of the distance to the NASA server: a user from Europe will experience a minimum of 200ms latency. Because of the size of the images this goes up to 1.5s in total download time. In the USA this should be around 1s but even worse than 1.5s in Asia. We are talking about <em>one</em> image of a particular day.</p>
 <p>Waiting around 1 second every time the user tries to navigate around the images results in a sluggish user experience instead of an interactive UI.</p>
-<h4 id="2.5.-serving-the-images---maxcdn"><a class="header-link" href="#2.5.-serving-the-images---maxcdn"></a>2.5. Serving the images - MaxCDN</h4>
+<h4 id="2.5.-serving-the-images---stackpath"><a class="header-link" href="#2.5.-serving-the-images---stackpath"></a>2.5. Serving the images - StackPath</h4>
 <p>To solve the latency issues for users located far from the only NASA server a <em>Content Distribution Network</em> (CDN) comes to mind. That is, a geographically distributed network of servers that store the NASA images and can globally serve them quickly.</p>
 <p>It is possible to buy such CDN services for a relatively small monthly fee. However, it is important to understand the different solutions they offer and to pick the correct one for the project to actually make it faster.</p>
 <p>The most common mode of operation a CDN service will offer is a so called <em>CDN pull zone</em>. This means they &quot;pull&quot; the static assets from your project to cache it and serve it from their CDN Network. However, &quot;pulling&quot; only happens if an asset is requested by a user and the cache is cleared usually after 24 hours. This kind of CDN is useful for websites with many visits, requesting the same assets over and over again (e.g. software downloads, popular videos).</p>
 <p>It is easy to see that for the images of the Pale Blue Dot project this would not be of much use. After a user loads the images of today, they have hundreds of other options for images they might want to load next. So it is very unlikely that even two users will request the same assets and so they would not see any advantage of a pull zone.</p>
-<p>What the Pale Blue Dot project needed was a much less common feature, called a <em>CDN push zone</em>. The only service found (middle of 2017) that offered this feature was <a href="https://www.maxcdn.com/">MaxCDN</a>. A MaxCDN push zone gives you the option to directly upload your files to a server which is then synced out to the distribution network. So even the first user gets serviced fast and the assets never get cleared like caches on a pull zone.</p>
+<p>What the Pale Blue Dot project needed was a much less common feature, called a <em>CDN push zone</em>. The only service found (middle of 2017) that offered this feature was <a href="https://www.stackpath.com/">StackPath</a>. A StackPath push zone gives you the option to directly upload your files to a server which is then synced out to the distribution network. So even the first user gets serviced fast and the assets never get cleared like caches on a pull zone.</p>
 <p>Having the huge images and the optimized JSON file in a Content Distribution Network (updated and pushed every night) maximally optimized the download speed of assets, for every user, anywhere in the world. The download times of images went to 0.1 sec (for users with a gigabit internet) which gives a smooth user experience navigating between any of the Earth images. This would have been impossible with the NASA provided API.</p>
-<p>Unfortunately, MaxCDN&#39;s does not operate mirrors for the push zone data in Asia. But after researching the possible service providers there is no better option currently (because all of them are focusing on perfecting their pull offerings). The only way to solve the latency issue in Asia would be to implement our own &quot;mini push zone&quot; solution with AWS.</p>
-<h4 id="2.6.-scripts-for-maxcdn"><a class="header-link" href="#2.6.-scripts-for-maxcdn"></a>2.6. Scripts for MaxCDN</h4>
-<p>To serve the images and the JSON file from a MaxCDN push zone the following scripts were implemented and added to our own server (an Amazon Web Services virtual machine):</p>
+<p>Unfortunately, StackPath does not operate mirrors for the push zone data in Asia. But after researching the possible service providers there is no better option currently (because all of them are focusing on perfecting their pull offerings). The only way to solve the latency issue in Asia would be to implement our own &quot;mini push zone&quot; solution with AWS.</p>
+<h4 id="2.6.-scripts-for-stackpath"><a class="header-link" href="#2.6.-scripts-for-stackpath"></a>2.6. Scripts for StackPath</h4>
+<p>To serve the images and the JSON file from a StackPath push zone the following scripts were implemented and added to our own server (an Amazon Web Services virtual machine):</p>
 <p>a. <a href="https://github.com/NASADatanauts/PaleBlueDot/blob/master/backend-scripts/download-images-for-day.sh">download-images-for-day.sh</a>: A Bash script that downloads all new images daily.</p>
-<p>b. <a href="https://github.com/NASADatanauts/PaleBlueDot/blob/master/backend-scripts/upload-day.sh">upload-day.sh</a>: A Bash script that pushes the images to MaxCDN.</p>
-<p>c. <a href="https://github.com/NASADatanauts/PaleBlueDot/blob/master/backend-scripts/upload-allnasa.sh">upload-allnasa.sh</a>: A Bash script that pushes our reformatted JSON file to MaxCDN.</p>
+<p>b. <a href="https://github.com/NASADatanauts/PaleBlueDot/blob/master/backend-scripts/upload-day.sh">upload-day.sh</a>: A Bash script that pushes the images to StackPath.</p>
+<p>c. <a href="https://github.com/NASADatanauts/PaleBlueDot/blob/master/backend-scripts/upload-allnasa.sh">upload-allnasa.sh</a>: A Bash script that pushes our reformatted JSON file to StackPath.</p>
 <p>You can find all back-end scripts on the project&#39;s Github page: <a href="https://github.com/NASADatanauts/PaleBlueDot/blob/master/backend-scripts/">https://github.com/NASADatanauts/PaleBlueDot/blob/master/backend-scripts/</a></p>
 <h3 id="3.-image-manipulation"><a class="header-link" href="#3.-image-manipulation"></a>3. Image manipulation</h3>
 <hr>
@@ -393,7 +393,7 @@ c. Concatenated thumbnails of images of date; ~60KB, 40-1200ms</p>
 </tr>
 </tbody>
 </table>
-<p>Note that NASA API&#39;s download times depend also on geographical location of the user as well as internet speed. The download time shown here is the <em>minimum</em> time needed even on gigabit internet. Pale Blue Dot download times only depend on internet speed of the user because of the MaxCDN solution explained in point 2.5.</p>
+<p>Note that NASA API&#39;s download times depend also on geographical location of the user as well as internet speed. The download time shown here is the <em>minimum</em> time needed even on gigabit internet. Pale Blue Dot download times only depend on internet speed of the user because of the StackPath solution explained in point 2.5.</p>
 <p>Also note that Pale Blue Dot does not require to download a JSON file to display a new image because of the restructuring of the file seen in point 2.2.</p>
 <p>Finally, because of the image thumbnail pre loading of Pale Blue Dot (seen in point 3.1) the download time results are about the same on mobile internet as on gigabit internet. The difference will be in the initial <em>quality</em> of the image rather than longer waiting time.</p>
 <h3 id="5.-error-reporting---trackjs"><a class="header-link" href="#5.-error-reporting---trackjs"></a>5. Error reporting - TrackJS</h3>
@@ -423,5 +423,12 @@ c. Concatenated thumbnails of images of date; ~60KB, 40-1200ms</p>
 <p>Feel free to drop me an email with any questions/comments at <a href="mailto:eva@napszel.com">eva@napszel.com</a>.</p>
 <p>If you would like to report a bug or submit a feature request, use to the project&#39;s GitHub page: <a href="https://github.com/NASADatanauts/PaleBlueDot">https://github.com/NASADatanauts/PaleBlueDot</a>.</p>
     </article>
+   <br/>
+   <hr/>
+   Sponsored by:
+   <p class="img-container"><a href="https://www.stackpath.com"><img src="stackpath-logo-reversed-screen.png" alt="stackpath" width="240px" align="left" title="StackPath"></a></p>
+    <div style="padding-left: 250px; padding-bottom: 20px; font-size: 14px;">StackPath is a content delivery network (CDN), cloud service and web application firewall (WAF) provider. They provide a rare feature on the market called the CDN push zone that was essential for my project. After successfully integrating and testing the effectiveness of this feature, I contacted them and they were kind enough to sponsor me.</div>
+    <a href="https://www.trackjs.com"><img src="trackjs-logo.png" alt="trackjs" width="240px" align="left" title="TrackJS"></a>
+    <div style="padding-left: 250px; font-size: 14px;">TrackJS gives an easy way to add JavaScript error monitoring to any web application. I ended up picking this tool because of their promising logging and monitoring capabilities. It was also the easiest to setup and free to try. After it ended up being exactly what I was looking for, I contacted them and they were also generous enough to sponsor my project.</div>
   </body>
 </html>

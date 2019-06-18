@@ -79,9 +79,9 @@ Disclaimer: The mentioned numbers about download times on "fast" and "gigabit" i
 
 2.4. [Image sizes and download times](#24-image-sizes-and-download-times)
 
-2.5. [Serving the images - MaxCDN](#25-serving-the-images---maxcdn)
+2.5. [Serving the images - StackPath](#25-serving-the-images---stackpath)
 
-2.6. [Scripts for MaxCDN](#26-scripts-for-maxcdn)
+2.6. [Scripts for StackPath](#26-scripts-for-stackpath)
 
 **3. [Image manipulation](#3-image-manipulation) - Back-end**
 
@@ -382,7 +382,7 @@ More specifically, the issue is partly because of the distance to the NASA serve
 Waiting around 1 second every time the user tries to navigate around the images results in a sluggish user experience instead of an interactive UI.
 
 
-#### 2.5. Serving the images - MaxCDN
+#### 2.5. Serving the images - StackPath
 
 To solve the latency issues for users located far from the only NASA server a _Content Distribution Network_ (CDN) comes to mind. That is, a geographically distributed network of servers that store the NASA images and can globally serve them quickly.
 
@@ -392,21 +392,21 @@ The most common mode of operation a CDN service will offer is a so called _CDN p
 
 It is easy to see that for the images of the Pale Blue Dot project this would not be of much use. After a user loads the images of today, they have hundreds of other options for images they might want to load next. So it is very unlikely that even two users will request the same assets and so they would not see any advantage of a pull zone.
  
-What the Pale Blue Dot project needed was a much less common feature, called a _CDN push zone_. The only service found (middle of 2017) that offered this feature was [MaxCDN](https://www.maxcdn.com/). A MaxCDN push zone gives you the option to directly upload your files to a server which is then synced out to the distribution network. So even the first user gets serviced fast and the assets never get cleared like caches on a pull zone.
+What the Pale Blue Dot project needed was a much less common feature, called a _CDN push zone_. The only service found (middle of 2017) that offered this feature was [StackPath](https://www.stackpath.com/). A StackPath push zone gives you the option to directly upload your files to a server which is then synced out to the distribution network. So even the first user gets serviced fast and the assets never get cleared like caches on a pull zone.
 
 Having the huge images and the optimized JSON file in a Content Distribution Network (updated and pushed every night) maximally optimized the download speed of assets, for every user, anywhere in the world. The download times of images went to 0.1 sec (for users with a gigabit internet) which gives a smooth user experience navigating between any of the Earth images. This would have been impossible with the NASA provided API.
 
-Unfortunately, MaxCDN's does not operate mirrors for the push zone data in Asia. But after researching the possible service providers there is no better option currently (because all of them are focusing on perfecting their pull offerings). The only way to solve the latency issue in Asia would be to implement our own "mini push zone" solution with AWS.
+Unfortunately, StackPath does not operate mirrors for the push zone data in Asia. But after researching the possible service providers there is no better option currently (because all of them are focusing on perfecting their pull offerings). The only way to solve the latency issue in Asia would be to implement our own "mini push zone" solution with AWS.
 
-#### 2.6. Scripts for MaxCDN
+#### 2.6. Scripts for StackPath
 
-To serve the images and the JSON file from a MaxCDN push zone the following scripts were implemented and added to our own server (an Amazon Web Services virtual machine):
+To serve the images and the JSON file from a StackPath push zone the following scripts were implemented and added to our own server (an Amazon Web Services virtual machine):
 
 a. [download-images-for-day.sh](https://github.com/NASADatanauts/PaleBlueDot/blob/master/backend-scripts/download-images-for-day.sh): A Bash script that downloads all new images daily.
 
-b. [upload-day.sh](https://github.com/NASADatanauts/PaleBlueDot/blob/master/backend-scripts/upload-day.sh): A Bash script that pushes the images to MaxCDN.
+b. [upload-day.sh](https://github.com/NASADatanauts/PaleBlueDot/blob/master/backend-scripts/upload-day.sh): A Bash script that pushes the images to StackPath.
 
-c. [upload-allnasa.sh](https://github.com/NASADatanauts/PaleBlueDot/blob/master/backend-scripts/upload-allnasa.sh): A Bash script that pushes our reformatted JSON file to MaxCDN.
+c. [upload-allnasa.sh](https://github.com/NASADatanauts/PaleBlueDot/blob/master/backend-scripts/upload-allnasa.sh): A Bash script that pushes our reformatted JSON file to StackPath.
 
 You can find all back-end scripts on the project's Github page: [https://github.com/NASADatanauts/PaleBlueDot/blob/master/backend-scripts/](https://github.com/NASADatanauts/PaleBlueDot/blob/master/backend-scripts/)
 
@@ -536,7 +536,7 @@ Download *sizes* needed for one random image:
 | Image asset  | ~190KB    |  ~125KB     |
 | *TOTAL*      | *~212KB*  |  *~125KB*   |
 
-Note that NASA API's download times depend also on geographical location of the user as well as internet speed. The download time shown here is the _minimum_ time needed even on gigabit internet. Pale Blue Dot download times only depend on internet speed of the user because of the MaxCDN solution explained in point 2.5.
+Note that NASA API's download times depend also on geographical location of the user as well as internet speed. The download time shown here is the _minimum_ time needed even on gigabit internet. Pale Blue Dot download times only depend on internet speed of the user because of the StackPath solution explained in point 2.5.
 
 Also note that Pale Blue Dot does not require to download a JSON file to display a new image because of the restructuring of the file seen in point 2.2.
 
