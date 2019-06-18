@@ -48,8 +48,8 @@ Script to be put in the html in the <head>:
 <p>2.2. <a href="#2.2.-serving-the-json-files">Serving the JSON files</a></p>
 <p>2.3. <a href="#2.3.-scripts-for-the-json-files">Scripts for the JSON files</a></p>
 <p>2.4. <a href="#2.4.-image-sizes-and-download-times">Image sizes and download times</a></p>
-<p>2.5. <a href="#2.5.-serving-the-images---maxcdn">Serving the images - MaxCDN</a></p>
-<p>2.6. <a href="#2.6.-scripts-for-maxcdn">Scripts for MaxCDN</a></p>
+<p>2.5. <a href="#2.5.-serving-the-images---stackpath">Serving the images - StackPath</a></p>
+<p>2.6. <a href="#2.6.-scripts-for-stackpath">Scripts for StackPath</a></p>
 <p><strong>3. <a href="#3.-image-manipulation">Image manipulation</a> - Back-end</strong></p>
 <p>3.1. <a href="#3.1.-individual-thumbnails">Individual thumbnails</a></p>
 <p>3.2. <a href="#3.2.-concatenated-thumbnails">Concatenated thumbnails</a></p>
